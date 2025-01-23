@@ -1,1 +1,0 @@
-# nomad1x2.github.io
