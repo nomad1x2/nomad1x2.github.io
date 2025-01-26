@@ -4,9 +4,9 @@
 		<title>nomad - cybersecurity</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<link rel="stylesheet" href="../../assets/css/main.css" />
+		<link rel="stylesheet" href="assets/css/main.css" />
 	</head>
-	<body>
+	<body class="is-preload">
 
 		<!-- Wrapper -->
 			<div id="wrapper">
@@ -17,89 +17,34 @@
 
 							<!-- Header -->
 								<header id="header">
-									<a href="../../index.html" class="logo"><strong>nomad</strong> - cybersecurity</a>
-									
+									<a href="index.html" class="logo"><strong>nomad</strong> - cybersecurity</a>
 									<ul class="icons">
 										<li><a href="https://github.com/nomad1x2" class="icon brands fa-github"><span class="label">Github</span></a></li>
 									</ul>
-									
 								</header>
 
-							<!-- Content -->
-								<section>
-									<header class="main">
-										<h2>Task 1 - No Token Left Behind - (File Forensics)</h2>
-									</header>
-									<div class="box">
-										<p>Aaliyah is showing you how Intelligence Analysts work. She pulls up a piece of intelligence she thought was interesting. It shows that APTs are interested in acquiring hardware tokens used for accessing DIB networks. Those are generally controlled items, how could the APT get a hold of one of those?</p>
-										<p>DoD sometimes sends copies of procurement records for controlled items to the NSA for analysis. Aaliyah pulls up the records but realizes it’s in a file format she’s not familiar with. Can you help her look for anything suspicious?</p>
-										<p>If DIB companies are being actively targeted by an adversary the NSA needs to know about it so they can help mitigate the threat.</p>
-										<p>Help Aaliyah determine the outlying activity in the dataset given</p>
-										
-										<p><b>Downloads:</b><br><li>DoD procurement records (shipping.db)</li></p>
-										<p><b>Prompt:</b><br><li>Provide the order id associated with the order most likely to be fraudulent.</li></p>
-									</div>
+							<!-- Banner -->
+								<section id="banner">
+									<div class="content">
+										<header>
+											<h1>Hi, I’m Bugz<br /></h1>
+										</header>
 
-									<hr class="major" />
-									
-									<h3>Solving the task:</h3>
-									<!-- Work -->
-									
-									<p>This one was fairly straight forward.<br><br>In order to find the exact file type, I ran the <em><b>file</b></em> command on the database file and did a little bit of research:</p>
-									
-									<div class="box">
-										<span class="image fit">
-											<img src="../../images/task1-1.png" alt="" />
-										</span>
-									</div>
-									
-									<p>
-									<br>I saw that the file had a MIME type of <b>"application/vnd.oasis.O"</b> and learned that it is an OpenOffice document (<a href="https://en.wikipedia.org/wiki/OpenDocument" target="_blank">Wiki</a>). Modifying the extension from <b>.db</b> to <b>.ods</b> (for spreadsheets) allowed us to open the document with Excel:
-									</p>
-									
-									<div class="box">
-										<span class="image fit">
-											<img src="../../images/task1-2.png" alt="" />
-										</span>
-									</div>
-									
-									<hr class="major" />
-									
-									<!--Solution-->
-									<div id="solution">
-										<h3>The solution:</h3>
-									</div>
-									
-									<p><br>I then ran some filters on the columns and started noticing some trends.<br><br>There was only one address associated with each individual's orders <em><b>except</b></em> for an additional address for Jasper Wright, which I have highlighted in blue. This order had an address that didn't match the rest -- and inputting the associated order id (<b>GUA0307556</b>) gave us the solve.</P>
-									
-									<hr class="major" />
-																		
-									<div class="box">
-										<div style="text-align: center;">
-											<p><b>Great Work! That order does look fishy...</b></p>
-											<span class="image object">
-												<img src="../../images/badge1.png" alt=""/>
-											</span>
-										</div>
-									</div>
-									
-									<!--Pages-->
-									<div style="text-align: center;">
-										<ul class="pagination">
-											<li><span class="button disabled">Prev</span></li>
-											<li><a href="#" class="page active">1</a></li>
-											<li><a href="Task2.html" class="page">2</a></li>
-											<li><a href="Task3.html" class="page">3</a></li>
-											<li><a href="Task4.html" class="page">4</a></li>
-											<li><a href="Task5.html" class="page">5</a></li>
-											<li><a href="Task6.html" class="page">6</a></li>
-											<li><a href="Task7.html" class="page">7</a></li>
-											<li><a href="Task2.html" class="button">Next</a></li>
+										<p>This blog serves as a central repository for my work in cybersecurity. 
+										I plan to add detailed writeups, professional projects, and technical insights 
+										aimed at addressing key challenges in the field. The content I add here will reflect a 
+										disciplined approach to both personal and professional development in cybersecurity, 
+										with a focus on practical applications and problem-solving.</p>
+										<p>(This site is a work in progress)</p>
+										<ul class="actions">
+											<li><a href="writeups.html" class="button big">Writeups</a></li>
 										</ul>
 									</div>
-									
-									
+									<span class="image object">
+										<img src="images/logo.png" alt="" />
+									</span>
 								</section>
+
 
 						</div>
 					</div>
@@ -121,20 +66,14 @@
 										<h2>Menu</h2>
 									</header>
 									<ul>
-										<li><a href="../NSACodebreaker2024.html">Challenge Home</a></li>
+										<li><a href="index.html">Homepage</a></li>
 										<li>
-											<span class="opener">Task list</span>
+											<span class="opener">Writeups</span>
 											<ul>
-												<li><a href="#">Task1</a></li>
-												<li><a href="Task2.html">Task2</a></li>
-												<li><a href="Task3.html">Task3</a></li>
-												<li><a href="Task4.html">Task4</a></li>
-												<li><a href="Task5.html">Task5</a></li>
-												<li><a href="Task6.html">Task6</a></li>
-												<li><a href="Task7.html">Task7</a></li>
+												<li><a href="writeups/NSACodebreaker2024.html">NSA Codebreaker 2024</a></li>
 											</ul>
 										</li>
-										<li><a href="#solution">The solution</a></li>
+										<li><a href="projects.html">Projects</a></li>
 									</ul>
 								</nav>
 
@@ -159,11 +98,11 @@
 			</div>
 
 		<!-- Scripts??? -->
-			<script src="../../assets/js/jquery.min.js"></script>
-			<script src="../../assets/js/browser.min.js"></script>
-			<script src="../../assets/js/breakpoints.min.js"></script>
-			<script src="../../assets/js/util.js"></script>
-			<script src="../../assets/js/main.js"></script>
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
 
 	</body>
 </html>
