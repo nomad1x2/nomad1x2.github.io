@@ -1214,6 +1214,7 @@ input[type="radio"] + label:before {
 .badge-img {
     width: 35%; /* Ensures the image scales with the parent */
     max-width: 300px; /* Limits the size on larger screens */
+    object-fit: contain; /* Ensure the full image fits without cropping */
     height: auto; /* Maintains aspect ratio */
     display: block; /* Fixes inline spacing issues */
     margin: 0 auto; /* Centers the image */
