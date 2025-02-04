@@ -1,0 +1,264 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>nomad - cybersecurity</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../../assets/css/main.css" />
+	</head>
+	<body class="writeup">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+
+							<!-- Header -->
+								<header id="header">
+									<a href="../../index.html" class="logo"><strong>nomad</strong> - cybersecurity</a>
+									
+									<ul class="icons">
+										<li><a href="https://github.com/nomad1x2" class="icon brands fa-github"><span class="label">Github</span></a></li>
+									</ul>
+									
+								</header>
+
+							<!-- Content -->
+								<section>
+									<header class="main">
+										<h2>Task 3 - How did they get in? - (Reverse Engineering, Vulnerability Research)</h2>
+									</header>
+									<div class="box">
+										<p>Great work finding those files! Barry shares the files you extracted with the blue team who share it back to Aaliyah and her team. As a first step, she ran strings across all the files found and noticed a reference to a known DIB, “Guardian Armaments” She begins connecting some dots and wonders if there is a connection between the software and the hardware tokens. But what is it used for and is there a viable threat to Guardian Armaments (GA)?</p>
+										<p>She knows the Malware Reverse Engineers are experts at taking software apart and figuring out what it's doing. Aaliyah reaches out to them and keeps you in the loop. Looking at the email, you realize your friend Ceylan is touring on that team! She is on her first tour of the Computer Network Operations Development Program</p>
+										<p>Barry opens up a group chat with three of you. He wants to see the outcome of the work you two have already contributed to. Ceylan shares her screen with you as she begins to reverse the software. You and Barry grab some coffee and knuckle down to help.</p>
+										<p>Figure out how the APT would use this software to their benefit</p>
+										
+										<p><b>Downloads:</b><br>
+											<li>Executable from ZFS filesystem (server)</li>
+											<li>Retrieved from the facility, could be important? (shredded.jpg)<br><br><img src="../../images/shredded.jpg" alt="" width="auto" height="300"class="badge-img"/></li>
+										</p>
+										<p><b>Prompt:</b><br><li>Enter a valid JSON that contains the (3 interesting) keys and specific values that would have been logged if you had successfully leveraged the running software. Do ALL your work in lower case.</li></p>
+									</div>
+
+									<hr class="major" />
+									
+									<!-- Work -->							
+									<h3>Solving the task:</h3>
+									
+									<p>This is the first task that stumped the majority of people -- including myself for about a month. The biggest challenge for me was figuring out <em><b>what exactly that shredded piece of paper</b></em> was. To follow the timeline of my frustrations with this task, I'll keep the purpose of the shredded paper a suprise and explain it in the solution section.</p>
+									
+									<p>Looking at the file, we see that it is a 64-bit <a href="https://en.wikipedia.org/wiki/Executable_and_Linkable_Format" target="_blank">ELF</a> executable, <em><b>NOT</b></em> stripped (phew), and compiled with Go.</p>
+									
+<!-- Terminal emulation -->
+<div class="box">
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ file server
+server: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, Go 
+BuildID=LHRtLwP6dC5KdgEoSpJX/ejUiv70gVv1LpWijiGuf/i9CgNCbxT7MWobWI3C-p/E7PwbRBtvSIzHKdU4XWb, with debug_info, not stripped
+</pre>
+</div>
+									
+									<p>The first thing I wanted to do was run it to see what happens (on an air-gapped machine of course):</p>
+							
+<!-- Terminal emulation -->							
+<div class="box">
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ ./server
+Starting the Guardian Armaments OTP seed generation service!  
+Please ensure that this software can reach the authentication service to register any generated seeds!  
+Otherwise your token will not authenticate you to the network after you program it with this seed
+{"time":"2025-01-26T22:20:51.383467004-05:00","level":"INFO","msg":"Connected to auth server"}
+{"time":"2025-01-26T22:20:51.385455704-05:00","level":"ERROR","msg":"Failed to ping the auth service",
+"ping_response":null,"err":"rpc error: code = Unavailable desc = connection error: desc = \"transport: Error while dialing: dial tcp 127.0.0.1:50052: connect: connection refused\""}
+</pre>
+</div>
+
+									<p>I also found that it has a help flag:</p>
+									
+<!-- Terminal emulation -->							
+<div class="box">
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ ./server --help
+Starting the Guardian Armaments OTP seed generation service!
+Please ensure that this software can reach the authentication service to register any generated seeds!
+Otherwise your token will not authenticate you to the network after you program it with this seedUsage of ./server:
+  -auth-ip string
+        Set the IP address of the auth server (default "127.0.0.1")
+  -loglevel string
+        Set the logging level (debug, info, warn, error) (default "info")
+</pre>
+</div>
+
+									<p>Right off the bat we can see that it is a <a href="https://grpc.io/docs/what-is-grpc/" target="_blank">gRPC</a> server that generates and registers <a href="https://en.wikipedia.org/wiki/One-time_password" target="_blank">OTP</a> seeds with an "auth server" at 127.0.0.1:50052. It also has different levels of logging which  proves useful later.</p>
+									
+									<p>The next thing I wanted to do was figure out what exactly this "auth server" does and what happens if we can get the "OTP seed generation" server to connect to it. This portion took quite a bit of research as I didn't have much experience with this language, but luckily the website for <a href="https://go.dev/" target="_blank">Go</a> has a ton of information that we can use.</p>
+									
+									<p>After some more research, I found out that Go programs use Protocol Buffers (<a href="https://protobuf.dev/overview/" target="_blank">Protobuf</a>) to package data into a compact format that makes it easy to send between systems. Protobuf is basically a blueprint that tells programs what kind of data to expect so everything stays in sync. gRPC takes those Protobuf definitions and auto-generates client and server code, letting programs talk to each other fast and efficiently over HTTP/2.</p>
+									
+									<p>Now we have a way forward. We need to generate the server code for the "auth server" so our OTP seed generation server can connect to it as a client, but we need to define the correct messages in Protobuf. These messages act as structured data models which will allow us to pass the correct information when making function calls.</p>
+									
+									<p>Fortunately for you, there is a tool out there called <a href="https://github.com/arkadiyt/protodump" target="_blank">Protodump</a> that can extract all Protobuf descriptors from a given binary and save them as .proto files.<br>Unfortunately for me, <b><em>I didn't find out about the tool until after the challenge... </em></b>so I'm going to write about the way I solved it.</p>
+									
+									<p>I instead found a tool called <a href="https://github.com/mandiant/GoReSym" target="_blank">GoReSym</a> that is mainly used to recover symbols in stripped binaries, but I used it to find other metadata within our binary. I then used <a href="https://jqlang.github.io/jq/" target="_blank">jq</a> calls with the generated json file from GoReSym to extract main package functions, other packages, and types with help from <a href="https://www.williballenthin.com/post/analyzing-go-programs-with-goresym/" target="_blank">this</a> article:</p>
+						
+									<p>GoReSym flags:</p>
+<!-- Terminal emulation -->							
+<div class="box">
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ GoReSym --help
+Usage of GoReSym:
+  -about
+        Print license and author information
+  -d    Print Default Packages
+  -human
+        Human view, print information flat rather than json, some information is omitted for clarity
+  -m int
+        Manually parse the RTYPE at the provided virtual address, disables automated enumeration of moduledata typelinks itablinks
+  -nofuncs
+        Do not print user and standard function sections
+  -p    Print File Paths
+  -t    Print types automatically, enumerate typelinks and itablinks
+  -v string
+        Override the automated version detection, ex: 1.17. If this is wrong, parsing may fail or produce nonsense
+</pre>
+</div>
+
+									<p>Flags we used for our extraction:</p>
+
+<!-- Terminal emulation -->							
+<div class="box">
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ GoReSym -d -p -t ./server  >  goresym.json
+</pre>
+</div>
+
+									<p>Main package functions:</p>
+
+<!-- Terminal emulation -->							
+<div class="box">
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ cat goresym.json | jq -r '.UserFunctions[] | select(.PackageName == "main") | .FullName' | sort | uniq
+main.(*SeedgenAuthClient).auth
+main.(*seedGenerationServer).GetSeed
+main.(*seedGenerationServer).Ping
+main.(*seedGenerationServer).StressTest
+main.NewSeedgenAuthClient
+main.init.0
+main.main
+main.main.WithTransportCredentials.func1
+main.main.func2
+main.seedGenerationServer.Ping
+</pre>
+</div>
+
+									<p>Here we see our client (SeedgenAuthClient) and server (seedGenerationServer) structs. We can assume that the three methods we can interact with are GetSeed(), Ping(), and StressTest().</p>
+									
+									<hr class="major" />
+									
+									<!--Solution-->
+									<div id="solution">
+										<h3>The solution:</h3>
+									</div>
+									
+									<p>In progress</P>
+									
+									<hr class="major" />
+									
+									<div class="box">
+										<div style="text-align: center;">
+											<p><b>So that's how they leveraged their tokens!</b></p>
+											<span class="image object">
+												<img src="../../images/badge3.png" alt="" class="badge-img"/>
+											</span>
+										</div>
+									</div>
+									
+									
+									
+									<!--Pages-->
+									<div style="text-align: center;">
+										<ul class="pagination">
+											<li><a href="Task2.html" class="button">Prev</a></li>
+											<li><a href="Task1.html" class="page">1</a></li>
+											<li><a href="Task2.html" class="page">2</a></li>
+											<li><a href="#" class="page active">3</a></li>
+											<li><a href="Task4.html" class="page">4</a></li>
+											<li><a href="Task5.html" class="page">5</a></li>
+											<li><a href="Task6.html" class="page">6</a></li>
+											<li><a href="Task7.html" class="page">7</a></li>
+											<li><a href="Task4.html" class="button">Next</a></li>
+										</ul>
+									</div>
+									
+									
+								</section>
+
+						</div>
+					</div>
+
+				<!-- Sidebar -->
+					<div id="sidebar">
+						<div class="inner">
+
+							<!-- Search -->
+								<section id="search" class="alt">
+									<form method="post" action="#">
+										<input type="text" name="query" id="query" placeholder="Search" />
+									</form>
+								</section>
+
+							<!-- Menu -->
+								<nav id="menu">
+									<header class="major">
+										<h2>Menu</h2>
+									</header>
+									<ul>
+										<li><a href="../NSACodebreaker2024.html">Challenge Home</a></li>
+										<li>
+											<span class="opener">Task list</span>
+											<ul>
+												<li><a href="Task1.html">Task1</a></li>
+												<li><a href="Task2.html">Task2</a></li>
+												<li><a href="#"><b>Task3</b></a></li>
+												<li><a href="Task4.html">Task4</a></li>
+												<li><a href="Task5.html">Task5</a></li>
+												<li><a href="Task6.html">Task6</a></li>
+												<li><a href="Task7.html">Task7</a></li>
+											</ul>
+										</li>
+										<li><a href="#solution">The solution</a></li>
+									</ul>
+								</nav>
+
+							<!-- Section -->
+								<section>
+									<header class="major">
+										<h2>Get in touch</h2>
+									</header>
+									<ul class="contact">
+										<li class="icon solid fa-envelope"><a href="#">nomad1x2sec@gmail.com</a></li>
+									</ul>
+								</section>
+
+							<!-- Footer -->
+								<footer id="footer">
+									<p class="copyright">&copy; Untitled. All rights reserved. Demo Images: <a href="https://unsplash.com">Unsplash</a>. Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+								</footer>
+
+						</div>
+					</div>
+
+			</div>
+
+		<!-- Scripts??? -->
+			<script src="../../assets/js/jquery.min.js"></script>
+			<script src="../../assets/js/browser.min.js"></script>
+			<script src="../../assets/js/breakpoints.min.js"></script>
+			<script src="../../assets/js/util.js"></script>
+			<script src="../../assets/js/main.js"></script>
+
+	</body>
+</html>

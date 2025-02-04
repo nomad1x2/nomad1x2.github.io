@@ -1,0 +1,170 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>nomad - cybersecurity</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../../assets/css/main.css" />
+	</head>
+	<body class="writeup">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+
+							<!-- Header -->
+								<header id="header">
+									<a href="../../index.html" class="logo"><strong>nomad</strong> - cybersecurity</a>
+									
+									<ul class="icons">
+										<li><a href="https://github.com/nomad1x2" class="icon brands fa-github"><span class="label">Github</span></a></li>
+									</ul>
+									
+								</header>
+
+							<!-- Content -->
+								<section>
+									<header class="main">
+										<h2>Task 5 - The #153 - (Reverse Engineering, Cryptography)</h2>
+									</header>
+									<div class="box">
+										<p>Great job finding out what the APT did with the LLM! GA was able to check their network logs and figure out which developer copy and pasted the malicious code; that developer works on a core library used in firmware for the U.S. Joint Cyber Tactical Vehicle (JCTV)! This is worse than we thought!</p>
+										<p>You ask GA if they can share the firmware, but they must work with their legal teams to release copies of it (even to the NSA). While you wait, you look back at the data recovered from the raid. You discover an additional drive that you haven’t yet examined, so you decide to go back and look to see if you can find anything interesting on it. Sure enough, you find an encrypted file system on it, maybe it contains something that will help!</p>
+										<p>Unfortunately, you need to find a way to decrypt it. You remember that Emiko joined the Cryptanalysis Development Program (CADP) and might have some experience with this type of thing. When you reach out, he's immediately interested! He tells you that while the cryptography is usually solid, the implementation can often have flaws. Together you start hunting for something that will give you access to the filesystem.</p>
+										<p><b>What is the password to decrypt the filesystem?</b></p>
+										
+										<p><b>Downloads:</b><br>
+											<li>disk image of the USB drive which contains the encrypted filesystem (disk.dd.tar.gz)</li>
+											<li>Interesting files from the user's directory (files.zip)</li>
+											<li>Interesting files from the bin/ directory (bins.zip)</li>
+										</p>
+										<p><b>Prompt:</b><br><li>Enter the password (hope it works!)</li></p>
+									</div>
+
+									<hr class="major" />
+								
+								
+								
+									
+									
+									<!-- Work -->							
+									<h3>Solving the task:</h3>
+									
+									<p>In progress</p>
+									
+									<hr class="major" />
+									
+									<!--Solution-->
+									<div id="solution">
+										<h3>The solution:</h3>
+									</div>
+									
+									<p>In progress</P>
+									
+									<hr class="major" />
+
+
+
+
+									
+									<div class="box">
+										<div style="text-align: center;">
+											<p><b>It worked! OMG that was some bad crypto.</b></p>
+											<span class="image object">
+												<img src="../../images/badge5.png" alt="" class="badge-img"/>
+											</span>
+										</div>
+									</div>
+									
+									
+									
+									<!--Pages-->
+									<div style="text-align: center;">
+										<ul class="pagination">
+											<li><a href="Task4.html" class="button">Prev</a></li>
+											<li><a href="Task1.html" class="page">1</a></li>
+											<li><a href="Task2.html" class="page">2</a></li>
+											<li><a href="Task3.html" class="page">3</a></li>
+											<li><a href="Task4.html" class="page">4</a></li>
+											<li><a href="#" class="page active">5</a></li>
+											<li><a href="Task6.html" class="page">6</a></li>
+											<li><a href="Task7.html" class="page">7</a></li>
+											<li><a href="Task6.html" class="button">Next</a></li>
+										</ul>
+									</div>
+									
+									
+									
+									
+									
+								</section>
+
+						</div>
+					</div>
+
+				<!-- Sidebar -->
+					<div id="sidebar">
+						<div class="inner">
+
+							<!-- Search -->
+								<section id="search" class="alt">
+									<form method="post" action="#">
+										<input type="text" name="query" id="query" placeholder="Search" />
+									</form>
+								</section>
+
+							<!-- Menu -->
+								<nav id="menu">
+									<header class="major">
+										<h2>Menu</h2>
+									</header>
+									<ul>
+										<li><a href="../NSACodebreaker2024.html">Challenge Home</a></li>
+										<li>
+											<span class="opener">Task list</span>
+											<ul>
+												<li><a href="Task1.html">Task1</a></li>
+												<li><a href="Task2.html">Task2</a></li>
+												<li><a href="Task3.html">Task3</a></li>
+												<li><a href="Task4.html">Task4</a></li>
+												<li><a href="#"><b>Task5</b></a></li>
+												<li><a href="Task6.html">Task6</a></li>
+												<li><a href="Task7.html">Task7</a></li>
+											</ul>
+										</li>
+										<li><a href="#solution">The solution</a></li>
+									</ul>
+								</nav>
+
+							<!-- Section -->
+								<section>
+									<header class="major">
+										<h2>Get in touch</h2>
+									</header>
+									<ul class="contact">
+										<li class="icon solid fa-envelope"><a href="#">nomad1x2sec@gmail.com</a></li>
+									</ul>
+								</section>
+
+							<!-- Footer -->
+								<footer id="footer">
+									<p class="copyright">&copy; Untitled. All rights reserved. Demo Images: <a href="https://unsplash.com">Unsplash</a>. Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+								</footer>
+
+						</div>
+					</div>
+
+			</div>
+
+		<!-- Scripts??? -->
+			<script src="../../assets/js/jquery.min.js"></script>
+			<script src="../../assets/js/browser.min.js"></script>
+			<script src="../../assets/js/breakpoints.min.js"></script>
+			<script src="../../assets/js/util.js"></script>
+			<script src="../../assets/js/main.js"></script>
+
+	</body>
+</html>
