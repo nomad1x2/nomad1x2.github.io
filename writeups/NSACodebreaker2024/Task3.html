@@ -1,0 +1,600 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>nomad - cybersecurity</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../../assets/css/main.css" />
+		<script defer src="../../assets/prism/prism.js"></script>
+	</head>
+	<body class="writeup">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+
+							<!-- Header -->
+								<header id="header">
+									<a href="../../index.html" class="logo"><strong>nomad</strong> - cybersecurity</a>
+									
+									<ul class="icons">
+										<li><a href="https://github.com/nomad1x2" class="icon brands fa-github"><span class="label">Github</span></a></li>
+									</ul>
+									
+								</header>
+
+							<!-- Content -->
+								<section>
+									<header class="main">
+										<h2>Task 3 - How did they get in? - (Reverse Engineering, Vulnerability Research)</h2>
+									</header>
+									<div class="box">
+										<p>Great work finding those files! Barry shares the files you extracted with the blue team who share it back to Aaliyah and her team. As a first step, she ran strings across all the files found and noticed a reference to a known DIB, “Guardian Armaments” She begins connecting some dots and wonders if there is a connection between the software and the hardware tokens. But what is it used for and is there a viable threat to Guardian Armaments (GA)?</p>
+										<p>She knows the Malware Reverse Engineers are experts at taking software apart and figuring out what it's doing. Aaliyah reaches out to them and keeps you in the loop. Looking at the email, you realize your friend Ceylan is touring on that team! She is on her first tour of the Computer Network Operations Development Program</p>
+										<p>Barry opens up a group chat with three of you. He wants to see the outcome of the work you two have already contributed to. Ceylan shares her screen with you as she begins to reverse the software. You and Barry grab some coffee and knuckle down to help.</p>
+										<p>Figure out how the APT would use this software to their benefit</p>
+										
+										<p><b>Downloads:</b><br>
+											<li>Executable from ZFS filesystem (server)</li>
+											<li>Retrieved from the facility, could be important? (shredded.jpg)<br><br><img src="../../images/shredded.jpg" alt="" width="auto" height="300"class="badge-img"/></li>
+										</p>
+										<p><b>Prompt:</b><br><li>Enter a valid JSON that contains the (3 interesting) keys and specific values that would have been logged if you had successfully leveraged the running software. Do ALL your work in lower case.</li></p>
+									</div>
+
+									<hr class="major" />
+									
+									<!-- Work -->							
+									<h3>Solving the task:</h3>
+									
+									<p>This is the first task that stumped the majority of people -- including myself for about a month. The biggest challenge for me was figuring out <em><b>what exactly that shredded piece of paper</b></em> was. To follow the timeline of my frustrations with this task, I'll keep the purpose of the shredded paper a suprise and explain it in the solution section.</p>
+									
+									<p>Looking at the file, we see that it is a 64-bit <a href="https://en.wikipedia.org/wiki/Executable_and_Linkable_Format" target="_blank">ELF</a> executable, <em><b>NOT</b></em> stripped (phew), and compiled with Go.</p>
+									
+<!-- Terminal emulation -->
+<div class="box">
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ file server
+server: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, Go 
+BuildID=LHRtLwP6dC5KdgEoSpJX/ejUiv70gVv1LpWijiGuf/i9CgNCbxT7MWobWI3C-p/E7PwbRBtvSIzHKdU4XWb, with debug_info, not stripped
+</pre>
+</div>
+									
+									<p>The first thing I wanted to do was run it to see what happens (on an air-gapped machine of course):</p>
+							
+<!-- Terminal emulation -->							
+<div class="box">
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ ./server
+Starting the Guardian Armaments OTP seed generation service!  
+Please ensure that this software can reach the authentication service to register any generated seeds!  
+Otherwise your token will not authenticate you to the network after you program it with this seed
+{"time":"2025-01-26T22:20:51.383467004-05:00","level":"INFO","msg":"Connected to auth server"}
+{"time":"2025-01-26T22:20:51.385455704-05:00","level":"ERROR","msg":"Failed to ping the auth service",
+"ping_response":null,"err":"rpc error: code = Unavailable desc = connection error: desc = \"transport: Error while dialing: dial tcp 127.0.0.1:50052: connect: connection refused\""}
+</pre>
+</div>
+
+									<p>I also found that it has a help flag:</p>
+									
+<!-- Terminal emulation -->							
+<div class="box">
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ ./server --help
+Starting the Guardian Armaments OTP seed generation service!
+Please ensure that this software can reach the authentication service to register any generated seeds!
+Otherwise your token will not authenticate you to the network after you program it with this seedUsage of ./server:
+  -auth-ip string
+        Set the IP address of the auth server (default "127.0.0.1")
+  -loglevel string
+        Set the logging level (debug, info, warn, error) (default "info")
+</pre>
+</div>
+
+									<p>Right off the bat we can see that it is a <a href="https://grpc.io/docs/what-is-grpc/" target="_blank">gRPC</a> server that generates and registers <a href="https://en.wikipedia.org/wiki/One-time_password" target="_blank">OTP</a> seeds with an "auth server" at 127.0.0.1:50052. It also has different levels of logging which  proves useful later.</p>
+									
+									<p>The next thing I wanted to do was figure out what exactly this "auth server" does and what happens if we can get the "OTP seed generation" server to connect to it. This portion took quite a bit of research as I didn't have much experience with this language, but luckily the website for <a href="https://go.dev/" target="_blank">Go</a> has a ton of information that we can use.</p>
+									
+									<p>After some more research, I found out that Go programs use Protocol Buffers (<a href="https://protobuf.dev/overview/" target="_blank">Protobuf</a>) to package data into a compact format that makes it easy to send between systems. Protobuf is basically a blueprint that tells programs what kind of data to expect so everything stays in sync. gRPC takes those Protobuf definitions and auto-generates client and server code, letting programs talk to each other fast and efficiently over HTTP/2.</p>
+									
+									<p>Now we have a way forward. We need to generate the server code for the "auth server" so our OTP seed generation server can connect to it as a client, but we need to define the correct messages in Protobuf. These messages act as structured data models which will allow us to pass the correct information when making function calls.</p>
+									
+									<p>Fortunately for you, there is a tool out there called <a href="https://github.com/arkadiyt/protodump" target="_blank">Protodump</a> that can extract all Protobuf descriptors from a given binary and save them as .proto files.<br>Unfortunately for me, <b><em>I didn't find out about the tool until after the challenge... </em></b>so I'm going to write about how I found the descriptors manually.</p>
+									
+									<p>This is when the Ghidra journey started -- I imported the server and decompiled as Golang:</p>
+								
+									<div class="box">
+										<div style="text-align: center;">
+											<img src="../../images/ghidra_import.png" alt="" width="auto" class="other-img"/>
+										</div>
+									</div>
+									
+									<p>After Ghidra finished analyzing the server, finding the descriptors took a little bit of time. I located the main functions and found interesting code in the GetSeed function:</p>
+									
+									
+<!-- Code example -->	
+<div class="box">
+<p>Main functions:</p>
+
+<pre class="terminal">
+main.(*SeedgenAuthClient).auth
+main.(*seedGenerationServer).GetSeed
+main.(*seedGenerationServer).StressTest
+main.init.0
+main.main
+main.main.WithTransportCredentials.func1
+main.NewSeedgenAuthClient
+</pre>
+</div>
+
+									
+<!-- Code example -->	
+<div class="box">
+<p>First few lines of the decompiled GetSeed function:</p>
+
+<pre><code class="language-javascript">func(context.Context, *seedgen.GetSeedRequest) (*seedgen.GetSeedResponse, error)_multivalue_return_t ype
+ main::main.(*seedGenerationServer).GetSeed
+           (main.seedGenerationServer *param_1,context.Context param_2,
+           otp/seedgen.GetSeedRequest *param_3)
+
+{
+  log/slog.Logger *plVar1;
+  uint64 val;
+  auth/auth_service.RegisterOTPSeedRequest *paVar2;
+</pre></code>
+</div>
+
+									<p>We notice two important things here in the decompiled code: <b>otp/seedgen</b> and <b>auth/auth_service</b>. These must be the packages or modules that include our user generated code -- code that isn't included with generic imports. I did some more digging, ran some more strings, and found some pretty interesting results -- different getter methods for each request and response struct. These must be the descriptors:</p>
+									
+									
+<div class="row">
+<div class="col-6 col-12-small">
+
+<!-- Code example -->	
+<div class="box">
+<h4>otp/seedgen:</h4>
+
+<pre class="terminal">
+otp/seedgen.(*GetSeedRequest).GetPassword
+otp/seedgen.(*GetSeedRequest).GetUsername
+otp/seedgen.(*GetSeedResponse).GetCount
+otp/seedgen.(*GetSeedResponse).GetSeed
+otp/seedgen.(*PingRequest).GetPing
+otp/seedgen.(*PingResponse).GetResponse
+otp/seedgen.(*StressTestRequest).GetCount
+otp/seedgen.(*StressTestResponse).GetResponse
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</div>
+<div class="col-6 col-12-small">
+<!-- Code example -->	
+<div class="box">
+<h4>auth/auth_grpc:</h4>
+
+<pre class="terminal">
+auth/auth_grpc.(*AuthRequest).GetPassword
+auth/auth_grpc.(*AuthRequest).GetUsername
+auth/auth_grpc.(*AuthResponse).GetSuccess
+auth/auth_grpc.(*LogoutRequest).GetToken
+auth/auth_grpc.(*LogoutResponse).GetSuccess
+auth/auth_grpc.(*PingRequest).GetPing
+auth/auth_grpc.(*PingResponse).GetResponse
+auth/auth_grpc.(*RefreshTokenRequest).GetToken
+auth/auth_grpc.(*RefreshTokenResponse).GetToken
+auth/auth_grpc.(*RegisterOTPSeedRequest).GetSeed
+auth/auth_grpc.(*RegisterOTPSeedRequest).GetUsername
+auth/auth_grpc.(*RegisterOTPSeedResponse).GetSuccess
+auth/auth_grpc.(*VerifyOTPRequest).GetOtp
+auth/auth_grpc.(*VerifyOTPRequest).GetUsername
+auth/auth_grpc.(*VerifyOTPResponse).GetSuccess
+auth/auth_grpc.(*VerifyOTPResponse).GetToken
+</pre>
+</div>
+</div>
+</div>
+									
+									
+									<p>Now that I had the descriptors and partial messages, I went back into Ghidra to find the exact data types in the Data Type Manager. Here I use the AuthRequest and AuthResponse data types as examples:</p>
+									
+<div class="row">
+<div class="col-6 col-12-small">
+<!-- Code example -->	
+<div class="box">
+<h4>AuthRequest:</h4>
+<div style="text-align: center;">
+<img src="../../images/authrequest_type.png" alt="" width="auto" class="other-img"/>
+</div>
+</div>
+</div>
+<div class="col-6 col-12-small">
+<!-- Code example -->	
+<div class="box">
+<h4>AuthResponse:</h4>
+<div style="text-align: center;">
+<img src="../../images/authresponse_type.png" alt="" width="auto" class="other-img"/>
+</div>
+</div>
+</div>
+</div>
+
+									<p>As we can see, the AuthRequest struct consists of two string variables (username and password), while the AuthResponse struct consists of a bool variable (success). With this, we can extract the other struct types, write out our auth proto file, and generate our auth server code:</p>
+
+									<p><em>Note: I had to do a bit more digging to find the correct proto file structure and syntax using the Protobuf link above. We also need to make sure we take note of the otp/seedgen descriptors as well in order to successfully leverage the running software and make the necessary gRPC calls.</em></p>
+
+<!-- Code example -->	
+<div class="box">
+<h4>auth.proto</h4>
+<pre><code class="language-go">syntax = "proto3";
+
+package auth_service;
+
+option go_package = "auth_service/auth_grpc";
+
+message LoginRequest {
+    string Username = 1;
+    string Password = 2;
+}
+
+message LoginResponse {
+    bool Success = 1;
+    int64 Token = 2;
+}
+
+message AuthRequest {
+    string Username = 1;
+    string Password = 2;
+}
+
+message AuthResponse {
+    bool Success = 1;
+}
+
+message RegisterOTPSeedRequest {
+    string Username = 1;
+    int64 Seed = 2;
+}
+
+message RegisterOTPSeedResponse {
+    bool Success = 1;
+    int64 Seed = 2;
+}
+
+message VerifyOTPRequest {
+    string Username = 1;
+    int64 Otp = 2;
+}
+
+message VerifyOTPResponse {
+    bool Success = 1;
+    string Token = 2;
+}
+
+message RefreshTokenRequest {
+    string Token = 1;
+}
+
+message RefreshTokenResponse {
+    string Token = 1;
+}
+
+message LogoutRequest {
+    string Token = 1;
+}
+
+message LogoutResponse {
+    bool Success = 1;
+}
+
+message PingRequest {
+    int32 Ping = 1;
+}
+
+message PingResponse {
+    int32 Response = 1;
+}
+
+service AuthService {
+    rpc Login(LoginRequest) returns (LoginResponse);
+    rpc Authenticate(AuthRequest) returns (AuthResponse);
+    rpc RegisterOTPSeed(RegisterOTPSeedRequest) returns (RegisterOTPSeedResponse);
+    rpc VerifyOTP(VerifyOTPRequest) returns (VerifyOTPResponse);
+    rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
+    rpc Logout(LogoutRequest) returns (LogoutResponse);
+    rpc Ping(PingRequest) returns (PingResponse);
+}
+</pre></code>
+</div>
+
+<!-- Code example -->	
+<div class="box">
+<h4>seed.proto</h4>
+<pre><code class="language-go">syntax = "proto3";
+
+package seed_generation;
+
+service SeedGenerationService {
+    rpc GetSeed(GetSeedRequest) returns (GetSeedResponse);
+	rpc StressTest(StressTestRequest) returns (StressTestResponse);
+	rpc Ping(PingRequest) returns (PingResponse);
+}
+
+message GetSeedRequest {
+    string username = 1;
+    string password = 2;
+	repeated bool stress = 3;
+}
+
+message GetSeedResponse {
+    int64 seed = 1;
+    int64 count = 2;
+}
+
+message StressTestRequest {
+	int64 count = 1;
+    repeated bool stress = 2;
+}
+
+message StressTestResponse {
+    int64 success = 1;
+    int32 message = 2;
+	string message2 = 3;
+	int64 response = 4;
+}
+
+message PingRequest {
+    int64 Ping = 1;
+}
+
+message PingResponse {
+    int64 Response = 1;
+}
+
+message GetAuthRequest {
+    int64 Ping = 1;
+}
+
+message GetAuthResponse {
+    int64 Response = 1;
+}
+</pre></code>
+</div>
+	
+									<p>Now we need generate the auth server code using <a href="https://protobuf.dev/reference/go/go-generated/" target="_blank">protoc</a>. Because we run our command from the server's root directory (workspace), and our proto file points to auth_service/auth_grpc, the file structure for the generated code will be as follows: (workspace/auth_service/auth_grpc/generated_code). After that, we can create our go <a href="https://go.dev/ref/mod" target="_blank">module</a> and start writing the main auth server logic. As the command suggests, we can add module requirements with <b>go mod tidy</b>.</p>
+
+<!-- Terminal emulation -->							
+<div class="box">
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ protoc --go_out=. --go-grpc_out=. auth_service/auth.proto
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ go mod init AuthService
+go: creating new go.mod: module AuthService
+go: to add module requirements and sums:
+        go mod tidy
+</pre>
+</div>
+
+									<p>Now for the auth server logic. We need to establish the server and define our methods (what we found from the proto descriptors). I played with this for a while, but for brevity's sake, here is the code that established our auth server and was successful in connecting to the seedgen client:</p>
+
+<!-- Code example -->	
+<div class="box">
+<h4>AuthService.go</h4>
+<pre><code class="language-go">package main
+
+import (
+    "context"
+    "log"
+    "net"
+    "google.golang.org/grpc"
+    "google.golang.org/grpc/credentials/insecure"
+    pb "Auth_Service/auth_service/auth_grpc"
+)
+
+type AuthServer struct {
+    pb.UnimplementedAuthServiceServer
+}
+
+// Authenticate descriptor
+func (s *AuthServer) Authenticate(ctx context.Context, req *pb.AuthRequest) (*pb.AuthResponse, error) {
+    log.Printf("Received Authenticate request: %v", req)
+	//TODO: Add authentication logic here
+	success := false
+    return &pb.AuthResponse{
+        Success: success,
+    }, nil
+}
+
+// RegisterOTPSeed descriptor
+func (s *AuthServer) RegisterOTPSeed(ctx context.Context, req *pb.RegisterOTPSeedRequest) (*pb.RegisterOTPSeedResponse, error) {
+    log.Printf("Received RegisterOTPSeed request: %v", req)
+    return &pb.RegisterOTPSeedResponse{
+        Success: true,
+    }, nil
+}
+
+// VerifyOTP descriptor
+func (s *AuthServer) VerifyOTP(ctx context.Context, req *pb.VerifyOTPRequest) (*pb.VerifyOTPResponse, error) {
+    log.Printf("Received VerifyOTP request: %v", req)
+    return &pb.VerifyOTPResponse{
+        Success: true,
+        Token:   "token",
+    }, nil
+}
+
+// Ping descriptor
+func (s *AuthServer) Ping(ctx context.Context, req *pb.PingRequest) (*pb.PingResponse, error) {
+    log.Printf("Received Ping request: %v", req)
+    return &pb.PingResponse{
+        Response: req.Ping,
+    }, nil
+}
+
+func main() {
+    lis, err := net.Listen("tcp", "localhost:50052")
+    if err != nil {
+        log.Fatalf("Failed to listen: %v", err)
+    }
+    opts := []grpc.ServerOption{
+        grpc.Creds(insecure.NewCredentials()),
+    }
+
+    grpcServer := grpc.NewServer(opts...)
+    pb.RegisterAuthServiceServer(grpcServer, &AuthServer{})
+
+    log.Printf("Auth Server started on port 50052")
+    if err := grpcServer.Serve(lis); err != nil {
+        log.Fatalf("Failed to serve: %v", err)
+    }
+}
+</pre></code>
+</div>
+
+									<p>Learning about the log levels from the help flag at the beginning of the task, we ran the seedgen server with the flag <b>-loglevel=debug</b> to get additional logging.</p>
+
+<div class="row">
+<div class="col-6 col-12-small">
+
+<!-- Terminal emulation -->	
+<div class="box">
+<p>Running the auth server:</p>
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ go run AuthService.go
+2025/02/10 22:20:25 Auth Server started on port 50052
+2025/02/10 22:20:28 Received Ping request: Ping:123
+</pre>
+</div>
+
+</div>
+<div class="col-6 col-12-small">
+<!-- Terminal emulation -->	
+<div class="box">
+<p>Running the seedgen server:</p>
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ ./server -loglevel=debug
+Starting the Guardian Armaments OTP seed generation service! Please ensure that this software can reach the authentication service to register any generated seeds! Otherwise your token will not authenticate you to the network after you program it with this seed
+
+{"time":"2025-02-10T22:44:39.680782036-05:00","level":"INFO","msg":"Connected to auth server"}
+
+{"time":"2025-02-10T22:44:39.694000435-05:00","level":"DEBUG","msg":"Auth Service Pong ","pong":123}
+
+{"time":"2025-02-10T22:44:39.694061735-05:00","level":"INFO","msg":"Seedgen Server running on port 50051"}
+</pre>
+</div>
+</div>
+</div>
+
+
+									<hr class="major" />
+									
+									<!--Solution-->
+									<div id="solution">
+										<h3>The solution:</h3>
+									</div>
+									
+									<p>In progress</P>
+									
+									<hr class="major" />
+									
+									<div class="box">
+										<div style="text-align: center;">
+											<p><b>So that's how they leveraged their tokens!</b></p>
+											<span class="image object">
+												<img src="../../images/badge3.png" alt="" class="badge-img"/>
+											</span>
+										</div>
+									</div>
+									
+									
+									
+									<!--Pages-->
+									<div style="text-align: center;">
+										<ul class="pagination">
+											<li><a href="Task2.html" class="button">Prev</a></li>
+											<li><a href="Task1.html" class="page">1</a></li>
+											<li><a href="Task2.html" class="page">2</a></li>
+											<li><a href="#" class="page active">3</a></li>
+											<li><a href="Task4.html" class="page">4</a></li>
+											<li><a href="Task5.html" class="page">5</a></li>
+											<li><a href="Task6.html" class="page">6</a></li>
+											<li><a href="Task7.html" class="page">7</a></li>
+											<li><a href="Task4.html" class="button">Next</a></li>
+										</ul>
+									</div>
+									
+									
+								</section>
+
+						</div>
+					</div>
+
+				<!-- Sidebar -->
+					<div id="sidebar">
+						<div class="inner">
+
+							<!-- Search -->
+								<section id="search" class="alt">
+									<form method="post" action="#">
+										<input type="text" name="query" id="query" placeholder="Search" />
+									</form>
+								</section>
+
+							<!-- Menu -->
+								<nav id="menu">
+									<header class="major">
+										<h2>Menu</h2>
+									</header>
+									<ul>
+										<li><a href="../NSACodebreaker2024.html">Challenge Home</a></li>
+										<li>
+											<span class="opener">Task list</span>
+											<ul>
+												<li><a href="Task1.html">Task1</a></li>
+												<li><a href="Task2.html">Task2</a></li>
+												<li><a href="#"><b>Task3</b></a></li>
+												<li><a href="Task4.html">Task4</a></li>
+												<li><a href="Task5.html">Task5</a></li>
+												<li><a href="Task6.html">Task6</a></li>
+												<li><a href="Task7.html">Task7</a></li>
+											</ul>
+										</li>
+										<li><a href="#solution">The solution</a></li>
+									</ul>
+								</nav>
+
+							<!-- Section -->
+								<section>
+									<header class="major">
+										<h2>Get in touch</h2>
+									</header>
+									<ul class="contact">
+										<li class="icon solid fa-envelope"><a href="#">nomad1x2sec@gmail.com</a></li>
+									</ul>
+								</section>
+
+							<!-- Footer -->
+								<footer id="footer">
+									<p class="copyright">&copy; Untitled. All rights reserved. Demo Images: <a href="https://unsplash.com">Unsplash</a>. Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+								</footer>
+
+						</div>
+					</div>
+
+			</div>
+
+		<!-- Scripts??? -->
+			<script src="../../assets/js/jquery.min.js"></script>
+			<script src="../../assets/js/browser.min.js"></script>
+			<script src="../../assets/js/breakpoints.min.js"></script>
+			<script src="../../assets/js/util.js"></script>
+			<script src="../../assets/js/main.js"></script>
+
+	</body>
+</html>
