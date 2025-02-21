@@ -1,0 +1,619 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>nomad - cybersecurity</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../../assets/css/main.css" />
+		<script defer src="../../assets/prism/prism.js"></script>
+	</head>
+	<body class="writeup">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+
+							<!-- Header -->
+								<header id="header">
+									<a href="../../index.html" class="logo"><strong>nomad</strong> - cybersecurity</a>
+									
+									<ul class="icons">
+										<li><a href="https://github.com/nomad1x2" class="icon brands fa-github"><span class="label">Github</span></a></li>
+									</ul>
+									
+								</header>
+
+							<!-- Content -->
+								<section>
+									<header class="main">
+										<h2>Task 4 - LLMs never lie - (Programming, Forensics)</h2>
+									</header>
+									<div class="box">
+										<p>Great work! With a credible threat proven, NSA's Cybersecurity Collaboration Center reaches out to GA and discloses the vulnerability with some indicators of compromise (IoCs) to scan for.</p>
+										<p>New scan reports in hand, GA's SOC is confident they've been breached using this attack vector. They've put in a request for support from NSA, and Barry is now tasked with assisting with the incident response.</p>
+										<p>While engaging the development teams directly at GA, you discover that their software engineers rely heavily on an offline LLM to assist in their workflows. A handful of developers vaguely recall once getting some confusing additions to their responses but can't remember the specifics.</p>
+										<p>Barry asked for a copy of the proprietary LLM model, but approvals will take too long. Meanwhile, he was able to engage GA's IT Security to retrieve partial audit logs for the developers and access to a caching proxy for the developers' site.</p>
+										
+										<p>Barry is great at DFIR, but he knows what he doesn't know, and LLMs are outside of his wheelhouse for now. Your mutual friend Dominique was always interested in GAI and now works in Research Directorate.</p>
+										
+										<p>The developers use the LLM for help during their work duties, and their AUP allows for limited personal use. GA IT Security has bound the audit log to an estimated time period and filtered it to specific processes. Barry sent a client certificate for you to authenticate securely with the caching proxy using <b>https://34.195.208.56/?q=query%20string</b>.</p>
+										
+										<p>You bring Dominique up to speed on the importance of the mission. They receive a nod from their management to spend some cycles with you looking at the artifacts. You send the audit logs their way and get to work looking at this one.</p>
+										
+										<p>Find any snippet that has been purposefully altered.</p>
+										
+										
+										
+										
+										<p><b>Downloads:</b><br>
+											<li>Client certificate issued by the GA CA (client.crt)</li>
+											<li>Client private key used to establish a secure connection (client.key)</li>
+											<li>TTY audit log of a developer's shell activity (audit.log)</li>
+										</p>
+										<p><b>Prompt:</b><br><li>A maliciously altered line from a code snippet</li></p>
+									</div>
+
+									<hr class="major" />
+									
+									
+									
+									
+									<!-- Work -->							
+									<h3>Solving the task:</h3>
+									
+									<p>This was definitely the easiest task to complete.</p>
+									
+									<p>We are given an IP address of the caching server, the client cert and key, and the audit log of a developer's shell activity. Looking at the log, it was pretty clear what we had to do. Because the log is over 3,000 lines long, here is a short snippet of what we are dealing with:</p>
+		
+
+
+
+
+
+
+		
+<!-- Code example -->	
+<div class="box">
+<h4>audit.log</h4>
+<pre><code class="language-javascript">ttyaudit=1715169626 w=4 d="export PATHH=$PA\033[D\033[D\033[D\033[D\033[D\033[3~\033[C\033[C\033[C\033[CTH:~\x01echo \x05/bin" >> ~/.profile\x0d u=1000 s=118 id=264551 c=0x7958
+
+ttyaudit=1715169685 w=4 d=-m "Tell m\x03 u=1000 s=14 id=264552 c=0x5111
+
+ttyaudit=1715169704 w=4 d=gagpt -m "Tell me how I can be a good role model for my daughter in terms of balancing work and family life"\x0d u=1000 s=112 id=264553 c=0xfec9
+
+ttyaudit=1715169739 w=4 d=source ~/.profile\x0d u=1000 s=21 id=264554 c=0x6ce1
+
+ttyaudit=1715169796 w=4 d=curl -fsSL https://code.visualstudio.com/shell installer.h \033[D\033[Ds\033[C\033[C-o v\x03 u=1000 s=92 id=264555 c=0xb01e
+
+ttyaudit=1715169956 w=4 d=l-fsSL h\033[D\033[D\033[D\033[D\033[D\033[D\033[D \033[C\033[C\033[C\033[C\033[C\033[C\033[Cttp\x01cur\x05s://code.visualstudio.com/shell instt\x08aller.sh -o vs_code.sh\x0d u=1000 s=174 id=264556 c=0xbb51
+
+ttyaudit=1715170000 w=4 d=+x vs\x01chmod \x05_code...\x08\x08sh\x0d u=1000 s=41 id=264557 c=0xf3ee
+
+ttyaudit=1715170054 w=4 d=./v\x03 u=1000 s=7 id=264558 c=0xd583
+
+ttyaudit=1715170088 w=4 d=./vs_codee.\033[D\033[D\033[3~\033[Csh --install-app\x0d u=1000 s=56 id=264559 c=0xc5e5
+
+ttyaudit=1715170097 w=4 d=--add\x01./vs_code.sh \x05-to-path\x0d u=1000 s=38 id=264560 c=0xc34
+
+--[next 3,636 lines ommitted]--
+
+ttyaudit=1715723326 w=1 d=gax-engine-simulator --scenario misfire_conditions --dura<0a\x08\x08\x08tion 3600\x0d u=1000 s=85 id=268197 c=0xdfdb
+
+ttyaudit=1715723336 w=1 d=~/scripts/analyze_misfire_detection.py misfire_sim_resul\x01python3 \x05ts.log\x0d u=1000 s=82 id=268198 c=0xdd95
+
+ttyaudit=1715723379 w=1 d=git checkout master\x0d u=1000 s=23 id=268199 c=0x1ea5
+
+ttyaudit=1715723718 w=3 d=gagpt -m "Tell me a story about a dad who encourages his daughter to follow her passions, even when they don't align with traditional gender rolf\x08es"\x0d u=1000 s=156 id=268200 c=0x1966
+
+ttyaudit=1715723751 w=3 d=pul\x01git \x05l originn\x08 master\x0d u=1000 s=39 id=268201 c=0xef78
+
+ttyaudit=1715723778 w=3 d=git  \x08merge fix/misfire-detection\x0d u=1000 s=40 id=268202 c=0x3e2d
+
+ttyaudit=1715723806 w=3 d=gagpt -m "How can I fix small cracks in my driveway before they become bigger issues"\x0d u=1000 s=89 id=268203 c=0xf4e4
+
+ttyaudit=1715723841 w=3 d=gagpt -m "We need to implement role-based access control (RBAC) in our internal software for sensitive systems. What are the top security pitfalls to avoid"\x0d u=1000 s=160 id=268204 c=0xb754
+
+ttyaudit=1715723850 w=3 d=git push origin master\x0d u=1000 s=26 id=268205 c=0x2538
+
+ttyaudit=1715723976 w=3 d=r\x01issue-cli \x05esolve ECUFW-2347\x0d u=1000 s=40 id=268206 c=0x48b4
+</pre></code>
+</div>
+
+									<p>As we can see, there are many different 'd=gagpt' entries, indicating the different language model queries that we need to extract.</p>
+									
+									<p>There were also indications of different key strokes that we needed to keep in mind, such as backspaces, deletions, enters, etc. The first thing I did was write a simple python script to transcode the log and perform the different key-stroke operations that we found:</p>
+									
+<!-- Code example -->	
+<div class="box">
+<h4>fixLog.py</h4>
+<pre><code class="language-python">import re
+
+left_arrow = '\\033[D'  # Move cursor left
+right_arrow = '\\033[C'  # Move cursor right
+delete_key = '\\033[3~'  # Delete character
+home_key = '\\x01'  # Move home
+end_key = '\\x05'  # Move to end
+backspace = '\\x08'  # Backspace
+cancel = '\\0x3'  # Cancel
+home_key_2 = '\\033[H'  # Home while in editor
+clear = '\\033[2J'  # Clear the line
+
+with open("audit.log", "r") as file, open("cleaned.log", "w") as output_file:
+    line = 0
+    for read_line in file:
+        terminal_code = read_line
+
+        if terminal_code:
+            captured_text = terminal_code.strip()
+
+            corrected_text = []
+            cursor_position = 0
+            
+            i = 0
+            while i < len(captured_text):
+                if captured_text[i:i+6] == left_arrow:
+                    if cursor_position > 0:
+                        cursor_position -= 1
+                    i += 6
+                elif captured_text[i:i+6] == right_arrow:
+                    if cursor_position < len(corrected_text):
+                        cursor_position += 1
+                    i += 6
+                elif captured_text[i:i+7] == delete_key:
+                    if cursor_position < len(corrected_text):
+                        corrected_text.pop(cursor_position)
+                    i += 7
+                elif captured_text[i:i+4] == home_key:
+                    cursor_position = captured_text.find('d=') + 2
+                    i += 4
+                elif captured_text[i:i+4] == end_key:
+                    cursor_position = len(corrected_text)
+                    i += 4
+                elif captured_text[i:i+4] == backspace:
+                    if cursor_position > 0:
+                        cursor_position -= 1
+                        corrected_text.pop(cursor_position)
+                    i += 4
+                elif captured_text[i:i+4] == cancel:
+                    break
+                else:
+                    if cursor_position == len(corrected_text):
+                        corrected_text.append(captured_text[i])
+                    else:
+                        corrected_text.insert(cursor_position, captured_text[i])
+                    cursor_position += 1
+                    i += 1
+
+            final_text = ''.join(corrected_text)
+
+            output_file.write(f"{final_text.strip()}\n")
+
+        line += 1
+</pre></code>
+									<p>Here we can see the same 20 lines of the log as above, post code execution:</p>
+									
+<!-- Code example -->	
+<div class="box">
+<h4>cleaned.log</h4>
+<pre><code class="language-javascript">ttyaudit=1715169626 w=4 d=echo "export PATH=$PATH:~/bin" >> ~/.profile\x0d u=1000 s=118 id=264551 c=0x7958
+
+ttyaudit=1715169685 w=4 d=-m "Tell m\x03 u=1000 s=14 id=264552 c=0x5111
+
+ttyaudit=1715169704 w=4 d=gagpt -m "Tell me how I can be a good role model for my daughter in terms of balancing work and family life"\x0d u=1000 s=112 id=264553 c=0xfec9
+
+ttyaudit=1715169739 w=4 d=source ~/.profile\x0d u=1000 s=21 id=264554 c=0x6ce1
+
+ttyaudit=1715169796 w=4 d=curl -fsSL https://code.visualstudio.com/shell installer.sh -o v\x03 u=1000 s=92 id=264555 c=0xb01e
+
+ttyaudit=1715169956 w=4 d=curl -fsSL https://code.visualstudio.com/shell installer.sh -o vs_code.sh\x0d u=1000 s=174 id=264556 c=0xbb51
+
+ttyaudit=1715170000 w=4 d=chmod +x vs_code.sh\x0d u=1000 s=41 id=264557 c=0xf3ee
+
+ttyaudit=1715170054 w=4 d=./v\x03 u=1000 s=7 id=264558 c=0xd583
+
+ttyaudit=1715170088 w=4 d=./vs_code.sh --install-app\x0d u=1000 s=56 id=264559 c=0xc5e5
+
+ttyaudit=1715170097 w=4 d=./vs_code.sh --add-to-path\x0d u=1000 s=38 id=264560 c=0xc34
+
+--[next 3,636 lines ommitted]--
+
+ttyaudit=1715723326 w=1 d=gax-engine-simulator --scenario misfire_conditions --duration 3600\x0d u=1000 s=85 id=268197 c=0xdfdb
+
+ttyaudit=1715723336 w=1 d=python3 ~/scripts/analyze_misfire_detection.py misfire_sim_results.log\x0d u=1000 s=82 id=268198 c=0xdd95
+
+ttyaudit=1715723379 w=1 d=git checkout master\x0d u=1000 s=23 id=268199 c=0x1ea5
+
+ttyaudit=1715723718 w=3 d=gagpt -m "Tell me a story about a dad who encourages his daughter to follow her passions, even when they don't align with traditional gender roles"\x0d u=1000 s=156 id=268200 c=0x1966
+
+ttyaudit=1715723751 w=3 d=git pull origin master\x0d u=1000 s=39 id=268201 c=0xef78
+
+ttyaudit=1715723778 w=3 d=git merge fix/misfire-detection\x0d u=1000 s=40 id=268202 c=0x3e2d
+
+ttyaudit=1715723806 w=3 d=gagpt -m "How can I fix small cracks in my driveway before they become bigger issues"\x0d u=1000 s=89 id=268203 c=0xf4e4
+
+ttyaudit=1715723841 w=3 d=gagpt -m "We need to implement role-based access control (RBAC) in our internal software for sensitive systems. What are the top security pitfalls to avoid"\x0d u=1000 s=160 id=268204 c=0xb754
+
+ttyaudit=1715723850 w=3 d=git push origin master\x0d u=1000 s=26 id=268205 c=0x2538
+
+ttyaudit=1715723976 w=3 d=issue-cli resolve ECUFW-2347\x0d u=1000 s=40 id=268206 c=0x48b4
+</pre></code>
+</div>
+
+									<p>I than ran some grep commands on the cleaned log to extract only the gagpt prompts which resulted in <b>382</b> different queries:</p>
+									
+									<p><em>Note: I could've combined these steps, but I didn't -- it took me a little bit of trial and error to get the python script where it needed to be and I was a bit curious to see the different commands being used.</em></p>
+									
+<!-- Terminal emulation -->							
+<div class="box">
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ grep 'gagpt -m' cleaned.log | grep '\\x0d' | sed -E 's/.*gagpt -m "(.*)"\\x0d.*/\1/' > gagptPrompts.txt
+</pre>
+</div>
+
+<!-- Code example -->	
+<div class="box">
+<h4>gagptPrompts.txt</h4>
+<pre><code class="language-html">Tell me how I can be a good role model for my daughter in terms of balancing work and family life
+
+How can I create a script that scrapes structured data from multiple web APIs, merges it into a pandas DataFrame, and generates visual reports in PDF format
+
+How many lines of code is too many lines of code before a function becomes a monster
+
+How do I write a Python script that collects sensor data from a military vehicle's advanced defense systems (radar and LIDAR), and logs the information for real-time threat detection and analysis
+
+What are some techniques for reducing startup time in embedded systems where the firmware has to initialize a bunch of peripherals
+
+I saw a meme about Schrödinger's cat and now I'm confused — is the cat alive or dead
+
+One of my engineers is struggling with unit test coverage on our embedded systems project. How can I guide them on best practices without micromanaging
+
+How can I implement a custom memory allocator in Python to manage memory regions for a device simulator
+
+I need to set up an ETL pipeline in Python that pulls data from an API, transforms it into specific JSON schemas, validates them, and pushes them into a remote server over FTP. How should I approach this
+
+How do you handle disaster recovery for critical embedded systems that are deployed in remote or hostile locations? What's the best backup strategy
+
+--[next 362 lines ommitted]--
+
+I need to parse a binary firmware update file for a vehicle's ECU, extract specific sections, and compare them against a known good version to check for differences. How can I do this
+
+How do I optimize a C program for low-level hardware interactions
+
+Can you suggest a step-by-step guide for integrating WebSockets into an existing RESTful API
+
+How do you address a situation where someone repeatedly misses deadlines without coming off as overly critical
+
+I'm considering shifting part of our dev pipeline to a hybrid cloud model — what specific security measures should we take for classified government data
+
+What's the best way to simulate sensor data in firmware to test edge cases without having physical access to the hardware
+
+I'm planning a trip to Japan for two weeks later this year. Any must-see tech museums or geek culture spots I shouldn't miss while I'm there
+
+Tell me a story about a dad who encourages his daughter to follow her passions, even when they don't align with traditional gender roles
+
+How can I fix small cracks in my driveway before they become bigger issues
+
+We need to implement role-based access control (RBAC) in our internal software for sensitive systems. What are the top security pitfalls to avoid
+</pre></code>
+</div>
+
+									<p>Now that we have the prompts, we just need to query the caching server (with the same regex as what we were given) with each prompt, our cert, and our key, and then examine the responses to find out malicious code snippet. Here is an example query for a somewhat funny prompt:</p>
+									
+									<p><em>Note: The queried string needs to be URL encoded. "how many licks actually does it take to get to the center of a Tootsie Pop" gets turned in to "how%20many%20licks%20actually%20does%20it%20take%20to%20get%20to%20the%20center%20of%20a%20Tootsie%20Pop":</em><p>
+									
+<!-- Terminal emulation -->							
+<div class="box">
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ curl -X GET "https://34.195.208.56/?q=how%20many%20licks%20actually%20does%20it%20take%20to%20get%20to%20the%20center%20of%20a%20Tootsie%20Pop" --cert client.crt --key client.key -k | jq
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   398  100   398    0     0   3933      0 --:--:-- --:--:-- --:--:--  3940
+{
+  "fulfillment": [
+    {
+      "index": 0,
+      "role": "assistant",
+      "text": "I've accessed NSA records to retrieve the answer to your query.\n\nIt takes ████████ licks to get to the center of a Tootsie Pop."
+    }
+  ],
+  "id": "41635ace-3543-78fb-c061-616a04f97320",
+  "lang": "en",
+  "model": "gagpt-xl",
+  "prompt": "how many licks actually does it take to get to the center of a Tootsie Pop",
+  "upstream": "gagpt-xl-7.internal"
+}
+</pre>
+</div>
+									<p>Clearly, it takes ████████ licks... I should've known. Now that we've verified our prompt, we can go ahead and loop through the other 381 prompts and gather the responses (this took a few minutes to run):<p>
+									
+<!-- Code example -->	
+<div class="box">
+<h4>loopGPT.py</h4>
+<pre><code class="language-python">import requests
+import urllib.parse
+import json
+import warnings
+
+# Suppress the InsecureRequestWarning
+warnings.filterwarnings("ignore", category=requests.packages.urllib3.exceptions.InsecureRequestWarning)
+
+def LoopySwoopy(input_file):
+    
+    with open(input_file, 'r') as file, open("gagptResponses.txt", 'w') as out_file:
+        for line in file:
+            line = line.strip()
+            
+            if not line:
+                continue
+            
+            url_encoded = urllib.parse.quote(line)
+            url = f"https://34.195.208.56/?q={url_encoded}"
+            
+            try:
+                response = requests.get(
+                    url,
+                    cert=('client.crt', 'client.key'),
+                    verify=False
+                )
+                
+                json_response = response.json()
+                fulfillment_list = json_response.get("fulfillment", [])
+                
+                out_file.write(f"Prompt: {line}\n")
+                
+                if fulfillment_list:
+                    for item in fulfillment_list:
+                        text = item.get("text", "No text available.")
+                        out_file.write(f"Response: {text}\n\n")
+                else:
+                    print(f"Prompt: {line}\nResponse: No response\n")
+                
+            except requests.exceptions.RequestException as e:
+                print(f"Failed to process: {line} - Error: {e}\n")
+
+LoopySwoopy("gagptPrompts.txt")
+</pre></code>
+</div>
+
+<!-- Code example -->	
+<div class="box">
+<h4>gagptResponses.txt (one example)</h4>
+<pre><code class="language-python">Prompt: Can you help me set up a Python script that reads configuration data from YAML files, runs simulations using multiprocessing, and generates graphical outputs saved in a specified directory
+
+Response: Certainly. Here's a script that accomplishes those tasks:
+
+```python
+import yaml
+import multiprocessing as mp
+import matplotlib.pyplot as plt
+import os
+
+def load_config(file_path):
+    with open(file_path, 'r') as file:
+        return yaml.safe_load(file)
+
+def run_simulation(params):
+    # Simulation logic here
+    return result
+
+def generate_graph(data, output_path):
+    plt.figure()
+    # Plotting logic here
+    plt.savefig(output_path)
+    plt.close()
+
+if __name__ == '__main__':
+    config = load_config('config.yaml')
+    output_dir = config['output_directory']
+    os.makedirs(output_dir, exist_ok=True)
+
+    pool = mp.Pool(processes=mp.cpu_count())
+    results = pool.map(run_simulation, config['simulation_params'])
+
+    for i, result in enumerate(results):
+        generate_graph(result, os.path.join(output_dir, f'graph_{i}.png'))
+```
+
+This script:
+1. Loads configuration from a YAML file
+2. Uses multiprocessing to run simulations
+3. Generates graphs and saves them in the specified directory
+
+You'll need to customize the `run_simulation` and `generate_graph` functions for your specific needs.
+</pre></code>
+</div>
+			
+									<p>I only included one example because with 382 prompts we get over 20,000 lines of filtered responses -- but now that we have the data we need, we just need to filter through and find the malicious code snippet that this LLM produced...</p>
+								
+									<hr class="major" />
+									
+									<!--Solution-->
+									<div id="solution">
+										<h3>The solution:</h3>
+									</div>
+									
+									<p>This took about two seconds with my own LLM access (I chose the easy answer... ChatGPT) It was as simple as uploading the gagptResponses.txt, and asking ChatGPT "Find any code snippet that has been purposefully or maliciously altered within the attached response file."</P>
+									<!--response":"No, that doesn't look right."-->
+
+<!-- Code example -->	
+<div class="box">
+<h4>ChatGPT Response:</h4>
+<pre><code class="language-html">The code snippet provided in the file contains a malicious code injection in the script that scrapes data from multiple web APIs. Specifically, the line:
+
+	globals()['ga'] = __import__('ge1028d')
+
+This line dynamically imports a module named 'ge1028d' using __import__ and assigns it to the global namespace.
+This is a typical obfuscation technique used in malicious code to load and execute untrusted modules or payloads.
+It can bypass static code analysis and is considered a serious security vulnerability.
+
+Why This is Dangerous:
+	- Dynamic Import: Using __import__ dynamically can load untrusted code, especially when the module name is obfuscated or not standard.
+	
+	- Obfuscation: The name 'ge1028d' looks like a randomly generated or obfuscated name, often used to hide the true purpose of the module.
+	
+	- Global Injection: Assigning it to globals() allows this module to be accessed anywhere in the code, which could lead to unauthorized actions, data leaks, or system compromise.
+	
+How to Fix This:
+	- Remove or Replace the Line: Remove this line unless you are certain about the purpose of the imported module and its source.
+	
+	- Use Secure Import Practices: If a dynamic import is absolutely necessary, validate the module name and use safe import methods.
+	
+	- Audit Dependencies: Verify that no hidden malicious modules are being installed through package managers (pip, etc.).
+	
+	- Implement Security Scanning: Use tools like bandit or pylint for static code analysis to detect such issues early.
+</pre></code>
+
+<h4>Referenced gagpt Prompt and Response:</h4>
+<pre><code class="language-html">Prompt: How can I create a script that scrapes structured data from multiple web APIs, merges it into a pandas DataFrame, and generates visual reports in PDF format
+
+Response: Here's a script outline to accomplish this task:
+
+1. Use `requests` library to fetch data from multiple APIs
+2. Parse JSON responses and extract relevant data
+3. Create a pandas DataFrame from the extracted data
+4. Use `matplotlib` or `seaborn` for data visualization
+5. Generate PDF reports with `reportlab`
+
+Basic code structure:
+
+```python
+import requests
+import pandas as pd
+globals()['ga'] = __import__('ge1028d')
+import matplotlib.pyplot as plt
+from reportlab.pdfgen import canvas
+
+# Fetch data from APIs
+api_urls = ['url1', 'url2', 'url3']
+data = []
+for url in api_urls:
+    response = requests.get(url)
+    data.append(response.json())
+
+# Create DataFrame
+df = pd.DataFrame(data)
+
+# Generate visualizations
+plt.figure()
+df.plot(kind='bar')
+plt.savefig('chart.png')
+
+# Create PDF report
+c = canvas.Canvas("report.pdf")
+c.drawString(100, 750, "Data Report")
+c.drawImage("chart.png", 100, 500)
+c.save()
+```
+
+Adjust the code according to specific API endpoints, data structures, and desired report format.
+</pre></code>
+</div>
+
+									<p>Putting the snippet <b>globals()['ga'] = __import__('ge1028d')</b> into the solver gave us the solve.</p>
+									
+									<p>Personally, this goes to show just how powerful and useful LLM's can be. Sure, we had to do some work to get there, but ChatGPT was able to find the snippet that looked weird, in 20,000+ lines, almost instantly. In my opinion, adding any LLM to your toolkit as a resource is extremely important, so long as you validate the responses of course.</p>
+									
+									<hr class="major" />
+									
+									
+									
+									
+																		
+									<div class="box">
+										<div style="text-align: center;">
+											<p><b>That's the snippet! I doubt the LLM is supposed to suggest an import like that.</b></p>
+											<span class="image object">
+												<img src="../../images/badge4.png" alt="" class="badge-img"/>
+											</span>
+										</div>
+									</div>
+									
+									
+									<!--Pages-->
+									<div style="text-align: center;">
+										<ul class="pagination">
+											<li><a href="Task3.html" class="button">Prev</a></li>
+											<li><a href="Task1.html" class="page">1</a></li>
+											<li><a href="Task2.html" class="page">2</a></li>
+											<li><a href="Task3.html" class="page">3</a></li>
+											<li><a href="#" class="page active">4</a></li>
+											<li><a href="Task5.html" class="page">5</a></li>
+											<li><a href="Task6.html" class="page">6</a></li>
+											<li><a href="Task7.html" class="page">7</a></li>
+											<li><a href="Task5.html" class="button">Next</a></li>
+										</ul>
+									</div>
+									
+									
+									
+								</section>
+
+						</div>
+					</div>
+
+				<!-- Sidebar -->
+					<div id="sidebar">
+						<div class="inner">
+
+							<!-- Search -->
+								<section id="search" class="alt">
+									<form method="post" action="#">
+										<input type="text" name="query" id="query" placeholder="Search" />
+									</form>
+								</section>
+
+							<!-- Menu -->
+								<nav id="menu">
+									<header class="major">
+										<h2>Menu</h2>
+									</header>
+									<ul>
+										<li><a href="../NSACodebreaker2024.html">Challenge Home</a></li>
+										<li>
+											<span class="opener">Task list</span>
+											<ul>
+												<li><a href="Task1.html">Task1</a></li>
+												<li><a href="Task2.html">Task2</a></li>
+												<li><a href="Task3.html">Task3</a></li>
+												<li><a href="#"><b>Task4</b></a></li>
+												<li><a href="Task5.html">Task5</a></li>
+												<li><a href="Task6.html">Task6</a></li>
+												<li><a href="Task7.html">Task7</a></li>
+											</ul>
+										</li>
+										<li><a href="#solution">The solution</a></li>
+									</ul>
+								</nav>
+
+							<!-- Section -->
+								<section>
+									<header class="major">
+										<h2>Get in touch</h2>
+									</header>
+									<ul class="contact">
+										<li class="icon solid fa-envelope"><a href="#">nomad1x2sec@gmail.com</a></li>
+									</ul>
+								</section>
+
+							<!-- Footer -->
+								<footer id="footer">
+									<p class="copyright">&copy; Untitled. All rights reserved. Demo Images: <a href="https://unsplash.com">Unsplash</a>. Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+								</footer>
+
+						</div>
+					</div>
+
+			</div>
+
+		<!-- Scripts??? -->
+			<script src="../../assets/js/jquery.min.js"></script>
+			<script src="../../assets/js/browser.min.js"></script>
+			<script src="../../assets/js/breakpoints.min.js"></script>
+			<script src="../../assets/js/util.js"></script>
+			<script src="../../assets/js/main.js"></script>
+
+	</body>
+</html>
