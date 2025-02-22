@@ -1,0 +1,1094 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>nomad - cybersecurity</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../../assets/css/main.css" />
+		<script defer src="../../assets/prism/prism.js"></script>
+	</head>
+	<body class="writeup">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+
+							<!-- Header -->
+								<header id="header">
+									<a href="../../index.html" class="logo"><strong>nomad</strong> - cybersecurity</a>
+									
+									<ul class="icons">
+										<li><a href="https://github.com/nomad1x2" class="icon brands fa-github"><span class="label">Github</span></a></li>
+									</ul>
+									
+								</header>
+
+							<!-- Content -->
+								<section>
+									<header class="main">
+										<h2>Task 3 - How did they get in? - (Reverse Engineering, Vulnerability Research)</h2>
+									</header>
+									<div class="box">
+										<p>Great work finding those files! Barry shares the files you extracted with the blue team who share it back to Aaliyah and her team. As a first step, she ran strings across all the files found and noticed a reference to a known DIB, “Guardian Armaments” She begins connecting some dots and wonders if there is a connection between the software and the hardware tokens. But what is it used for and is there a viable threat to Guardian Armaments (GA)?</p>
+										<p>She knows the Malware Reverse Engineers are experts at taking software apart and figuring out what it's doing. Aaliyah reaches out to them and keeps you in the loop. Looking at the email, you realize your friend Ceylan is touring on that team! She is on her first tour of the Computer Network Operations Development Program</p>
+										<p>Barry opens up a group chat with three of you. He wants to see the outcome of the work you two have already contributed to. Ceylan shares her screen with you as she begins to reverse the software. You and Barry grab some coffee and knuckle down to help.</p>
+										<p>Figure out how the APT would use this software to their benefit</p>
+										
+										<p><b>Downloads:</b><br>
+											<li>Executable from ZFS filesystem (server)</li>
+											<li>Retrieved from the facility, could be important? (shredded.jpg)<br><br><img src="../../images/shredded.jpg" alt="" width="auto" height="300"class="badge-img"/></li>
+										</p>
+										<p><b>Prompt:</b><br><li>Enter a valid JSON that contains the (3 interesting) keys and specific values that would have been logged if you had successfully leveraged the running software. Do ALL your work in lower case.</li></p>
+									</div>
+
+									<hr class="major" />
+									
+									<!-- Work -->							
+									<h3>Solving the task:</h3>
+									
+									<p>This is the first task that stumped the majority of people -- including myself for about a month. The biggest challenge for me was figuring out <em><b>what exactly that shredded piece of paper</b></em> was. To follow the timeline of my frustrations with this task, I'll keep the purpose of the shredded paper a suprise and explain it in the solution section.</p>
+									
+									<p>Looking at the file, we see that it is a 64-bit <a href="https://en.wikipedia.org/wiki/Executable_and_Linkable_Format" target="_blank">ELF</a> executable, <em><b>NOT</b></em> stripped (phew), and compiled with Go.</p>
+									
+<!-- Terminal emulation -->
+<div class="box">
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ file server
+server: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, Go 
+BuildID=LHRtLwP6dC5KdgEoSpJX/ejUiv70gVv1LpWijiGuf/i9CgNCbxT7MWobWI3C-p/E7PwbRBtvSIzHKdU4XWb, with debug_info, not stripped
+</pre>
+</div>
+									
+									<p>The first thing I wanted to do was run it to see what happens (sandboxed of course):</p>
+							
+<!-- Terminal emulation -->							
+<div class="box">
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ ./server
+Starting the Guardian Armaments OTP seed generation service!  
+Please ensure that this software can reach the authentication service to register any generated seeds!  
+Otherwise your token will not authenticate you to the network after you program it with this seed
+{"time":"2025-01-26T22:20:51.383467004-05:00","level":"INFO","msg":"Connected to auth server"}
+{"time":"2025-01-26T22:20:51.385455704-05:00","level":"ERROR","msg":"Failed to ping the auth service",
+"ping_response":null,"err":"rpc error: code = Unavailable desc = connection error: desc = \"transport: Error while dialing: dial tcp 127.0.0.1:50052: connect: connection refused\""}
+</pre>
+</div>
+
+									<p>I also found that it has a help flag:</p>
+									
+<!-- Terminal emulation -->							
+<div class="box">
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ ./server --help
+Starting the Guardian Armaments OTP seed generation service!
+Please ensure that this software can reach the authentication service to register any generated seeds!
+Otherwise your token will not authenticate you to the network after you program it with this seedUsage of ./server:
+  -auth-ip string
+        Set the IP address of the auth server (default "127.0.0.1")
+  -loglevel string
+        Set the logging level (debug, info, warn, error) (default "info")
+</pre>
+</div>
+
+									<p>Right off the bat we can see that it is a <a href="https://grpc.io/docs/what-is-grpc/" target="_blank">gRPC</a> server that generates and registers <a href="https://en.wikipedia.org/wiki/One-time_password" target="_blank">OTP</a> seeds with an "auth server" at 127.0.0.1:50052. It also has different levels of logging which  proves useful later.</p>
+									
+									<p>The next thing I wanted to do was figure out what exactly this "auth server" does and what happens if we can get the "OTP seed generation" server to connect to it. This portion took quite a bit of research as I didn't have much experience with this language, but luckily the website for <a href="https://go.dev/" target="_blank">Go</a> has a ton of information that we can use.</p>
+									
+									<p>After some more research, I found out that Go programs use Protocol Buffers (<a href="https://protobuf.dev/overview/" target="_blank">Protobuf</a>) to package data into a compact format that makes it easy to send between systems. Protobuf is basically a blueprint that tells programs what kind of data to expect so everything stays in sync. gRPC takes those Protobuf definitions and auto-generates client and server code, letting programs talk to each other fast and efficiently over HTTP/2.</p>
+									
+									<p>Now we have a way forward. We need to generate the server code for the "auth server" so our OTP seed generation server can connect to it as a client, but we need to define the correct messages in Protobuf. These messages act as structured data models which will allow us to pass the correct information when making function calls.</p>
+									
+									<p>Fortunately for you, there is a tool out there called <a href="https://github.com/arkadiyt/protodump" target="_blank">Protodump</a> that can extract all Protobuf descriptors from a given binary and save them as .proto files.<br>Unfortunately for me, <b><em>I didn't find out about the tool until after the challenge... </em></b>so I'm going to write about how I found the descriptors manually.</p>
+									
+									<p>This is when the Ghidra journey started -- I imported the server and decompiled as Golang:</p>
+								
+									<div class="box">
+										<div style="text-align: center;">
+											<img src="../../images/ghidra_import.png" alt="" width="auto" class="other-img"/>
+										</div>
+									</div>
+									
+									<p>After Ghidra finished analyzing the server, finding the descriptors took a little bit of time. I located the main functions and found interesting code in the GetSeed function:</p>
+									
+									
+<!-- Code example -->	
+<div class="box">
+<h4>Main functions:</h4>
+
+<pre class="terminal">
+main.(*SeedgenAuthClient).auth
+main.(*seedGenerationServer).GetSeed
+main.(*seedGenerationServer).StressTest
+main.init.0
+main.main
+main.main.WithTransportCredentials.func1
+main.NewSeedgenAuthClient
+</pre>
+
+									
+<!-- Code example -->	
+<h4>First few lines of the decompiled GetSeed function:</h4>
+
+<pre><code class="language-javascript">func(context.Context, *seedgen.GetSeedRequest) (*seedgen.GetSeedResponse, error)_multivalue_return_t ype
+ main::main.(*seedGenerationServer).GetSeed
+           (main.seedGenerationServer *param_1,context.Context param_2,
+           otp/seedgen.GetSeedRequest *param_3)
+
+{
+  log/slog.Logger *plVar1;
+  uint64 val;
+  auth/auth_service.RegisterOTPSeedRequest *paVar2;
+</pre></code>
+</div>
+
+									<p>We notice two important things here in the decompiled code: <b>otp/seedgen</b> and <b>auth/auth_service</b>. These must be the packages or modules that include our user generated code -- code that isn't included with generic imports. I did some more digging, ran some more strings, and found some pretty interesting results -- different getter methods for each request and response struct. These must be the descriptors:</p>
+									
+									
+<div class="box">
+<div class="row">
+<div class="col-6 col-12-small">
+
+<!-- Code example -->	
+<h4>otp/seedgen:</h4>
+
+<pre class="terminal">
+otp/seedgen.(*GetSeedRequest).GetPassword
+otp/seedgen.(*GetSeedRequest).GetUsername
+otp/seedgen.(*GetSeedResponse).GetCount
+otp/seedgen.(*GetSeedResponse).GetSeed
+otp/seedgen.(*PingRequest).GetPing
+otp/seedgen.(*PingResponse).GetResponse
+otp/seedgen.(*StressTestRequest).GetCount
+otp/seedgen.(*StressTestResponse).GetResponse
+
+
+
+
+
+
+
+
+</pre>
+</div>
+<div class="col-6 col-12-small">
+<!-- Code example -->	
+<h4>auth/auth_grpc:</h4>
+
+<pre class="terminal">
+auth/auth_grpc.(*AuthRequest).GetPassword
+auth/auth_grpc.(*AuthRequest).GetUsername
+auth/auth_grpc.(*AuthResponse).GetSuccess
+auth/auth_grpc.(*LogoutRequest).GetToken
+auth/auth_grpc.(*LogoutResponse).GetSuccess
+auth/auth_grpc.(*PingRequest).GetPing
+auth/auth_grpc.(*PingResponse).GetResponse
+auth/auth_grpc.(*RefreshTokenRequest).GetToken
+auth/auth_grpc.(*RefreshTokenResponse).GetToken
+auth/auth_grpc.(*RegisterOTPSeedRequest).GetSeed
+auth/auth_grpc.(*RegisterOTPSeedRequest).GetUsername
+auth/auth_grpc.(*RegisterOTPSeedResponse).GetSuccess
+auth/auth_grpc.(*VerifyOTPRequest).GetOtp
+auth/auth_grpc.(*VerifyOTPRequest).GetUsername
+auth/auth_grpc.(*VerifyOTPResponse).GetSuccess
+auth/auth_grpc.(*VerifyOTPResponse).GetToken
+</pre>
+</div>
+</div>
+</div>
+									
+									
+									<p>Now that I had the descriptors and partial messages, I went back into Ghidra to find the exact data types in the Data Type Manager. Here I use the AuthRequest and AuthResponse data types as examples:</p>
+									
+<div class="row">
+<div class="col-6 col-12-small">
+<!-- Code example -->	
+<div class="box">
+<h4>AuthRequest:</h4>
+<div style="text-align: center;">
+<img src="../../images/authrequest_type.png" alt="" width="auto" class="other-img"/>
+</div>
+</div>
+</div>
+<div class="col-6 col-12-small">
+<!-- Code example -->	
+<div class="box">
+<h4>AuthResponse:</h4>
+<div style="text-align: center;">
+<img src="../../images/authresponse_type.png" alt="" width="auto" class="other-img"/>
+</div>
+</div>
+</div>
+</div>
+
+									<p>As we can see, the AuthRequest struct consists of two string variables (username and password), while the AuthResponse struct consists of a bool variable (success). With this, we can extract the other struct types, write out our auth proto file, and generate our auth server code:</p>
+
+									<p><em>Note: I had to do a bit more digging to find the correct proto file structure and syntax using the Protobuf link above. We also need to make sure we take note of the otp/seedgen descriptors as well in order to successfully leverage the running software and make the necessary gRPC calls.</em></p>
+
+<!-- Code example -->	
+<div class="box">
+<h4>auth.proto</h4>
+<pre><code class="language-go">syntax = "proto3";
+
+package auth_service;
+
+option go_package = "auth_service/auth_grpc";
+
+message LoginRequest {
+    string Username = 1;
+    string Password = 2;
+}
+
+message LoginResponse {
+    bool Success = 1;
+    int64 Token = 2;
+}
+
+message AuthRequest {
+    string Username = 1;
+    string Password = 2;
+}
+
+message AuthResponse {
+    bool Success = 1;
+}
+
+message RegisterOTPSeedRequest {
+    string Username = 1;
+    int64 Seed = 2;
+}
+
+message RegisterOTPSeedResponse {
+    bool Success = 1;
+    int64 Seed = 2;
+}
+
+message VerifyOTPRequest {
+    string Username = 1;
+    int64 Otp = 2;
+}
+
+message VerifyOTPResponse {
+    bool Success = 1;
+    string Token = 2;
+}
+
+message RefreshTokenRequest {
+    string Token = 1;
+}
+
+message RefreshTokenResponse {
+    string Token = 1;
+}
+
+message LogoutRequest {
+    string Token = 1;
+}
+
+message LogoutResponse {
+    bool Success = 1;
+}
+
+message PingRequest {
+    int32 Ping = 1;
+}
+
+message PingResponse {
+    int32 Response = 1;
+}
+
+service AuthService {
+    rpc Login(LoginRequest) returns (LoginResponse);
+    rpc Authenticate(AuthRequest) returns (AuthResponse);
+    rpc RegisterOTPSeed(RegisterOTPSeedRequest) returns (RegisterOTPSeedResponse);
+    rpc VerifyOTP(VerifyOTPRequest) returns (VerifyOTPResponse);
+    rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
+    rpc Logout(LogoutRequest) returns (LogoutResponse);
+    rpc Ping(PingRequest) returns (PingResponse);
+}
+</pre></code>
+
+<!-- Code example -->	
+<h4>seed.proto</h4>
+<pre><code class="language-go">syntax = "proto3";
+
+package seed_generation;
+
+service SeedGenerationService {
+    rpc GetSeed(GetSeedRequest) returns (GetSeedResponse);
+	rpc StressTest(StressTestRequest) returns (StressTestResponse);
+	rpc Ping(PingRequest) returns (PingResponse);
+}
+
+message GetSeedRequest {
+    string username = 1;
+    string password = 2;
+	repeated bool stress = 3;
+}
+
+message GetSeedResponse {
+    int64 seed = 1;
+    int64 count = 2;
+}
+
+message StressTestRequest {
+	int64 count = 1;
+    repeated bool stress = 2;
+}
+
+message StressTestResponse {
+    int64 success = 1;
+    int32 message = 2;
+	string message2 = 3;
+	int64 response = 4;
+}
+
+message PingRequest {
+    int64 Ping = 1;
+}
+
+message PingResponse {
+    int64 Response = 1;
+}
+
+message GetAuthRequest {
+    int64 Ping = 1;
+}
+
+message GetAuthResponse {
+    int64 Response = 1;
+}
+</pre></code>
+</div>
+	
+									<p>Now we need to generate the auth server code using <a href="https://protobuf.dev/reference/go/go-generated/" target="_blank">protoc</a>. Because we run our command from the server's root directory (workspace), and our proto file points to auth_service/auth_grpc, the file structure for the generated code will be as follows: (workspace/auth_service/auth_grpc/generated_code). After that, we can create our go <a href="https://go.dev/ref/mod" target="_blank">module</a> and start writing the main auth server logic. As the command suggests, we can add module requirements with <b>go mod tidy</b>.</p>
+
+<!-- Terminal emulation -->							
+<div class="box">
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ protoc --go_out=. --go-grpc_out=. auth_service/auth.proto
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ go mod init AuthService
+go: creating new go.mod: module AuthService
+go: to add module requirements and sums:
+        go mod tidy
+</pre>
+</div>
+
+									<p>Now for the auth server logic. We need to establish the server and define our methods (what we found from the proto descriptors). I played with this for a while with help from <a href="https://pascalallen.medium.com/how-to-build-a-grpc-server-in-go-943f337c4e05" target="_blank">this</a> article, but for brevity's sake, here is the code that established our auth server and was successful in connecting to the seedgen client:</p>
+
+<!-- Code example -->	
+<div class="box">
+<h4>AuthService.go</h4>
+<pre><code class="language-go">package main
+
+import (
+    "context"
+    "log"
+    "net"
+    "google.golang.org/grpc"
+    "google.golang.org/grpc/credentials/insecure"
+    pb "Auth_Service/auth_service/auth_grpc"
+)
+
+type AuthServer struct {
+    pb.UnimplementedAuthServiceServer
+}
+
+// Authenticate descriptor
+func (s *AuthServer) Authenticate(ctx context.Context, req *pb.AuthRequest) (*pb.AuthResponse, error) {
+    log.Printf("Received Authenticate request: %v", req)
+	//TODO: Add authentication logic here
+	success := false
+    return &pb.AuthResponse{
+        Success: success,
+    }, nil
+}
+
+// RegisterOTPSeed descriptor
+func (s *AuthServer) RegisterOTPSeed(ctx context.Context, req *pb.RegisterOTPSeedRequest) (*pb.RegisterOTPSeedResponse, error) {
+    log.Printf("Received RegisterOTPSeed request: %v", req)
+    return &pb.RegisterOTPSeedResponse{
+        Success: true,
+    }, nil
+}
+
+// VerifyOTP descriptor
+func (s *AuthServer) VerifyOTP(ctx context.Context, req *pb.VerifyOTPRequest) (*pb.VerifyOTPResponse, error) {
+    log.Printf("Received VerifyOTP request: %v", req)
+    return &pb.VerifyOTPResponse{
+        Success: true,
+        Token:   "token",
+    }, nil
+}
+
+// Ping descriptor
+func (s *AuthServer) Ping(ctx context.Context, req *pb.PingRequest) (*pb.PingResponse, error) {
+    log.Printf("Received Ping request: %v", req)
+    return &pb.PingResponse{
+        Response: req.Ping,
+    }, nil
+}
+
+func main() {
+    lis, err := net.Listen("tcp", "localhost:50052")
+    if err != nil {
+        log.Fatalf("Failed to listen: %v", err)
+    }
+    opts := []grpc.ServerOption{
+        grpc.Creds(insecure.NewCredentials()),
+    }
+
+    grpcServer := grpc.NewServer(opts...)
+    pb.RegisterAuthServiceServer(grpcServer, &AuthServer{})
+
+    log.Printf("Auth Server started on port 50052")
+    if err := grpcServer.Serve(lis); err != nil {
+        log.Fatalf("Failed to serve: %v", err)
+    }
+}
+</pre></code>
+</div>
+
+									<p>Learning about the log levels from the help flag at the beginning of the task, we ran the seedgen server with the flag <b>-loglevel=debug</b> to get additional logging.</p>
+
+
+<div class="box">
+<div class="row">
+<div class="col-6 col-12-small">
+
+<!-- Terminal emulation -->	
+<h4>Running the auth server:</h4>
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ go run AuthService.go
+2025/02/10 22:20:25 Auth Server started on port 50052
+2025/02/10 22:20:28 Received Ping request: Ping:123
+</pre>
+
+</div>
+<div class="col-6 col-12-small">
+<!-- Terminal emulation -->	
+<h4>Running the seedgen server:</h4>
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ ./server -loglevel=debug
+Starting the Guardian Armaments OTP seed generation service! Please ensure that this software can reach the authentication service to register any generated seeds! Otherwise your token will not authenticate you to the network after you program it with this seed
+
+{"time":"2025-02-10T22:44:39.680782036-05:00","level":"INFO","msg":"Connected to auth server"}
+
+{"time":"2025-02-10T22:44:39.694000435-05:00","level":"DEBUG","msg":"Auth Service Pong ","pong":123}
+
+{"time":"2025-02-10T22:44:39.694061735-05:00","level":"INFO","msg":"Seedgen Server running on port 50051"}
+</pre>
+</div>
+</div>
+</div>
+
+									<p>The seedgen server is running, the next step is to interact with it. I found this great grpc tool called <a href="https://github.com/fullstorydev/grpcurl" target="_blank">gRPCurl</a> that is essentially <a href="https://curl.se/" target="_blank">curl</a> for gRPC servers. Let's run the tool with the <b>list</b> option to list the available services and the <b>-plaintext</b> flag since we aren't using TLS. </p>
+
+<!-- Terminal emulation -->							
+<div class="box">
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ grpcurl -plaintext localhost:50051 list
+Failed to list services: server does not support the reflection API
+</pre>
+</div>
+
+									<p>Here we can see that the seedgen server doesn't allow the listing of services. This is where the descriptors that we located up above in <b>seed.proto</b> come in to play. We can use that proto file as well as the correct package/service name (in the GetSeed metadata) that we located while starting to reverse engineer the server. Let's send an authentication test using the <b>-d</b> flag and login data.</p>
+									
+<!-- Terminal emulation -->	
+<div class="box">
+<h4>gRPCurl:</h4>
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ grpcurl -plaintext -proto seed.proto -d '{"username":"user","password":"password"}' localhost:50051 seed_generation.SeedGenerationService/GetSeed
+
+ERROR:
+  Code: Unknown
+  Message: failed to authenticate
+</pre>
+
+
+<div class="row">
+<div class="col-6 col-12-small">
+
+<!-- Terminal emulation -->	
+<h4>Seedgen server output with debug:</h4>
+<pre class="terminal">
+{"time":"2025-02-12T22:09:56.978056276-05:00","level":"DEBUG","msg":"got a GetSeed","username":"user","password":"password"}
+
+{"time":"2025-02-12T22:09:56.978105776-05:00","level":"INFO","msg":"Authenticating","username":"user","password":"password"}
+
+{"time":"2025-02-12T22:09:56.978134276-05:00","level":"DEBUG","msg":"Authenticating with auth service"}
+
+{"time":"2025-02-12T22:09:56.979165976-05:00","level":"ERROR","msg":"Failed to authenticate client with service"}
+
+{"time":"2025-02-12T22:09:56.979214676-05:00","level":"WARN","msg":"failed to authenticate user","username":"user","password":"password"}
+</pre>
+
+</div>
+<div class="col-6 col-12-small">
+<!-- Terminal emulation -->	
+<h4>Auth server output:</h4>
+<pre class="terminal">
+2025/02/12 22:09:56 Received Authenticate request: Username:"user"  Password:"password"
+</pre>
+</div>
+</div>
+</div>
+
+									<p>Perfect. We can see that the seedgen server is reaching out to the auth server for authentication. We just need to edit the auth server code to include our authentication logic. Let's add a simple test user, restart our servers, and run the same gRPCurl again.</p>
+
+<!-- Code example -->	
+<div class="box">
+<h4>AuthService.go</h4>
+<pre><code class="language-go">// Authenticate descriptor
+func (s *AuthServer) Authenticate(ctx context.Context, req *pb.AuthRequest) (*pb.AuthResponse, error) {
+    log.Printf("Received Authenticate request: %v", req)
+	success := false
+	if req.Username == "user" && req.Password == "password" {
+			success = true
+	}
+    return &pb.AuthResponse{
+        Success: success,
+    }, nil
+}
+</pre></code>
+
+<!-- Terminal emulation -->	
+<div id="SuccessfulGetSeed">
+<h4>Successful GetSeed gRPCurl:</h4>
+</div>
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ grpcurl -plaintext -proto seed.proto -d '{"username":"user","password":"password"}' localhost:50051 seed_generation.SeedGenerationService/GetSeed
+{
+  "seed": "4400331791733253597",
+  "count": "1"
+}
+</pre>
+</div>
+
+									<p>Great success. We have successfully authenticated and registered our generated seed. After restarting the server and running the same gRPCurl with different usernames and passwords, I noticed that the same seed is generated for each count, regardless of which username was used. I immediately knew the random generation must not be too random, i.e., using the same <b>random seed</b>, and thought that this must have something to do with the task.</p>
+									
+									<p>At this point, I had to go back in to Ghidra to find more information.</p>
+									
+									<p>I dove back in to main.main and noticed something interesting. After main.NewSeedgenAuthClient is called, the auth_service_client's currentRand and count are stored. I then dug in to main.NewSeedgenAuthClient and located the initial values of currentRand and count.</p>
+
+<!-- Code example -->	
+<div class="box">
+<h4>main.main (line 340+):</h4>
+<pre><code class="language-javascript">mVar17 = main.NewSeedgenAuthClient(cc);
+local_130 = mVar17.auth_client.data;
+local_120 = mVar17.auth_client;
+pmVar6 = runtime::runtime.newobject(&main.seedGenerationServer___internal/abi.StructType.Type);
+(pmVar6->auth_service_client).auth_client.tab = local_120;
+(pmVar6->auth_service_client).currentRand = mVar17.currentRand;
+(pmVar6->auth_service_client).count = mVar17.count;
+</pre></code>
+
+<!-- Code example -->	
+<h4>main.NewSeedgenAuthClient:</h4>
+<pre><code class="language-javascript">math/rand::math/rand.Seed(0x15e66f67c20de); // int 385271291715806
+...
+iVar4 = math/rand::math/rand.Int63();
+...
+mVar9.currentRand = iVar4;
+mVar9.count = 0;
+</pre></code>
+</div>
+
+									<p>We found the seed, which we can then theoretically use to generate any seed for any count. The APT some how used this information to gain access into the GA network, but how?</p>
+									
+									<p>Back into Ghidra I went. This time I dug in to the main.auth function which turned out to be the jackpot. There is logic for a 'test user' which is validated on what appeared to be some bitwise operations against uVar13, which is initiated as the currentRand (which we already know is <b>currentRand = seed[at count]</b>). For reference, I cleaned up the pseudo code from Ghidra as much as possible:</p>
+									
+<!-- Code example -->	
+<div class="box">
+<h4>Test user authentication logic:</h4>
+<pre><code class="language-javascript">uVar12 = username.len;
+puVar14 = username.str;
+c->count = c->count + 1;
+uVar13 = c->currentRand;
+iVar8 = math/rand::math/rand.Int63();
+c->currentRand = iVar8;
+uVar9 = 0;
+...
+  do {
+    if ((int)uVar12 <= (int)uVar9) {
+      if ((dword)uVar13 == 0xa253bb64) {
+        log("test user authenticated, but has no privileges in network so no need to authenticate with Auth Service!");
+        uVar5 = c->currentRand;
+        uVar6 = c->count;
+        mVar23.~r1 = uVar6;
+        mVar23.~r0 = uVar5;
+        mVar23.~r2 = (error)ZEXT816(0);
+        return mVar23;
+      }
+	...
+	}
+    if ((int)uVar12 < (int)(uVar9 + 4)) {
+      iVar16 = uVar12 - uVar9;
+      if (iVar16 == 1) {
+        if (uVar12 <= uVar9) {
+          runtime::runtime.panicIndex();
+        }
+        dVar15 = (dword)puVar14[uVar9];
+      }
+      else if (iVar16 == 2) {
+        if (uVar12 <= uVar9) {
+          runtime::runtime.panicIndex();
+        }
+        if (uVar12 <= uVar9 + 1) {
+          runtime::runtime.panicIndex(uVar9 + 1);
+        }
+        dVar15 = (dword)*(ushort *)(puVar14 + uVar9);
+      }
+      else if (iVar16 == 3) {
+        if (uVar12 <= uVar9) {
+          runtime::runtime.panicIndex();
+        }
+        if (uVar12 <= uVar9 + 1) {
+          runtime::runtime.panicIndex(uVar9 + 1);
+        }
+        if (uVar12 <= uVar9 + 2) {
+          runtime::runtime.panicIndex(uVar9 + 2);
+        }
+        dVar15 = (dword)CONCAT12(puVar14[uVar9 + 2],*(undefined2 *)(puVar14 + uVar9));
+      }
+      else {
+        dVar15 = 0;
+      }
+    }
+    else {
+      if (uVar12 <= uVar9) {
+        runtime::runtime.panicIndex();
+      }
+      if (uVar12 <= uVar9 + 1) {
+        runtime::runtime.panicIndex(uVar9 + 1);
+      }
+      if (uVar12 <= uVar9 + 2) {
+        runtime::runtime.panicIndex(uVar9 + 2);
+      }
+      if (uVar12 <= uVar9 + 3) {
+        runtime::runtime.panicIndex(uVar9 + 3);
+      }
+      dVar15 = *(dword *)(puVar14 + uVar9);
+    }
+    uVar13 = (uint)(dword)((dword)uVar13 ^ dVar15);
+    uVar9 = uVar9 + 4;
+  } while( true );
+</pre></code>
+</div>
+									<p>Here is what we know:
+										<ul><b>Server starts; auth client is established:</b>
+											<li>currentRand is initiated as math.randInt63(<b>385271291715806</b>)</li>
+											<li>count is initiated as 0</li>
+										</ul>
+										<ul><b>main.auth is called:</b>
+											<li>count is incremented by 1</li>
+											<li>uVar13 is assigned as currentRand</li>
+											<li>currentRand is assigned as a new random Int63</li>
+											<li>Logic begins, processes username in 4-byte chunks</li>
+											<li>Each processed chunk is XORed with uVar13</li>
+											<li>If (lower 32-bits) uVar13 == <b>0xa253bb64</b> then test user is authenticated, no need to authenticate with Auth Server</li>
+										</ul>
+									</p>
+									
+									<p>This was my way forward: I needed to re-create the psuedo-random seed at count 0, reverse the authentication logic, and figure out what username allows us to authenticate. Here is our code to replicate the random seed generation: <em></em></p>
+
+<!-- Code example -->	
+<div class="box">
+<h4>GenerateSeed.go</h4>
+<pre><code class="language-go">package main
+
+import (
+	"fmt"
+	"math/rand"
+	"os"
+	"strconv"
+)
+
+func main() {
+	if len(os.Args) < 2 {
+		fmt.Println("Usage: go run GenerateSeed.go [count]")
+		return
+	}
+
+	countInput := os.Args[1]
+
+	count, err := strconv.Atoi(countInput)
+	if err != nil || count <= 0 {
+		fmt.Println("Invalid count. Provide a positive integer.")
+		return
+	}
+
+	seed := int64(385271291715806) //patient zero, "currentRand"
+	rand.Seed(seed)
+
+	patientZero := rand.Int63()
+	fmt.Printf("Patient Zero:  %d\n", patientZero)
+
+	for i := 0; i < count; i++ {
+		randomNumber := rand.Int63() // Generate a new random number
+		fmt.Printf("Count: %d Seed: %d\n", i+1, randomNumber)
+	}
+}
+</pre></code>
+
+<!-- Terminal emulation -->	
+<h4>go run GenerateSeed.go [count]:</h4>
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ go run GenerateSeed.go 10
+Patient Zero:  1786850842773610000
+Count: 1 Seed: 4400331791733253597
+Count: 2 Seed: 5085443624277175735
+Count: 3 Seed: 8038961779827383649
+Count: 4 Seed: 2318197396825510259
+Count: 5 Seed: 1992699034100043998
+Count: 6 Seed: 5765676343795180668
+Count: 7 Seed: 5516475630914271510
+Count: 8 Seed: 2205902579806739903
+Count: 9 Seed: 3395203367804169683
+Count: 10 Seed: 6694648398285267541
+</pre>
+</div>
+
+									<p>As we can see, the seed generated for our Count 1 is the same seed <a href="#SuccessfulGetSeed">generated</a> from the successful GetSeed gRPCurl. Now that we have the same pseudo-generated random seeds, we just need to reverse the bitwise operation from our 'Patient Zero' (<b>1786850842773610000</b>) and the lower-32 bits of <b>0xa253bb64</b>.</p>
+
+<!-- Code example -->	
+<div class="box">
+<h4>Reverse.py:</h4>
+<pre><code class="language-python">import struct
+target_result = 0xA253BB64  # 2723396452
+initial_seed = 1786850842773610000 # generated seed at count 0
+
+# reverse the XOR operation and extract the lower-32 bits
+puVar14 = initial_seed ^ target_result
+lowest_32_bits = puVar14 & 0xFFFFFFFF
+
+# convert the 32-bit integer to bytes and decode as ASCII
+decoded_username = ''.join(chr(b) for b in struct.pack('&lt;I', lowest_32_bits))
+
+print(decoded_username)
+</pre></code>
+
+<!-- Terminal emulation -->	
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ python3 reverse.py
+test
+</pre>
+</div>
+
+									<p>Now that we have the <em>test</em> username, let's change the username 'user' to 'test' in our AuthService.go code and then try to authenticate:</p>
+									
+<!-- Terminal emulation -->	
+<div class="box">
+<h4>gRPCurl:</h4>
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ grpcurl -plaintext -proto seed.proto -d '{"username":"test","password":"password"}' localhost:50051 seed_generation.SeedGenerationService/GetSeed
+{
+  "seed": "4400331791733253597",
+  "count": "1"
+}
+</pre>
+
+
+<div class="row">
+<div class="col-6 col-12-small">
+
+<!-- Terminal emulation -->	
+<h4>Seedgen server output with debug:</h4>
+<pre class="terminal">
+{"time":"2025-02-17T21:35:05.850986786-05:00","level":"DEBUG","msg":"got a GetSeed","username":"test","password":"password"}
+
+{"time":"2025-02-17T21:35:05.851050086-05:00","level":"INFO","msg":"Authenticating","username":"test","password":"password"}
+
+{"time":"2025-02-17T21:35:05.851056386-05:00","level":"DEBUG","msg":"test user authenticated, but has no privileges in network so no need to authenticate with Auth Service!"}
+
+{"time":"2025-02-17T21:35:05.851060286-05:00","level":"INFO","msg":"Registered OTP seed with authentication service","username":"test","seed":4400331791733253597,"count":1}
+</pre>
+
+</div>
+<div class="col-6 col-12-small">
+<!-- Terminal emulation -->	
+<h4>Auth server output:</h4>
+<pre class="terminal">
+2025/02/17 21:35:05 Received RegisterOTPSeed request: Username:"test"  Seed:4400331791733253597
+</pre>
+</div>
+</div>
+</div>
+
+									<p>And there we have it. We successfully authenticated with the network <em>without authenticating with the network</em> because although the seedgen server says there is no need to authenticate with the Auth Service, the seedgen server still <b>registered the OTP seed with the Auth Service</b> with the associated 'test' user and seed. I'd also like to note that the test user is validated by the seed at count[0], but the seed that is registered is the seed at count[1].</p>
+									
+									<p>Let's try entering what we have thus far:</p>
+									
+									<p>{"username":"test", "seed":4400331791733253597, "count":1}</p>
+																		
+									<h2>... "No, that doesn't get them anything useful."</h2>
+
+									<p>Hold on, what does that shredded piece of paper mean? (We're not there yet...)</p>
+									
+									<p>This is where a lot of logical thinking took place -- and where I changed my Discord handle to having completed task <b>2.5</b> for being at the half way point -- I just knew that I had 2/3 (seed and count) keys required to complete the task. But what could that username be?...</p>
+									
+									<p>Ah, got it. If I were the APT and I knew there was a <em>test</em> user who had a known-registered OTP seed, I would just need to make the system <em>think</em> that I am authenticating as that user when I am really authenticating as someone else. Taking a look at the shredded piece of paper... the username <em>must</em> be <b>JASPER_0</b>... <b>or is that an O</b>?</p>
+									
+									<p>This is where the vulnerability comes into play. All I needed to do was find which seed gave me the same lower-32 bits as the test user with the seed at count[0]. To do this, I made a go program to reverse XOR the result that we found (<b>0xA253BB64</b>) based on a username we provide, and then generate a new seed to check the lower-32 bits accordingly:</p>								
+
+<!-- Code example -->	
+<div class="box">
+<h4>FindLower32.go</h4>
+<pre><code class="language-go">package main
+
+import (
+	"fmt"
+	"math/rand"
+	"os"
+)
+
+func reverseXOR(username string) uint32 {
+	puVar14 := []byte(username)
+	var uVar13Start uint32 = 0xA253BB64 // int 3592478224
+	uVar9 := 0
+
+	for uVar9 < len(puVar14) {
+		var dVar15 uint32 = 0
+		remaining := len(puVar14) - uVar9
+
+		switch {
+		case remaining == 1:
+			dVar15 = uint32(puVar14[uVar9])
+		case remaining == 2:
+			dVar15 = uint32(puVar14[uVar9]) | uint32(puVar14[uVar9+1])<<8
+		case remaining == 3:
+			dVar15 = uint32(puVar14[uVar9]) | uint32(puVar14[uVar9+1])<<8 | uint32(puVar14[uVar9+2])<<16
+		default:
+			dVar15 = uint32(puVar14[uVar9]) | uint32(puVar14[uVar9+1])<<8 | uint32(puVar14[uVar9+2])<<16 | uint32(puVar14[uVar9+3])<<24
+		}
+
+		uVar13Start ^= dVar15
+		uVar9 += 4
+	}
+
+	return uVar13Start
+}
+
+func main() {
+	if len(os.Args) < 2 {
+		fmt.Println("Usage: go run main.go [username]")
+		return
+	}
+
+	username := os.Args[1]
+
+	result := reverseXOR(username)
+	fmt.Printf("Reversed XOR value for \"%s\": %d\n", username, result)
+	fmt.Println("Finding the next associated seed...\n")
+	
+	var seed int64 = 385271291715806 // located seed from the source code
+	rand.Seed(seed)
+
+	for i := 0; i < 2000000000000000; i++ { // lazy loop to increment i
+		randomNumber := rand.Int63()
+				
+		if uint32(randomNumber&0xFFFFFFFF) == result {
+			fmt.Printf("Found associated seed: %d at count %d with lower 32 bits: %d\n",
+				randomNumber, i, result)
+			randomNumber := rand.Int63()
+			fmt.Printf("Registered seed: %d Count: %d\n",
+				randomNumber, i+1)
+			break
+		}
+	}
+}
+</pre></code>
+
+<!-- Terminal emulation -->	
+<h4>Test user to validate code:</h4>
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ go run FindLower32.go test
+Reversed XOR value for "test": 3592478224
+Finding the next associated seed...
+
+Found associated seed: 1786850842773610000 at count 0 with lower 32 bits: 3592478224
+Registered seed: 4400331791733253597 Count: 1
+</pre>
+</div>
+
+									<p>Here we can see that the output is correct -- authenticating the seed at count[0] with <em>test</em>, but registering the seed at count[1] as we stated above. We're close... Let's try checking for <b>JASPER_0</b>:</p>
+									
+<!-- Terminal example -->	
+<div class="box">	
+<h4>Test user to validate code:</h4>
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ go run FindLower32.go JASPER_0
+Reversed XOR value for "JASPER_0": 3261048939
+Finding the next associated seed...
+
+--[2 minutes later]--
+
+Found associated seed: 6160503468313258091 at count 3534642994 with lower 32 bits: 3261048939
+Registered seed: 233635861716039827 Count: 3534642995
+</pre>
+<p>Solver: {"username":"JASPER_0", "seed":233635861716039827, "count":3534642995}</p>
+</div>
+
+									<h2>... "No, that doesn't get them anything useful."</h2>
+									
+									<p>What about <b>JASPER_O</b>?</p>
+
+<!-- Terminal example -->	
+<div class="box">	
+<h4>Test user to validate code:</h4>
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ go run FindLower32.go JASPER_O
+Reversed XOR value for "JASPER_O": 3177162859
+Finding the next associated seed...
+
+--[2 minutes later]--
+
+Found associated seed: 1348740740529760363 at count 5905581181 with lower 32 bits: 3177162859
+Registered seed: 5661612252531666165 Count: 5905581182
+</pre>
+<p>Solver: {"username":"JASPER_O", "seed":5661612252531666165, "count":5905581182}</p>
+</div>
+
+									<h2>... "No, that doesn't get them anything useful."</h2>
+									
+									<p>How about lowercase?</p>
+
+									<h2>... "No, that doesn't get them anything useful."</h2>
+																		
+									<p>I probably got to the 2.5 mark no more than a week into task 3... but <b>What does that shredded paper mean???</b> I had tested nearly every combination of Jasper_O -- nearly every other username I could think of to include username lists -- but nothing was working. This had me questioning if I was even on the right track... But I ended up having the answer this whole time, and nearly a month later I would finally solve this dreaded task.</p>
+
+									<hr class="major" />
+									
+									<!--Solution-->
+									<div id="solution">
+										<h3>The solution:</h3>
+									</div>
+									
+									<p>With the glorious assistance from the #GetHelp team, I was finally able to crack the code. I laid out all my work and was given one simple response that made me want to faceplant my face through a wall:</P>
+									
+									<h3>...Think of everything you were given...</h3>
+									
+									<p>I was treating this challenge as any other CTF I had competed in -- I solve one task and move on to the next. This isn't a normal challenge, and the scenario had us complete tasks in sequence. Useful information for the next Codebreaker challenge, I suppose.<p>
+									
+									<p>The answer was in the first task all along -- the email account associated with the <a href="./Task1.html#fraudulentinvoice">fraudulent invoice</a> that we've highlighted:</p>
+									
+									<h1>jasper_03940@guard.ar</h1>
+									
+									<p>Let's run our code and enter it into the solver:</p>
+									
+<!-- Terminal example -->	
+<div class="box">	
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ go run FindLower32.go jasper_03940
+Reversed XOR value for "jasper_03940": 3528167768
+Finding the next associated seed...
+
+--[2 minutes later]--
+
+Found associated seed: 2279331103041622360 at count 6242039008 with lower 32 bits: 3528167768
+Registered seed: 1801014733432263044 Count: 6242039009
+</pre>
+<p>Solver: {"username":"jasper_03940", "seed":1801014733432263044, "count":6242039009}</p>
+</div>
+
+									<p>That was it... but I felt more relieved than accomplished -- smooth sailing until Task 6.</p>
+
+									<hr class="major" />
+									
+									<div class="box">
+										<div style="text-align: center;">
+											<p><b>So that's how they leveraged their tokens!</b></p>
+											<span class="image object">
+												<img src="../../images/badge3.png" alt="" class="badge-img"/>
+											</span>
+										</div>
+									</div>
+									
+									
+									
+									<!--Pages-->
+									<div style="text-align: center;">
+										<ul class="pagination">
+											<li><a href="Task2.html" class="button">Prev</a></li>
+											<li><a href="Task1.html" class="page">1</a></li>
+											<li><a href="Task2.html" class="page">2</a></li>
+											<li><a href="#" class="page active">3</a></li>
+											<li><a href="Task4.html" class="page">4</a></li>
+											<li><a href="Task5.html" class="page">5</a></li>
+											<li><a href="Task6.html" class="page">6</a></li>
+											<li><a href="Task7.html" class="page">7</a></li>
+											<li><a href="Task4.html" class="button">Next</a></li>
+										</ul>
+									</div>
+									
+									
+								</section>
+
+						</div>
+					</div>
+
+				<!-- Sidebar -->
+					<div id="sidebar">
+						<div class="inner">
+
+							<!-- Search -->
+								<section id="search" class="alt">
+									<form method="post" action="#">
+										<input type="text" name="query" id="query" placeholder="Search" />
+									</form>
+								</section>
+
+							<!-- Menu -->
+								<nav id="menu">
+									<header class="major">
+										<h2>Menu</h2>
+									</header>
+									<ul>
+										<li><a href="../NSACodebreaker2024.html">Challenge Home</a></li>
+										<li>
+											<span class="opener">Task list</span>
+											<ul>
+												<li><a href="Task1.html">Task1</a></li>
+												<li><a href="Task2.html">Task2</a></li>
+												<li><a href="#"><b>Task3</b></a></li>
+												<li><a href="Task4.html">Task4</a></li>
+												<li><a href="Task5.html">Task5</a></li>
+												<li><a href="Task6.html">Task6</a></li>
+												<li><a href="Task7.html">Task7</a></li>
+											</ul>
+										</li>
+										<li><a href="#solution">The solution</a></li>
+									</ul>
+								</nav>
+
+							<!-- Section -->
+								<section>
+									<header class="major">
+										<h2>Get in touch</h2>
+									</header>
+									<ul class="contact">
+										<li class="icon solid fa-envelope"><a href="#">nomad1x2sec@gmail.com</a></li>
+									</ul>
+								</section>
+
+							<!-- Footer -->
+								<footer id="footer">
+									<p class="copyright">&copy; Untitled. All rights reserved. Demo Images: <a href="https://unsplash.com">Unsplash</a>. Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+								</footer>
+
+						</div>
+					</div>
+
+			</div>
+
+		<!-- Scripts??? -->
+			<script src="../../assets/js/jquery.min.js"></script>
+			<script src="../../assets/js/browser.min.js"></script>
+			<script src="../../assets/js/breakpoints.min.js"></script>
+			<script src="../../assets/js/util.js"></script>
+			<script src="../../assets/js/main.js"></script>
+
+	</body>
+</html>
