@@ -1,0 +1,867 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>nomad - cybersecurity</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../../assets/css/main.css" />
+		<script defer src="../../assets/prism/prism.js"></script>
+	</head>
+	<body class="writeup">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+
+							<!-- Header -->
+								<header id="header">
+									<a href="../../index.html" class="logo"><strong>nomad</strong> - cybersecurity</a>
+									
+									<ul class="icons">
+										<li><a href="https://github.com/nomad1x2" class="icon brands fa-github"><span class="label">Github</span></a></li>
+									</ul>
+									
+								</header>
+
+							<!-- Content -->
+								<section>
+									<header class="main">
+										<h2>Task 5 - The #153 - (Reverse Engineering, Cryptography)</h2>
+									</header>
+									<div class="box">
+										<p>Great job finding out what the APT did with the LLM! GA was able to check their network logs and figure out which developer copy and pasted the malicious code; that developer works on a core library used in firmware for the U.S. Joint Cyber Tactical Vehicle (JCTV)! This is worse than we thought!</p>
+										<p>You ask GA if they can share the firmware, but they must work with their legal teams to release copies of it (even to the NSA). While you wait, you look back at the data recovered from the raid. You discover an additional drive that you haven’t yet examined, so you decide to go back and look to see if you can find anything interesting on it. Sure enough, you find an encrypted file system on it, maybe it contains something that will help!</p>
+										<p>Unfortunately, you need to find a way to decrypt it. You remember that Emiko joined the Cryptanalysis Development Program (CADP) and might have some experience with this type of thing. When you reach out, he's immediately interested! He tells you that while the cryptography is usually solid, the implementation can often have flaws. Together you start hunting for something that will give you access to the filesystem.</p>
+										<p><b>What is the password to decrypt the filesystem?</b></p>
+										
+										<p><b>Downloads:</b><br>
+											<li>disk image of the USB drive which contains the encrypted filesystem (disk.dd.tar.gz)</li>
+											<li>Interesting files from the user's directory (files.zip)</li>
+											<li>Interesting files from the bin/ directory (bins.zip)</li>
+										</p>
+										<p><b>Prompt:</b><br><li>Enter the password (hope it works!)</li></p>
+									</div>
+
+									<hr class="major" />
+								
+								
+								
+									
+									
+									<!-- Work -->							
+									<h3>Solving the task:</h3>
+									
+									<p>This easily became my favorite task up until this point.</p>
+																		
+									<p>In the <em>files.zip</em> file, we are given everyone's public keys (and Storm's private key), encrypted passwords from a password manager, and chat logs from the <a href="https://www.pidgin.im/">Pidgin</a> application (which is an XMPP-based chat application).</p>
+									
+									<p>In the <em>bins.zip</em> file, we are given a <b>pidgin_rsa_encryption</b> executable and a <b>pm</b> (password manager) executable (both stripped).
+									
+									<p>The <em>disk.dd.tar.gz</em> zip includes the <b>disk.dd</b> USB mount.</p>
+									
+									<p>The first thing I did to start gathering my attack surface was extract the zip file, mount the drive, and examine:</p>
+									
+<!-- Terminal emulation -->							
+<div class="box">
+<h4>Loop mount and list:</h4>
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ sudo mount -o loop disk.dd /mnt & ls -la /mnt
+total 196
+drwxr-xr-x  5 nomad nomad 32768 Dec 31  1969 .
+drwxr-xr-x 20 nomad nomad  4096 Dec 22 10:12 ..
+drwxr-xr-x  2 nomad nomad 32768 Jul 31  2024 .bin
+drwxr-xr-x  2 nomad nomad 32768 Dec  2 19:25 .data
+drwxr-xr-x  2 nomad nomad 32768 Jul 31  2024 data
+-rwxr-xr-x  1 nomad nomad    76 Jul 31  2024 lock
+-rwxr-xr-x  1 nomad nomad    91 Jul 31  2024 unlock
+</pre>
+
+<h4>List .bin:</h4>
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ ls /mnt/.bin
+gocryptfs
+</pre>
+
+<h4>List .data:</h4>
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ ls /mnt/.data
+5nbG1_ELdHfmlWD23B0kOQ  H1Rn4e9GM2Y85gvswsQGUw  gocryptfs.conf  gocryptfs.diriv  gqNnkEHoK6ASs6hskPytjA
+</pre>
+
+<h4>Display the unlock executable:</h4>
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ cat /mnt/unlock
+#!/bin/bash
+cd "$(dirname "$0")"
+sleep 1
+exec ./.bin/gocryptfs "$@" -i 60s ./.data ./data
+</pre>
+
+<h4>Attempt unlock with 'test':</h4>
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ ./mnt/unlock      
+Password:  test
+Decrypting master key
+failed to unlock master key: cipher: message authentication failed
+<span class="red">Password incorrect.</span>
+</pre>
+
+</div>
+
+									<p>Here we can see that the drive is encrypted using <a href="https://nuetzlich.net/gocryptfs/">gocryptfs</a>, which is a FUSE-based encrypted filesystem. The next thing I did was look into the password manager file structure and contents:</p>
+
+<!-- Terminal emulation -->							
+<div class="box">
+<h4>Encrypted passwords folder:</h4>
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ ls passwords/b65f86ef7d91300c60b711f0cfb825f6
+AmazonWebServices  Facebook   Google     LinkedIn   Peacock     Samsung  Snapchat  TikTok   WhatsApp  laptop
+Apple              FileShare  Hulu       Microsoft  ProtonMail  Skype    Spotify   Twitter  YouTube
+Discord            Github     Instagram  Netflix    Reddit      Slack    Steam     USB-128  Zoom
+</pre>
+
+<h4>USB-128:</h4>
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ xxd -p passwords/b65f86ef7d91300c60b711f0cfb825f6/USB-128
+7c30037eec00b2e1f409ea92272d1e802dc538deb93ec21ba552bd568a4d14d5ccee
+</pre>
+</div>
+									
+									<p>The <b>b65f86ef7d91300c60b711f0cfb825f6</b> directory is the 'master password' MD5 hash, but we'll come back to that. Here we can see the encrypted password data which is the password we are looking to crack, but it appears to be encrypted using some custom method.</p>
+									
+									<p>I then looked at the keys to verify they were RSA based on the Pidgin file name:</p>
+									
+<!-- Terminal emulation -->							
+<div class="box">
+<h4>570RM's public key as an example:</h4>
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ cat keys/570RM_public_key.pem
+-----BEGIN RSA PUBLIC KEY-----
+MIIBCAKCAQEAtPsa9DxQDveIB3WU8RMaZrgGLbsZkaAk3UVcB+MJw1uxcaMj7vQC
+SQ2Ow2nBolTk6AHgiKDugxoxD6b+afdNLSlEx5aBYnytu1xh69ro2llvFTKU34n2
+CsBmUzNDuAyN4LimTroKfV+jUNq3RMmzCuRp9zbAE7YGwAAh/IgKGpm6nu0Lh/5F
+DUgqsu++bcj0o6AU06bhXQTRyT7LbbCDx6qevCs+rpbEMbe2THTrEXsU+6EdaXw4
+JeC5bY3O6IZNNoBWwHaEWyAvKVa9Yc7hlT3tZfcV2RotP/YMzBqjwS8fSWpX8FAJ
+IIBZ81HxdjeZMgGcnWLAzz7wM/9RZKG35QIBAw==
+-----END RSA PUBLIC KEY-----
+</pre>
+</div>									
+									<p>The next thing I did was look into the chat logs:</p>
+									
+<!-- Chat log emulation -->							
+<div class="box">
+<h4>Chat with B055M4N at 10:53 PM on August 11, 2024:</h4>
+<pre class="chatlog">
+<span class="blue">570RM: Got the USB drive you left for me. What’s on it?</span>
+<span class="red">B055M4N: The production build of the location service components that need to be deployed to the cloud. I’ll send you the password for it in a sec.</span>
+<span class="blue">570RM: Sounds good. I’ll get it set up once I have the password.</span>
+<span class="red">B055M4N: Cool. Also, heads up—the AWS password is about to expire. You should probably update it soon to avoid any issues.</span>
+<span class="blue">570RM: Thanks for the reminder. I’ll take care of that after I’m done with this.</span>
+<span class="red">B055M4N: No problem. I’m sending the USB drive password now.</span>
+<span class="red">B055M4N: OBVSwXD1lIfmhh+WIF7ta1YAgt5u9Ku9dsmLLkH/rFjkXOUgLhcABqrVjTqpGnp6R6nCwTJACLRdnfN3/
+e6iuHLroKMN/oS6lRDCmwMOpnHZ/Wp7FtLsMDrhRf3eqf0uy1zECCAv7p9YaJQoP4b8vd1cJZDPEoB0XMBEnFQv08g
+0BX3UW1vCt0UbmiOaxlzVL6yO25Id3QfPIkFGrVVcEPXmbfKVZjyWMfEmxZyeyXANFkHi2y8F5cDjyv6OTlNg0ly47
+kNgwpHhLuGk/AAl7nSsEyE2o/z30mnKkIqdOfyk0REXCkx3saoE4cppy4SrnVbEikyFmJKf/xqla2sq1w==</span>
+<span class="blue">570RM: Got it. I’ll put the updated AWS password and the USB password into my password manager to keep everything secure.</span>
+<span class="red">B055M4N: Good call. Better to keep everything in one place.</span>
+<span class="blue">570RM: Thanks for the heads up on everything.</span>
+</pre>
+</div>
+
+<div class="box">
+</style><h4>Chat with PL46U3 at 6:10 PM on August 12, 2024:</h4>
+<pre class="chatlog">
+<span class="blue">570RM: Have you had a chance to look at the latest changes to the obfuscation module?</span>
+<span class="green">PL46U3: Yeah, I think it should be effective for avoiding detection, but we might need to test it under different scenarios.</span>
+<span class="blue">570RM: Definitely. Also, we should make sure the payload is still clean after the new encryption layers are applied.</span>
+<span class="green">PL46U3: Good point. We can run it through the usual sandbox environments to be sure. Any updates on the server-side evasion techniques?</span>
+<span class="blue">570RM: I'm refining the code. We might need to add another layer of redirection to throw off any traffic analysis.</span>
+<span class="green">PL46U3: Makes sense. Better safe than sorry. By the way, I tried accessing the AWS account to spin up a new instance for our testing environment, but the old password doesn't work anymore.</span>
+<span class="blue">570RM: Oh, right. I recently updated the password. I'll send the new one to you in a moment.</span>
+<span class="green">PL46U3: Great, thanks. I need it ASAP to keep things moving.</span>
+<span class="blue">570RM: No problem. I'll send the password to you, V3RM1N, and 4C1D. But we'll use the custom encryption protocol we discussed earlier. Can't be too careful.</span>
+<span class="green">PL46U3: Understood. I’ll be ready on my end.</span>
+<span class="blue">570RM: Perfect. I'll have it to you shortly.</span>
+</pre>
+</div>
+
+<div class="box">
+</style><h4>Chat with PL46U3 at 6:22 PM on August 12, 2024:</h4>
+<pre class="chatlog">
+<span class="blue">570RM: MolSa/oSpVaknblQqep/jgwjlwe81GgTPOcLOdS9QHXYgAO/X9GjR1RRAdRML1XL0i2oTR7RNC0PGH
+GpcbjoIFa2PU6NWcdAfrkGQwPH1pf1NhYq5a8tRG6M7GTUCtZ/ySJq/UTh9CCikbKW5izEtnJaPNwJmdVonxjUqsdr
+FpRXayMYNb0HPqhPHr0nCmuwrEGqeTKSEMdhJ1PHvfmqsb5kDmnUF2qsadY/Uk7mHQFQ1KSJQ+ZK7YWKZ+PMJBRhaN
+M36NOPi5zAd3FoHrhrJ6uw0ZXn/cJ00ok6w0wLhG3/ZlqRtJ1DiKiOQ1kwjnvf/eQARbCgcmRsCOWRIvnQGg==</span>
+<span class="green">PL46U3: Got it! Putting it into my password manager now.</span>
+<span class="blue">570RM: Have a good night!</span>
+<span class="green">PL46U3: Thanks, you too!</span></pre>
+</div>
+
+<div class="box">
+</style><h4>Chat with 4C1D at 6:22 PM on August 12, 2024:</h4>
+<pre class="chatlog">
+<span class="blue">570RM: kw4oFwBZO+3ddZmRMw/v8oxAWn3mPn/JSw1nt0Sltnv1bHEWWcapJXOqP6WU4HhyjS+jF950SQR8Gj
+m2LYin61rjV/BEBnfW5GUxT0ouEQrOJVlcNMhG92DALg0rsNeT/Pjv2oDaZ0QhMICV9ak6I4aAVQWFlW+urCWjRd+4
+EjZtIuXcDTdYnBSLgJ6ZapGoMMFRAOTSkpzH3GcWbtZ88eDIVll7it5k0i6CjvzB86W0KZqYWHDdWjk/MmS/C+gVkp
+CeqhEmFAgXAPLIGUcAMYm3Uk8kNds28x3pbKV7W6bBJgW0TqbiZ+DNATDGcEmyjONjJs4AuYyFOr7kiisMow==</span>
+<span class="purple">4C1D: Thanks, I’ve got it.</span>
+<span class="blue">570RM: No problem. Let me know if you need anything else.</span>
+<span class="purple">4C1D: Will do. Appreciate it!</span>
+</div>
+
+<div class="box">
+</style><h4>Chat with V3RM1N at 6:22 PM on August 12, 2024:</h4>
+<pre class="chatlog">
+<span class="blue">570RM: ibpPEQ3HWn0Jsb+O2FWjHJdkVM5lWGsH/aZOVRLmBg1R37hSJ7oZNk8xPOsfA5UZPvJ0a/w0hjSiWn
+cpEp9E4YXeFWAYUXa6X2pgDkOxiAXEw0oyUFeiEV3RfKOeDWmddpgfvBj6HJJAFTKMX0cn6+GdVYjLagJxfrSL8Kpb
+sxKNB4I5iF+kI9RyHfg5UBns4ksDF2Jpudm1K50pBpVUhj2m4hTRkDe+9Cf6bd4Y+SOMktT9nRbL+ALlKeAFwZZO74
+6V+9OQ5mtdpChOXc9luLSEgzoZxLGqu1TFXAZf7VR0fxu4nvYa2QyBxML2YvBh+uIRbXYsZLIEHIoQ9l4m/A==</span>
+<span class="green">V3RM1N: Excellent, got it. Appreciate it.</span>
+<span class="blue">570RM: No worries. Let me know if there’s anything else you need.</span>
+<span class="green">V3RM1N: Will do, thanks again for the help.</span>
+</div>
+
+									<p>There were five individuals at play here, each with cool 1337 hacker names:
+									<li><b>4C1D</b> (Acid)</li>
+									<li><b>570RM</b> (Storm, which is our perspective)</li>
+									<li><b>B055M4N</b> (Bossman -- assuming the boss)</li>
+									<li><b>PL46U3</b> (Plague)</li>
+									<li><b>V3RM1N</b> (Vermin)</li>
+									</p>
+
+									<p>We read in the Bossman chat that the Boss sends Storm the USB password (encrypted), and using our context clues, we can deduce that each of these encrypted strings in the logs are produced from that <b>pidgin_rsa_encryption</b> executable. Bossman also tells Storm that the AWS password is about to expire so they update it.</p>
+									
+									<p>The next day, Storm sends three different people an encrypted string which would be that updated AWS password. Looking at the times of the messages sent, it is also safe to assume that each of the three messages were copied and pasted, i.e., they would be the same plaintext message.</p>
+									
+									<p>This step was immediately clear to me. We have three of the same plaintexts as different ciphers using three different public RSA keys. Since we can assume (and verify) that our private key shares a common exponent (3), we can easily crack our three encrypted strings using the fairly simple <a href="https://en.wikipedia.org/wiki/Coppersmith%27s_attack#H%C3%A5stad's_broadcast_attack">Håstad's broadcast attack</a>.</p>
+									
+									<p>All we need to do is extract our moduli for each public key and write our code:</p>
+									
+<!-- Terminal emulation -->							
+<div class="box">
+<h4>4C1D's modulus as an example:</h4>
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ openssl rsa -in keys/4C1D_public_key.pem -pubin -text -noout
+Public-Key: (2048 bit)
+Modulus:
+    00:c5:b7:16:ed:38:82:f5:be:8a:3f:42:72:28:29:
+    d8:d8:88:f0:e2:b6:58:4c:ec:ab:30:02:23:a1:0a:
+    19:92:89:4e:5a:ec:05:fe:a0:79:ed:dc:d1:f4:0e:
+    6d:40:6f:8c:10:90:cc:6b:7d:5a:a3:56:88:43:eb:
+    a1:95:e9:e0:89:83:16:0e:ff:7c:55:84:bf:4e:91:
+    f5:45:8d:b9:0f:24:6b:2d:36:05:d2:57:10:56:21:
+    43:81:31:22:81:02:05:83:18:dd:a6:f3:84:65:91:
+    97:e4:b1:bf:ca:55:4b:e6:bd:ce:b6:8f:3c:c9:2f:
+    6f:a7:1d:53:83:59:b3:98:3c:f4:cb:cd:18:be:4c:
+    d6:51:20:92:33:41:25:94:90:57:9a:b5:59:e5:8f:
+    db:80:32:61:7e:e1:1e:4a:5b:29:3c:13:d7:bd:73:
+    24:33:43:65:99:83:4a:de:fe:8a:32:9b:45:4b:d2:
+    1f:26:17:13:cd:4b:8d:ca:35:64:ca:ed:21:66:c8:
+    9b:bd:59:1d:16:e8:5e:1e:fb:7d:c6:32:67:63:23:
+    80:b7:2d:62:d0:cd:8e:6c:5d:9e:e6:6a:a7:7c:1f:
+    36:e2:cb:47:44:60:e3:cc:b8:25:d3:b1:fa:f5:ab:
+    7b:b0:39:56:d3:d9:8e:e1:04:26:12:63:e2:cb:61:
+    0b:7f
+Exponent: 3 (0x3)
+</pre>
+
+<!-- Code example -->	
+<h4>breakRSA.py</h4>
+<pre><code class="language-python">from base64 import b64decode, b64encode
+from sympy import mod_inverse
+import gmpy2
+
+#Encrypted messages
+c = [
+    #4C1D
+    "kw4oFwBZO+3ddZmRMw/v8oxAWn3mPn/JSw1nt0Sltnv1bHEWWcapJXOqP6WU4HhyjS+jF950SQR8Gjm2LYin61rjV/BEBnfW5GUxT0ouEQrOJVlcNMhG92DALg0rsNeT/Pjv2oDaZ0QhMICV9ak6I4aAVQWFlW+urCWjRd+4EjZtIuXcDTdYnBSLgJ6ZapGoMMFRAOTSkpzH3GcWbtZ88eDIVll7it5k0i6CjvzB86W0KZqYWHDdWjk/MmS/C+gVkpCeqhEmFAgXAPLIGUcAMYm3Uk8kNds28x3pbKV7W6bBJgW0TqbiZ+DNATDGcEmyjONjJs4AuYyFOr7kiisMow==",
+    #PL46U3
+    "MolSa/oSpVaknblQqep/jgwjlwe81GgTPOcLOdS9QHXYgAO/X9GjR1RRAdRML1XL0i2oTR7RNC0PGHGpcbjoIFa2PU6NWcdAfrkGQwPH1pf1NhYq5a8tRG6M7GTUCtZ/ySJq/UTh9CCikbKW5izEtnJaPNwJmdVonxjUqsdrFpRXayMYNb0HPqhPHr0nCmuwrEGqeTKSEMdhJ1PHvfmqsb5kDmnUF2qsadY/Uk7mHQFQ1KSJQ+ZK7YWKZ+PMJBRhaNM36NOPi5zAd3FoHrhrJ6uw0ZXn/cJ00ok6w0wLhG3/ZlqRtJ1DiKiOQ1kwjnvf/eQARbCgcmRsCOWRIvnQGg==",
+    #V3RM1N
+    "ibpPEQ3HWn0Jsb+O2FWjHJdkVM5lWGsH/aZOVRLmBg1R37hSJ7oZNk8xPOsfA5UZPvJ0a/w0hjSiWncpEp9E4YXeFWAYUXa6X2pgDkOxiAXEw0oyUFeiEV3RfKOeDWmddpgfvBj6HJJAFTKMX0cn6+GdVYjLagJxfrSL8KpbsxKNB4I5iF+kI9RyHfg5UBns4ksDF2Jpudm1K50pBpVUhj2m4hTRkDe+9Cf6bd4Y+SOMktT9nRbL+ALlKeAFwZZO746V+9OQ5mtdpChOXc9luLSEgzoZxLGqu1TFXAZf7VR0fxu4nvYa2QyBxML2YvBh+uIRbXYsZLIEHIoQ9l4m/A=="
+]
+
+#RSA Moduli
+n = [
+    #4C1D_public_key.pem
+    "C5B716ED3882F5BE8A3F42722829D8D888F0E2B6584CECAB300223A10A1992894E5AEC05FEA079EDDCD1F40E6D406F8C1090CC6B7D5AA3568843EBA195E9E08983160EFF7C5584BF4E91F5458DB90F246B2D3605D257105621438131228102058318DDA6F384659197E4B1BFCA554BE6BDCEB68F3CC92F6FA71D538359B3983CF4CBCD18BE4CD65120923341259490579AB559E58FDB8032617EE11E4A5B293C13D7BD732433436599834ADEFE8A329B454BD21F261713CD4B8DCA3564CAED2166C89BBD591D16E85E1EFB7DC63267632380B72D62D0CD8E6C5D9EE66AA77C1F36E2CB474460E3CCB825D3B1FAF5AB7BB03956D3D98EE104261263E2CB610B7F",
+    #PL46U3_public_key.pem
+    "C30A6E232807A8F916BF7716D80B10EF798E89A45BBE7BBE56AFCF34A68B32E580931872A62BEE2386551E80147F337E8C1FB594376DD62D294665AAA482273AE687468E864E4120223A944D6B83FB5A676A8D31AF2F5352E8D653D5EAEF786CA8DF7599D364DAE858B237D8EB404B3446A5D32F301FAE805CC1C1732292E398B90D53C341C70C735114150524FA64916E4EF2FF41B8D7D64D716CBA7937CE7AB1E69C4FE5D29F834564B475FC9D083A41EF5261EBA8F951D01861A18B42ADD755531269EBDE1AC4D252E606195852EE2BFA35F4AF31C439C4867A55EBA442E4BAB78FB6318039C30EB8C6567A671FE3853FC3E1B12591F0C1D6005F75D60FA1",
+    #V3RM1N_public_key.pem
+    "D4F05863A228D29805C9C58DD5EA8F1931356FC2F68755144BDFD3636632A0F8F533C9AC2BBAC5817EF36D0531F143C08A7D7EAA7D6AA468D6FAE817C5675C973F55421715CDA9DA66BAA1619BBEC4046C2E9365F67FFD9718CABA30083C9029105AC46DC27EA1AE9ED92233DCD6C2DF95E20C0345E4E75A41B6C28719CB283A2BD25EC322E6D6B22697BF25C67707897A2CD4D6C885E353BC529EC1E478C9DF0FF3BCF7B07B0E00BA3637EF86C52710BD8D6A67CBBF424F38B2E55DDD2639CB2E8462E36DA945B35CA96D7EEEB1B4C89D8533E61DA9C0F6323969816EC7BB865C6CC9CEF6677B3A52E1BF59B3E5B8C01428257F4C0897FB9D0792CF2E08F045"
+]
+
+#common exponent
+e = 3
+        
+def decodeB64(string):
+    return b64decode(string)
+
+def bytesToInt(byte_data):
+    return int.from_bytes(byte_data, 'big')
+    
+def hexToInt(string):
+    return int(string, 16)
+
+def intToBytes(integer, length):
+    return integer.to_bytes(length, 'big')
+
+def encodeB64(byte_data):
+    return b64encode(byte_data).decode('utf-8')
+
+N = hexToInt(n[0]) * hexToInt(n[1]) * hexToInt(n[2])
+N1 = N // hexToInt(n[0])
+N2 = N // hexToInt(n[1])
+N3 = N // hexToInt(n[2])
+
+def integer_cube_root(x):
+    return int(gmpy2.iroot(x, 3)[0])
+    
+m1 = mod_inverse(N1, hexToInt(n[0]))
+m2 = mod_inverse(N2, hexToInt(n[1]))
+m3 = mod_inverse(N3, hexToInt(n[2]))
+
+term1 = (bytesToInt(decodeB64(c[0])) * N1 * m1) % N
+term2 = (bytesToInt(decodeB64(c[1])) * N2 * m2) % N
+term3 = (bytesToInt(decodeB64(c[2])) * N3 * m3) % N
+
+x = (term1 + term2 + term3) % N
+
+plaintext = integer_cube_root(x)
+byte_length = (plaintext.bit_length() + 7) // 8
+
+ascii_representation = ''.join(
+    chr(b) if 32 <= b <= 126 else '.' for b in intToBytes(plaintext, byte_length)
+)
+
+print(ascii_representation)
+</pre></code>
+
+<!-- Terminal emulation -->							
+<h4>Running breakRSA.py:</h4>
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ python3 breakRSA.py
+.U.....).2_...jq.O~....L../....*gQ..........K.\_.b..a...7x....m.).>..4.9p..\.{.0..DU......O.H:U.k....3/.Hey!  I needed to update the AWS password since it expired.  The new password is e"lK`~+CA,LOi:Qy,e.  Please add it to your password managers.  Thanks!
+</pre>
+</div>
+
+									<p>We successfully broke our encryption due to improper use, and retrieved the AWS password: <b>e"lK`~+CA,LOi:Qy,e</b>. But we aren't done yet. At this point, my intent was to use the password we retrieved and reverse the encryption to find the USB password. This was the right path, but I took one wrong step and went down a rabit hole for a little bit -- to keep it short, I'll touch on the wavetops of what I did before I figured it out.</p>
+									
+									<p>I started digging deeper into the pm program. Here is an example:</p>
+									
+<div class="box">
+<!-- Terminal emulation -->							
+<h4>Breaking down the pm file:</h4>
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ ./pm
+Usage: pm.py [command]
+Commands:
+  init   - Create a new master password
+  add    - Add a new password
+  gen    - Generate a new password
+  read   - Retrieve a password
+  help   - Print this help file
+</pre>
+
+<h4>Creating the master password (MD5 directory we mentioned in the beginning):</h4>
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ ./pm init
+Enter your master password:  test
+</pre>
+
+<h4>Adding a password to the master directory:</h4>
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ ./pm add
+Enter your master password:  test
+Enter the service name:  test
+Enter the password to store for test:  test
+Successfully saved password to /home/nomad/.passwords/098f6bcd4621d373cade4e832627b4f6/test
+</pre>
+
+<h4>Displaying the encrypted password:</h4>
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ xxd -p /home/nomad/.passwords/098f6bcd4621d373cade4e832627b4f6/test
+6791462e5f420b4cc944abb63b1751074827e558
+</pre>
+
+<h4>Reading the encrypted password from the manager:</h4>
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ ./pm read
+Enter your master password:  test
+Enter the service name:  test
+Password for test: test
+</pre>
+</div>
+
+									<p>Let me break down this long series of terminals:</p>
+									
+									<li>First, we create the 'test' master key, which creates an MD5-titled directory of 'test' in the .passwords folder: (<b>098f6bcd4621d373cade4e832627b4f6</b>). This is where I also found out this was a python script, based on 'Usage: pm.py [command]'.</li><br>
+									<li>Next, we add the service (password name) '<b>test</b>' into that master directory.</li><br>
+									<li>After running xxd on the encrypted password we created at <b>passwords/098f6bcd4621d373cade4e832627b4f6/test</b>, we get the following encrypted string: <b>6791462e5f420b4cc944abb63b1751074827e558</b>.</li><br>
+									<li>Running that string through <a href="https://crackstation.net/">Crackstation</a>, we can see that the first 128 bits (<b>6791462e5f420b4cc944abb63b175107</b>) are the epoch time (in minutes) of creation: <b>29007482</b> -- Mon Feb 24 2025 21:02:00 GMT-0500 EST -- I know, this writeup is a bit late...</li><br>
+									<li>The remaining bytes (<b>4827e558</b>) would be the actual ciphertext password of 'test' -- exactly double the characters. How would we reverse that?</li>
+									
+									<br>
+									
+									<p>Let's use the gen argument to see what other info we can gather:</p>
+									
+<div class="box">
+<!-- Terminal emulation -->							
+<h4>pm gen:</h4>
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ ./pm gen
+Enter your master password:  test
+Enter the service name:  GenPassword
+Enter the password length (default 18):  18
+Your password is 2hM,?qiB)PhAMom|b`
+Successfully saved password to /home/nomad/.passwords/098f6bcd4621d373cade4e832627b4f6/GenPassword
+</pre>
+
+<h4>Displaying the encrypted password:</h4>
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ xxd -p /home/nomad/.passwords/098f6bcd4621d373cade4e832627b4f6/GenPassword
+fa9beadcb54e7f171e78c94fff310df87639694cb07fb5e6c99e9ea5854f1dac26db
+</pre>
+</div>
+
+									<p>As we can see, the 18 character password is the 128-bit MD5 hashed time (<b>fa9beadcb54e7f171e78c94fff310df8</b>) and the 144-bit/36-character encrypted password (<b>7639694cb07fb5e6c99e9ea5854f1dac26db</b>.)</p>
+									
+									<p>The password we cracked from the RSA encrypted strings was also 18 characters. I looked at the password dump and saw some similarities between the password we need to crack and the password we obtained from the chat logs:</p>
+
+<div class="box">
+<!-- Terminal emulation -->							
+<h4>Cracked AWS password (e"lK`~+CA,LOi:Qy,e):</h4>
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ xxd -p passwords/b65f86ef7d91300c60b711f0cfb825f6/AmazonWebServices
+7c30037eec00b2e1f409ea92272d1e8062cc70bee110927bb14ea76ec85133d01230
+</pre>
+
+<h4>USB-128 password mentioned in the beginning:</h4>
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$  xxd -p passwords/b65f86ef7d91300c60b711f0cfb825f6/USB-128
+7c30037eec00b2e1f409ea92272d1e802dc538deb93ec21ba552bd568a4d14d5ccee
+</pre>
+</div>
+
+									<p>The AWS password has the same epoch time, and is the same size as the USB password we need to crack, so it is safe to assume this password is also 18-characters long and created at the same time as the AWS password.</p>
+
+									<p>All of this info led to the conclusion that it was a <a href="https://www.geeksforgeeks.org/difference-between-block-cipher-and-stream-cipher/">stream cipher rather than a block cipher</a>. Trying to figure it out, I even copied the original encrypted files into my 'test' master key and tried to read the passwords that way, but that of course was too easy to work.</p>
+									
+									<p>At this point, I would take everything I thought I knew about the encryption method, the known plaintext and ciphertext, and everything else to try and manually reverse it. (This was a mistake and did not work.)</p>
+									
+									<p>After the failure of throwing seemingly random reverse scripts at our known plaintext and ciphertext, I decided to attempt to decompile the stripped python executable -- and it was extremely easy... I found <a href="https://github.com/extremecoders-re/pyinstxtractor/tree/master">this code</a> from  <a href="https://github.com/extremecoders-re">extremecoders-re</a> on GitHub that you can use to extract the bytecode.</p>
+									
+									<p>I then had issues getting my python decompiler to work, but I found <a href="https://pylingual.io">this</a> link to do it for me online (not safe for real work considering you don't know the backend).</p>
+									
+<div class="box">
+<!-- Terminal emulation -->							
+<h4>Extracting the bytecode:</h4>
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ python3 pyinstxtractor.py  pm
+[+] Processing pm
+[+] Pyinstaller version: 2.1+
+[+] Python version: 3.11
+[+] Length of package: 11512814 bytes
+[+] Found 68 files in CArchive
+[+] Beginning extraction...please standby
+[+] Possible entry point: pyiboot01_bootstrap.pyc
+[+] Possible entry point: pyi_rth_inspect.pyc
+[+] Possible entry point: pm.pyc
+[+] Found 160 files in PYZ archive
+[+] Successfully extracted pyinstaller archive: pm
+
+You can now use a python decompiler on the pyc files within the extracted directory
+</pre>
+
+<h4>Decompiled code with pylingual.io:</h4>
+<div id="pm_code">
+<pre><code class="language-python"># Decompiled with PyLingual (https://pylingual.io)
+# Internal filename: pm.py
+# Bytecode version: 3.11a7e (3495)
+# Source timestamp: 1970-01-01 00:00:00 UTC (0)
+
+import os
+import sys
+import base64
+from getpass import getpass
+import hashlib
+import time
+import string
+import random
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
+SALT = b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+
+def derive_key(password: str) -> bytes:
+    kdf = PBKDF2HMAC(algorithm=hashes.SHA256(), length=32, salt=SALT, iterations=100000, backend=default_backend())
+    return kdf.derive(password.encode())
+
+def generate_password(length: int) -> str:
+    character_list = string.ascii_letters + string.digits + string.punctuation
+    password = []
+    for i in range(length):
+        randomchar = random.choice(character_list)
+        password.append(randomchar)
+    print('Your password is ' + ''.join(password))
+    return ''.join(password)
+
+def encrypt_password(spassword: str, password: str) -> bytes:
+    key = derive_key(password)
+    ts = str(int(time.time() / 60)).encode('utf-8')
+    iv = hashlib.md5(ts).digest()
+    cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
+    encryptor = cipher.encryptor()
+    encrypted_password = encryptor.update(spassword.encode()) + encryptor.finalize()
+    return iv + encrypted_password
+
+
+def decrypt_password(encrypted_data: bytes, password: str) -> str:
+    key = derive_key(password)
+    iv = encrypted_data[:16]
+    encrypted_password = encrypted_data[16:]
+    cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
+    decryptor = cipher.decryptor()
+    decrypted_password = decryptor.update(encrypted_password) + decryptor.finalize()
+    return decrypted_password.decode()
+
+def save_password(filename: str, password: str, spassword: str):
+    encrypted_password = encrypt_password(spassword, password)
+    with open(filename, 'wb') as file:
+        file.write(encrypted_password)
+        print(f'Successfully saved password to {filename}')
+
+def load_password(filename: str, password: str) -> str:
+    with open(filename, 'rb') as file:
+        encrypted_data = file.read()
+    return decrypt_password(encrypted_data, password)
+
+def usage():
+    print('Usage: pm.py <command>')
+    print('Commands:')
+    print('  init   - Create a new master password')
+    print('  add    - Add a new password')
+    print('  gen    - Generate a new password')
+    print('  read   - Retrieve a password')
+    print('  help   - Print this help file')
+
+def main():
+    if len(sys.argv) != 2:
+        usage()
+        sys.exit(1)
+    command = sys.argv[1]
+    if command == 'init':
+        homedir = os.path.expanduser('~')
+        passdir = homedir + '/.passwords'
+        if not os.path.isdir(passdir):
+            os.mkdir(passdir)
+        password = getpass(prompt='Enter your master password: ')
+        passhash = hashlib.md5(password.encode('utf-8')).hexdigest()
+        dirname = passdir + '/' + passhash
+        if not os.path.isdir(dirname):
+            os.mkdir(dirname)
+        else:
+            print('directory already exists for that master password')
+    elif command == 'add':
+        password = getpass(prompt='Enter your master password: ')
+        passhash = hashlib.md5(password.encode('utf-8')).hexdigest()
+        dirname = os.path.expanduser('~') + '/.passwords/' + passhash
+        if not os.path.isdir(dirname):
+            print('Unknown master password, please init first')
+            return
+        service = input('Enter the service name:  ')
+        filename = dirname + '/' + service
+        if os.path.isfile(filename):
+            print('A password was already stored for that service.')
+            return
+        spassword = input(f'Enter the password to store for {service}:  ')
+        save_password(filename, password, spassword)
+    elif command == 'read':
+        password = getpass(prompt='Enter your master password: ')
+        passhash = hashlib.md5(password.encode('utf-8')).hexdigest()
+        dirname = os.path.expanduser('~') + '/.passwords/' + passhash
+        if not os.path.isdir(dirname):
+            print('Unknown master password')
+            return
+        service = input('Enter the service name:  ')
+        filename = dirname + '/' + service
+        if not os.path.isfile(filename):
+            print('No password stored for that service using that master password')
+            return
+        spassword = load_password(filename, password)
+        print(f'Password for {service}: {spassword}')
+    elif command == 'gen':
+        password = getpass(prompt='Enter your master password: ')
+        passhash = hashlib.md5(password.encode('utf-8')).hexdigest()
+        dirname = os.path.expanduser('~') + '/.passwords/' + passhash
+        if not os.path.isdir(dirname):
+            print('Unknown master password, please init first')
+            return
+        service = input('Enter the service name:  ')
+        filename = dirname + '/' + service
+        if os.path.isfile(filename):
+            print('A password was already stored for that service.')
+            return
+        pass_len = int(input('Enter the password length (default 18):  ') or '18')
+        spassword = generate_password(pass_len)
+        save_password(filename, password, spassword)
+    elif command == 'help':
+        usage()
+    else:
+        print('Unknown command')
+if __name__ == '__main__':
+    main()
+</pre></code>
+</div>
+</div>
+
+									<p>We've confirmed everything we figured out and learned even more. It also uses PBKDF2 with SHA-256 for key derivation, a fixed 16-byte '0' salt, the time as the  <a href="https://csrc.nist.gov/glossary/term/initialization_vector">IV</a> and <a href="https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#Cipher_feedback_(CFB)">AES-CFB</a> mode (stream) for encryption.</p>
+									
+									<p>Since the IV (the hashed epoch time) and salt are the same for our AWS and USB passwords, and the encryption method is CFB (which generates a keystream), in theory, we can simply reverse the process using an XOR operation to get the keystream from our known plaintext and ciphertext (AWS). We can then use that keystream and process another XOR operation on the USB ciphertext to get the plaintext of the USB password. Here is a python script I wrote to do just that:</p>
+									
+									<p><em>Note: In hindsight, I could have just performed the XOR operation to obtain the keystream saving a lot of time, but I wasn't 100% confident that the epoch time was used as the IV, so instead I pressed on.</em></p>
+									
+<!-- Code emulation -->	
+<div class="box">						
+<h4>crackUSB.py:</h4>
+<pre><code class="language-python">aws_plaintext = 'e"lK`~+CA,LOi:Qy,e'
+
+aws_ciphertext = '7c30037eec00b2e1f409ea92272d1e8062cc70bee110927bb14ea76ec85133d01230'
+usb_ciphertext = '7c30037eec00b2e1f409ea92272d1e802dc538deb93ec21ba552bd568a4d14d5ccee'
+
+# Remember, the IV is the first 16 bytes / 128 bits (epoch time in MD5)
+iv_length = 16
+
+aws_iv = bytes.fromhex(aws_ciphertext)[:iv_length]
+aws_encrypted_data = bytes.fromhex(aws_ciphertext)[iv_length:]
+
+usb_iv = bytes.fromhex(usb_ciphertext)[:iv_length]
+usb_encrypted_data = bytes.fromhex(usb_ciphertext)[iv_length:]
+
+# XOR function
+def xor_bytes(b1, b2):
+    return bytes([x ^ y for x, y in zip(b1, b2)])
+
+# Get the keystream from the known plaintext and ciphertext
+keystream = xor_bytes(aws_encrypted_data, aws_plaintext.encode('utf-8'))
+
+# Decrypt the USB ciphertext using the same keystream
+recovered_plaintext = xor_bytes(usb_encrypted_data, keystream)
+
+print("USB plaintext:", recovered_plaintext)
+</pre></code>
+
+<!-- Terminal emulation -->							
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ python3 crackUSB.py
+USB plaintext: b'*+$+8P{#U0Vw+&v|\xf2\xbb'
+</pre>
+
+</div>
+
+									<p>We see that the output is <b>*+$+8P{#U0Vw+&v|</b> with two bytes tacked on to the end: <b>\xf2\xbb</b>. We were able to successfully retrieve 16 characters of the 18-character password. I wasn't too sure as to why I only got 16 characters -- I didn't look too much into it and just decided to brute force the last two characters. Looking back at the <a href="#pm_code">code</a> above, we see in the <b>generate_password</b> function that the characters used are '<b>character_list = string.ascii_letters + string.digits + string.punctuation</b>'. This makes it rather easy to build out the brute force.</p>
+									
+									<hr class="major" />
+									
+									<!--Solution-->
+									<div id="solution">
+										<h3>The solution:</h3>
+									</div>
+									
+									<p>I installed gocryptfs to my machine and wrote the code to use it as a subprocess calling it with the '-passwd' flag. This flag changes the password used to encrypt/decrypt the files, so I can use that flag and filter the output by looking for '<em>incorrect</em>' <b>NOT</b> being in the output. Becuase we were brute forcing, I had to iterate through each of the characters in the character_list to include lower case letters first, then upper case letters, then digits 0-9, then punctuation -- it took a bit for the code to complete:</P>
+									
+<!-- Code emulation -->	
+<div class="box">						
+<h4>bruteforceUSB.py:</h4>
+<pre><code class="language-python">import subprocess
+import itertools
+import string
+
+character_list = string.ascii_letters + string.digits + string.punctuation
+
+known_prefix = "*+$+8P{#U0Vw+&v|"
+
+for chars in itertools.product(character_list, repeat=2):
+    attempt = known_prefix + "".join(chars)
+    try:
+        # Call gocryptfs with the current password attempt (after installing)
+        process = subprocess.run(
+            ["gocryptfs", "-passwd", "/mnt/.data"],
+            input=attempt.encode(),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        print(attempt)
+		# Output of the original decryption attempt that was in red at the start
+        if b"Password incorrect" not in process.stderr:
+            print(f"Password found: {attempt}")
+            break
+    except KeyboardInterrupt:
+        print("Brute force interrupted.")
+        break
+</pre></code>
+
+<!-- Terminal emulation -->				
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ python3 bruteforceUSB.py
+*+$+8P{#U0Vw+&v|aa
+*+$+8P{#U0Vw+&v|ab
+*+$+8P{#U0Vw+&v|ac
+*+$+8P{#U0Vw+&v|ad
+*+$+8P{#U0Vw+&v|ae
+*+$+8P{#U0Vw+&v|af
+*+$+8P{#U0Vw+&v|ag
+*+$+8P{#U0Vw+&v|ah
+*+$+8P{#U0Vw+&v|ai
+
+--[Iterations later]--
+
+*+$+8P{#U0Vw+&v|E9
+*+$+8P{#U0Vw+&v|E!
+*+$+8P{#U0Vw+&v|E"
+*+$+8P{#U0Vw+&v|E#
+*+$+8P{#U0Vw+&v|E$
+*+$+8P{#U0Vw+&v|E%
+*+$+8P{#U0Vw+&v|E&
+*+$+8P{#U0Vw+&v|E'
+*+$+8P{#U0Vw+&v|E(
+Password found: *+$+8P{#U0Vw+&v|E(
+</pre>
+
+</div>
+
+									<p><b>*+$+8P{#U0Vw+&v|E(</b> was the correct password and the one we used to decrypt the drive:</p>
+									
+<!-- Terminal emulation -->	
+<div class="box">						
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ sudo ./mnt/unlock         
+Password:  *+$+8P{#U0Vw+&v|E(
+Decrypting master key
+<span class="blue">Filesystem mounted and ready.</span>
+</pre>
+</div>
+				
+									<p>Contents of the drive (we'll dive <em>way</em> deep during the next task):</p>
+									
+<!-- Terminal emulation -->	
+<div class="box">						
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ sudo ls /mnt/data 
+Corefile  coredns  microservice
+</pre>
+</div>
+		
+									<p>And of course, entering <b>*+$+8P{#U0Vw+&v|E(</b> into the checker gave me the solve while granting me the status of High Performer.</p>
+
+									<!--,"response":"Still not working. It says 'Password Incorrect.' (in red)"-->
+									<hr class="major" />
+
+
+
+
+									
+									<div class="box">
+										<div style="text-align: center;">
+											<p><b>It worked! OMG that was some bad crypto.</b></p>
+											<span class="image object">
+												<img src="../../images/badge5.png" alt="" class="badge-img"/>
+											</span>
+										</div>
+									</div>
+									
+									
+									
+									<!--Pages-->
+									<div style="text-align: center;">
+										<ul class="pagination">
+											<li><a href="Task4.html" class="button">Prev</a></li>
+											<li><a href="Task1.html" class="page">1</a></li>
+											<li><a href="Task2.html" class="page">2</a></li>
+											<li><a href="Task3.html" class="page">3</a></li>
+											<li><a href="Task4.html" class="page">4</a></li>
+											<li><a href="#" class="page active">5</a></li>
+											<li><a href="Task6.html" class="page">6</a></li>
+											<li><a href="Task7.html" class="page">7</a></li>
+											<li><a href="Task6.html" class="button">Next</a></li>
+										</ul>
+									</div>
+									
+									
+									
+									
+									
+								</section>
+
+						</div>
+					</div>
+
+				<!-- Sidebar -->
+					<div id="sidebar">
+						<div class="inner">
+
+							<!-- Search -->
+								<section id="search" class="alt">
+									<form method="post" action="#">
+										<input type="text" name="query" id="query" placeholder="Search" />
+									</form>
+								</section>
+
+							<!-- Menu -->
+								<nav id="menu">
+									<header class="major">
+										<h2>Menu</h2>
+									</header>
+									<ul>
+										<li><a href="../NSACodebreaker2024.html">Challenge Home</a></li>
+										<li>
+											<span class="opener">Task list</span>
+											<ul>
+												<li><a href="Task1.html">Task1</a></li>
+												<li><a href="Task2.html">Task2</a></li>
+												<li><a href="Task3.html">Task3</a></li>
+												<li><a href="Task4.html">Task4</a></li>
+												<li><a href="#"><b>Task5</b></a></li>
+												<li><a href="Task6.html">Task6</a></li>
+												<li><a href="Task7.html">Task7</a></li>
+											</ul>
+										</li>
+										<li><a href="#solution">The solution</a></li>
+									</ul>
+								</nav>
+
+							<!-- Section -->
+								<section>
+									<header class="major">
+										<h2>Get in touch</h2>
+									</header>
+									<ul class="contact">
+										<li class="icon solid fa-envelope"><a href="#">nomad1x2sec@gmail.com</a></li>
+									</ul>
+								</section>
+
+							<!-- Footer -->
+								<footer id="footer">
+									<!--<p class="copyright">&copy; Untitled. All rights reserved. Demo Images: <a href="https://unsplash.com">Unsplash</a>. Design: <a href="https://html5up.net">HTML5 UP</a>.</p>-->
+									<p class="copyright">Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+								</footer>
+
+						</div>
+					</div>
+
+			</div>
+
+		<!-- Scripts??? -->
+			<script src="../../assets/js/jquery.min.js"></script>
+			<script src="../../assets/js/browser.min.js"></script>
+			<script src="../../assets/js/breakpoints.min.js"></script>
+			<script src="../../assets/js/util.js"></script>
+			<script src="../../assets/js/main.js"></script>
+
+	</body>
+</html>
