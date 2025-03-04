@@ -58,7 +58,323 @@
 									<!-- Work -->							
 									<h3>Solving the task:</h3>
 									
-									<p>In progress</p>
+									<p>This one stumped me almost as long as task 3 did, but it became my favorite task by far.</p>
+									
+									<p>As we saw from the previous task, we end up with three files from the USB:</p>
+									
+									<li><b>Coredns</b> - which is a stripped <a href="https://coredns.io/">Coredns</a> binary written in Go</li>
+
+									<li><b>Corefile</b> - the Coredns config file</li>
+
+									<li><b>microservice</b> - another stripped binary (referencing JS, so assumed JS)</li>
+									<br>
+									<p>The makeup of the Corefile gives us a very specific regex that we are going for:</p>
+									
+<!-- Code emulation -->	
+<div class="box">						
+<h4>Corefile:</h4>
+<pre><code class="language-go">.:1053 {
+  acl {
+    allow type A
+    filter
+  }
+  view firewall {
+    expr type() == 'A' && name() matches '^x[^.]{62}\\.x[^.]{62}\\.x[^.]{62}\\.net-zghn2ybn\\.example\\.com\\.$'
+  }
+  log
+  cache 3600
+  errors
+  frontend
+}
+</pre></code>
+</div>
+									
+									<p>From my research, I found that Coredns uses a chain of 'plugins' and loads the <a href="https://coredns.io/2017/07/23/corefile-explained/">Corefile</a> for its configuration which includes those plugins. Based on the task and the Corefile, we are looking for a domain that is of <a href="https://support.dnsimple.com/articles/a-record/#whats-an-a-record">record type A</a>, provides a <a href="https://bluecatnetworks.com/blog/the-top-four-dns-response-codes-and-what-they-mean/">NOERROR</a> response, <b>and</b> matches this regex:<br><br><b>x[62 characters].x[62 characters].x[62 characters].net-zghn2ybn.example.com.</b></p>
+									
+									<p>Seems straight forward: find the domain -- but what is that microservice?.. We'll get back to that.</p>
+									
+									<p>From my CoreDNS research, I also found that there is a <a href="https://coredns.io/plugins/debug/">debug</a> plugin that gives more logging details (similar to Task 3's loglevel). I just needed to add it to the Corefile, run the DNS server, and then generate a DNS query:</p>
+									
+									<p><em>Note: The dig and response lines were one line, but I had to edit the formatting to not mess with the rest of the site formatting.</em></p>
+													
+<!-- Terminal emulation -->	
+<div class="box">
+<h4>DNS query:</h4>					
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ dig @localhost -p 1053 xabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz.
+xabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz.
+xabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz.net-zghn2ybn.example.com.
+
+;; communications error to 127.0.0.1#1053: timed out
+;; communications error to 127.0.0.1#1053: timed out
+;; communications error to 127.0.0.1#1053: timed out
+
+; <<>> DiG 9.18.33-1~deb12u2-Debian <<>> @localhost -p 1053 xabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz.xabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz.
+xabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz.net-zghn2ybn.example.com.
+
+; (1 server found)
+;; global options: +cmd
+;; no servers could be reached
+</pre>
+<h4>CoreDNS log:</h4>					
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ ./coredns
+.:1053
+CoreDNS-1.11.3
+linux/amd64, go1.21.8, a7ed346-dirty
+
+[DEBUG] plugin/frontend: type: 1
+
+[ERROR] plugin/frontend: error decoding input:
+xabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz.xabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz.
+xabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz.net-zghn2ybn.example.com. as:
+
+ABCDEFGHIJKLMNOPQRSTUVW=0123456789ABCDEFGHIJKLMNOPQRSTUVW=ABCDEFGHIJKLMNOPQRSTUVW=0123456789ABCDEFGHIJKLMNOPQRSTUVW=
+ABCDEFGHIJKLMNOPQRSTUVW=0123456789ABCDEFGHIJKLMNOPQRSTUVW=
+
+[DEBUG] plugin/frontend: bad name: illegal base32 data at input byte 22
+
+[INFO] 127.0.0.1:34062 - 50384 "A IN xabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz.xabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz.
+xabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz.net-zghn2ybn.example.com. udp 257 false 1232" NXDOMAIN qr,aa,rd 464 0.0008625s
+
+[INFO] 127.0.0.1:38235 - 50384 "A IN xabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz.xabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz.
+xabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz.net-zghn2ybn.example.com. udp 257 false 1232" NXDOMAIN qr,aa,rd 464 0.0001546s
+
+[INFO] 127.0.0.1:39560 - 50384 "A IN xabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz.xabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz.
+xabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz.net-zghn2ybn.example.com. udp 257 false 1232" NXDOMAIN qr,aa,rd 464 0.0000717s
+</pre>
+</div>							
+									<p>Here we get some pretty interesting data. The error we get in the CoreDNS log is <b>bad name: illegal base32 data at input byte 22</b>. The DNS server looks like it combines each subdomain into one string, and (with some trial and error) removes the <b>.'s, W's, X's, Y's, and top-level</b> and also <b>turns Z's into ='s</b>. With some more research, I found that this isn't traditional Base32 encoding, but instead <a href="https://www.rfc-editor.org/rfc/rfc4648.html#section-7">Base32 encoding with extended hex alphabet</a>, which is mainly used with DNS (go figure).</p>
+									
+									<p>I then found a <a href="https://cryptii.com/pipes/base32-to-hex">site</a> that does online RFC 4648 encoding and encoded this string to Base32Hex: <b>abcdefghijklmnopqrstuvwxyz0123456789</b> which gave this encoding: <b>C5H66P35CPJMGQBADDM6QRJFE1ON4SRKELR7EU3PF8O32CHJ6GQJCDPO74======</b>.</p>
+									
+									<p>The next step was to query the DNS server once more and record the results -- but this time, I removed the length requirements by removing the entire <b>view firewall</b> block. Through more trial and error, I found out that the domain still needed to be three parts separated by '.x' while also changing the '=' to 'z'. Here is the new query followed by the results:</p>
+									
+<!-- Terminal emulation -->	
+<div class="box">
+<h4>DNS query:</h4>					
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ dig @localhost -p 1053 xC5H66P35CPJMGQBAD.xDM6QRJFE1ON4SRKELR7.xEU3PF8O32CHJ6GQJCDPO74zzzzzz.net-zghn2ybn.example.com.
+;; communications error to 127.0.0.1#1053: timed out
+;; communications error to 127.0.0.1#1053: timed out
+;; communications error to 127.0.0.1#1053: timed out
+
+; <<>> DiG 9.18.33-1~deb12u2-Debian <<>> @localhost -p 1053 xC5H66P35CPJMGQBAD.xDM6QRJFE1ON4SRKELR7.xEU3PF8O32CHJ6GQJCDPO74zzzzzz.net-zghn2ybn.example.com.
+; (1 server found)
+;; global options: +cmd
+;; no servers could be reached
+</pre>
+<h4>CoreDNS log:</h4>					
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ ./coredns
+.:1053
+CoreDNS-1.11.3
+linux/amd64, go1.21.8, a7ed346-dirty
+
+[DEBUG] plugin/frontend: type: 1
+
+[DEBUG] plugin/frontend: got data: 6162636465666768696a6b6c6d6e6f707172737475767778797a30313233343536373839
+
+[DEBUG] plugin/frontend: bad decrypt: bad handshake
+
+[INFO] 127.0.0.1:50271 - 55434 "A IN xc5h66p35cpjmgqbad.xdm6qrjfe1on4srkelr7.xeu3pf8o32chj6gqjcdpo74zzzzzz.net-zghn2ybn.example.com. udp 135 false 1232" NXDOMAIN qr,aa,rd 240 0.0066028s
+[INFO] 127.0.0.1:49007 - 55434 "A IN xc5h66p35cpjmgqbad.xdm6qrjfe1on4srkelr7.xeu3pf8o32chj6gqjcdpo74zzzzzz.net-zghn2ybn.example.com. udp 135 false 1232" NXDOMAIN qr,aa,rd 240 0.0002721s
+[INFO] 127.0.0.1:49887 - 55434 "A IN xc5h66p35cpjmgqbad.xdm6qrjfe1on4srkelr7.xeu3pf8o32chj6gqjcdpo74zzzzzz.net-zghn2ybn.example.com. udp 135 false 1232" NXDOMAIN qr,aa,rd 240 0.0001346s
+</pre>
+</div>							
+
+									<p>Here we can see even more interesting data, which helped me understand even more about this DNS server: <b>the Base32Hex encoded string is some kind of encrypted data handshake</b>, identified by the <b>bad decrypt: bad handshake</b> line. Unfortunately this was the end of the road for the CoreDNS server at this point in time -- I wasn't too familiar with stripped Golang binaries and hit a breaking point. So I started looking at the microservice. (again, don't mind the timestamps... was a little late getting to the writeups):</p>
+									
+<!-- Terminal emulation -->	
+<div class="box">						
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ ./microservice
+<span class="red">{"t":"2025-03-01T04:18:36.623Z","l":"ERROR","m":"Failed to connect to MongoDB"}</span>
+<span class="red">{"t":"2025-03-01T04:18:36.708Z","l":"ERROR","m":"Failed to connect to the database"}</span>
+<span class="blue">{"t":"2025-03-01T04:18:36.708Z","l":"INFO","m":"Disconnected from MongoDB"}</span>
+</pre>
+</div>
+									
+									<p>Here we see the microservice looks like it attempts to connect to a <a href="https://www.mongodb.com/company/what-is-mongodb">MongoDB</a> instance.</p>
+									
+									<p>Seeing as we are dealing with a DNS server that handles encrypted data, a database server of some kind, and an APT who is targeting GPS location data from military vehicles -- I had a gut instinct on where this task was going. I just needed to finish setting up the playground. I also unknowingly did 75% of the work for Task 7 during this task, but I'll keep it in this task write up since these write ups are the process of <em>my</em> solves.</p>
+									
+									<p>I'll initiate a MongoDB instance with the default ports and then restart the microservice:</p>
+
+<!-- Terminal emulation -->	
+<div class="box">						
+<h4>MongoDB:</h4>
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ sudo mongod
+{"t":{"$date":"2025-03-01T17:18:53.267-05:00"},"s":"I",  "c":"NETWORK",  "id":22943,   "ctx":"listener","msg":"Connection accepted","attr":{"remote":"127.0.0.1:48866","uuid":{"uuid":{"$uuid":"357b4019-9ad8-4049-a528-6b9228f0ec71"}},"connectionId":1,"connectionCount":1}}
+{"t":{"$date":"2025-03-01T17:18:53.288-05:00"},"s":"I",  "c":"NETWORK",  "id":51800,   "ctx":"conn1","msg":"client metadata","attr":{"remote":"127.0.0.1:48866","client":"conn1","negotiatedCompressors":[],"doc":{"driver":{"name":"nodejs","version":"6.8.0"},"platform":"Deno v1.45.4, LE","os":{"name":"linux","architecture":"x64","version":"5.15.167.4-microsoft-standard-WSL2","type":"Linux"},"env":{"container":{"runtime":"docker"}}}}}
+
+{"t":{"$date":"2025-03-01T17:18:53.412-05:00"},"s":"I",  "c":"NETWORK",  "id":22943,   "ctx":"listener","msg":"Connection accepted","attr":{"remote":"127.0.0.1:48870","uuid":{"uuid":{"$uuid":"3f96e30a-bbfd-4888-8979-ed82821cc2b0"}},"connectionId":2,"connectionCount":2}}
+{"t":{"$date":"2025-03-01T17:18:53.413-05:00"},"s":"I",  "c":"NETWORK",  "id":51800,   "ctx":"conn2","msg":"client metadata","attr":{"remote":"127.0.0.1:48870","client":"conn2","negotiatedCompressors":[],"doc":{"driver":{"name":"nodejs","version":"6.8.0"},"platform":"Deno v1.45.4, LE","os":{"name":"linux","architecture":"x64","version":"5.15.167.4-microsoft-standard-WSL2","type":"Linux"},"env":{"container":{"runtime":"docker"}}}}}
+{"t":{"$date":"2025-03-01T17:18:53.433-05:00"},"s":"I",  "c":"NETWORK",  "id":6788700, "ctx":"conn2","msg":"Received first command on ingress connection since session start or auth handshake","attr":{"elapsedMillis":19}}
+</pre>
+
+<!--Maybe change to the linux environment rather than wsl?-->
+<h4>Microservice:</h4>
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ ./microservice
+<span class="blue">{"t":"2025-03-01T22:18:53.292Z","l":"INFO","m":"Connected to MongoDB"}</span>
+<span class="blue">{"t":"2025-03-01T22:18:53.456Z","l":"INFO","m":"Server is running on port 3000"}</span>
+<span class="blue">{"t":"2025-03-01T22:23:53.469Z","l":"INFO","m":"Maintenance task completed"}</span>
+<span class="blue">{"t":"2025-03-01T22:28:53.455Z","l":"INFO","m":"Maintenance task completed"}</span>
+</pre>
+</div>
+
+									<p>There are a few things to note based on the mongodb logs:</p>
+									<li>The microservice connected to MongoDB from 127.0.0.1 using Node.js 6.8.0</li>
+									<li>The microservice is running on port 3000</li>
+									<li>The microservice performs a 'maintenance' task exactly 5 minutes after initialization</li>
+									<br>
+									<p>I did some more research into port 3000, and dug deeper into the binary to find that the microservice was also running <a href="https://expressjs.com/">Express.js</a>. From here, I was able to locate the webserver's routes (/event/insert and /event/test), which confirmed my gut instincts above.</p>
+									
+									<p>We were dealing with a form of <a href="https://www.dnsfilter.com/blog/dns-tunneling-malware">DNS tunneling</a> where the APT seemed to be sending GPS data via DNS packets from the vehicle's modem. These DNS packets appeared to be (in theory at the time) sent to our DNS server, which then sent traffic to the microservice, which ultimately stored our vehicle location in a MongoDB server.</p>
+									
+									<p>At this point, I would dissect the microservice even further to get it to successfully interact with the MongoDB server. I found exactly what data we needed to send the microservice (at localhost:3000) in order to send the location data to the MongoDB server.</p>
+									
+									<p>Because that was the 75% of Task 7 I mentioned earlier, I'll leave out the extra steps in this task. After I figured out the microservice, it was a struggle to find the next step. I was lost in the sauce like a calculator kid trying to do mental math.</p>
+									
+									<p>I took a week off from working on the challenge and allowed my brain to recoup any of the neurons I had left. I finally started looking into reverse engineering stripped binaries and found <a href="https://cujo.com/blog/reverse-engineering-go-binaries-with-ghidra/">this</a> amazing stripped Golang blog post which included a <a href="https://github.com/getCUJO/ThreatIntel/tree/master/Scripts/Ghidra">link</a> to some of their stripped Golang recovery scripts. This is how I was able to find a small detail in Ghidra that led me down the correct path.</p>
+									
+									<p>I tried to run the <a href="https://github.com/getCUJO/ThreatIntel/blob/master/Scripts/Ghidra/go_func.py">go_func.py</a> script to recover function names but kept getting an error that <b>no .gopclntab section was found</b>, yet I could clearly see in the Program Tree that the section was in fact there. I also found that the <a href="https://en.wikipedia.org/wiki/List_of_file_signatures">magic numbers</a> were that of <a href="https://go.dev/src/debug/gosym/pclntab.go">Golang 1.20 (line 181 -- 0xfffffff1)</a>:</p>
+									
+									<div class="box">
+										<div style="text-align: center;">
+											<span class="image object">
+												<img src="../../images/ghidra_pclntab.png" alt="" width="auto" class="other-img"/>
+											</span>
+										</div>
+									</div>
+									
+									<p>Something felt off… I stared at it for a while, and then it hit me -- it had been right in front of me the whole time. The <b>.gopclntab</b> section <em>WAS</em> there, but with a sneaky typo: <b>.gopc1ntab</b>. That tiny swap -- an "l" turned into a "1" -- was enough to throw everything off; Another facepalming moment.</p>
+
+									<p>So, I needed to modify the go_func.py script by changing the name of the section to <b>.gopc1ntab</b> and to also treat the identified magic number (<b>0xfffffff1</b>) as Golang 1.18 (used for 1.18 and above):</p>
+									
+									<p><em>Note: I also got rid of the unecessary lines in the code to clean up what I was working with.</em></p>
+
+<!-- Code emulation -->	
+<div class="box">						
+<h4>Modified go_func.py:</h4>
+<pre><code class="language-python">#Recover function names in stripped Go binaries.
+#@author padorka@cujoai
+#@category goscripts
+#@keybinding 
+#@menupath 
+#@toolbar 
+
+from ghidra.program.model.symbol.SourceType import *
+
+pclntab_magic = ['\xf1\xff\xff\xff\x00\x00']
+
+#Find the .gopclntab section
+def getGopclntab():
+    for block in getMemoryBlocks():
+		# Change the l to 1 here:
+        if block.getName() == ".gopc1ntab":
+            start = block.getStart()
+            end = block.getEnd()
+            print "%s [start: 0x%x, end: 0x%x]" % (block.getName(), start.getOffset(), end.getOffset())
+            return start
+    print "No .gopclntab section found."
+    return None
+
+#Recover function names for Go versions 1.18 and above
+def renameFunc118(start):
+    ptrsize= getByte(start.add(7))
+    if ptrsize == 8:
+        nfunctab = getLong(start.add(8))
+        textStart = getLong(start.add(8 + 2*ptrsize))
+        offset = getLong(start.add(8 + 3*ptrsize))
+        funcnametab = start.add(offset)
+        offset = getLong(start.add(8 + 7*ptrsize))
+    else:
+        nfunctab = getInt(start.add(8))
+        textStart = getInt(start.add(8 + 2*ptrsize))
+        offset = getInt(start.add(8 + 3*ptrsize))
+        funcnametab = start.add(offset)
+        offset = getInt(start.add(8 + 7*ptrsize))
+    functab = start.add(offset)
+
+    p = functab
+    functabFieldSize = 4
+    for i in range (nfunctab):
+        func_address = currentProgram.getAddressFactory().getAddress(hex(getInt(p)+textStart).rstrip("L"))
+        p = p.add(functabFieldSize)
+        funcdata_offset = getInt(p)
+        p = p.add(functabFieldSize)
+        name_pointer = functab.add(funcdata_offset + functabFieldSize)
+        name_address = funcnametab.add(getInt(name_pointer))
+        func_name = getDataAt(name_address)
+
+        #Try to define function name string.
+        if func_name is None:
+            try:
+                func_name = createAsciiString(name_address)
+            except:
+                print "ERROR: No name" 
+                continue
+
+        
+        func = getFunctionAt(func_address)
+        if func is not None:
+            func_name_old = func.getName()
+            func.setName(func_name.getValue().replace(" ", ""), USER_DEFINED)
+            print "Function %s renamed as %s" % (func_name_old, func_name.getValue())
+        else:
+            func = createFunction(func_address, func_name.getValue())
+            print "New function created: %s" % func_name
+
+start = getGopclntab()
+
+if start is not None:
+    magic = getInt(start) & 0xffffffff
+    if magic == 0xfffffff1:
+        renameFunc118(start)
+    else:
+        print "WARNING: Unknown .gopclntab magic"
+</pre></code>
+
+<h4>Rerunning the code in Ghidra:</h4>
+<pre><code class="language-python">New function created: ds "github.com/coredns/example.validatePublicKey"
+New function created: ds "github.com/coredns/example.decrypt"
+New function created: ds "github.com/coredns/example.hashProtocolName"
+New function created: ds "github.com/coredns/example.blake2HkdfInterface"
+New function created: ds "github.com/coredns/example.getHkdf"
+New function created: ds "github.com/coredns/example.decryptWithAd"
+New function created: ds "github.com/coredns/example.initializeSymmetric"
+New function created: ds "github.com/coredns/example.mixKey"
+New function created: ds "github.com/coredns/example.mixHash"
+New function created: ds "github.com/coredns/example.decryptAndHash"
+New function created: ds "github.com/coredns/example.split"
+New function created: ds "github.com/coredns/example.initializeInitiator"
+New function created: ds "github.com/coredns/example.initializeResponder"
+New function created: ds "github.com/coredns/example.readMessageA"
+New function created: ds "github.com/coredns/example.readMessageRegular"
+New function created: ds "github.com/coredns/example.InitSession"
+New function created: ds "github.com/coredns/example.RecvMessage"
+New function created: ds "github.com/coredns/example.doForwardData"
+New function created: ds "github.com/coredns/example.doForwardData.func1"
+New function created: ds "github.com/coredns/example.name2buffer"
+New function created: ds "github.com/coredns/example.Frontend.ServeDNS"
+New function created: ds "github.com/coredns/example.Frontend.Name"
+New function created: ds "github.com/coredns/example.NoiseRecv"
+New function created: ds "github.com/coredns/example.init.0"
+New function created: ds "github.com/coredns/example.setup"
+New function created: ds "github.com/coredns/example.setup.func1"
+New function created: ds "github.com/coredns/example.init"
+New function created: ds "github.com/coredns/example.(*Frontend).Name"
+New function created: ds "github.com/coredns/example.(*Frontend).ServeDNS"
+New function created: ds "type:.eq.github.com/coredns/example.noisesession"
+New function created: ds "main.main"
+go_func.py> Finished!
+</pre></code>
+</div>
+
+									<p>As we can see, we were able to obtain the original function names and further decompile our stripped binary.</p>
 									
 									<hr class="major" />
 									
