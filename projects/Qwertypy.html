@@ -1,0 +1,275 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>nomad - cybersecurity</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../assets/css/main.css" />
+    <script defer src="../assets/prism/prism.js"></script>
+	</head>
+	<body class="project">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+
+							<!-- Header -->
+								<header id="header">
+									<a href="../index.html" class="logo"><strong>nomad</strong> - cybersecurity</a>
+									
+									<ul class="icons">
+										<li><a href="https://github.com/nomad1x2" class="icon brands fa-github"><span class="label">Github</span></a></li>
+									</ul>
+									
+								</header>
+
+							<!-- Content -->
+								<section>
+									<header class="main">
+										<h2>Qwertypy - A simple "keyboard walk" string generator</h2>
+									</header>
+                  <div class="box">
+                    <p>Keyboard walking is a technique where characters are chosen based on their position on the keyboard. Instead of picking random letters, you just move in a direction -- like across a row or down a column. Think <code>qwerty</code>, <code>asdf</code>, <code>zxcvbn</code>, or <code>1qaz2wsx</code>.</p>
+                    <p>These patterns show up all the time in real-world passwords, especially from people who think they’re being clever or just want something easy to type. Because of that, walks are a goldmine when building wordlists for cracking.</p>
+                    <p>This is a super simple script that automates this by taking a word or phrase and generating keyboard-based variations from it, following the physical layout of the keys. It’s meant to expand password lists with realistic patterns that users might actually type -- not random junk.</p>
+                    <p>The layout is customizable, so you can tweak it to match different keyboards or add your own weird rules.</p>
+                  </div>
+									<hr class="major" />
+									
+									<h3>The code:</h3>
+									<!-- Work -->
+									
+									<p>Again, super simple, but also not complete (need to add key validation, properly capitalized deviations, etc).</p>
+                  <p>"Standard deviation" is: key --> up & right --> shift + down back to starting key:</p>
+                  <div class="box">
+										<div style="text-align: center;">
+											<img src="../images/keyboard.png" alt="" width="auto" class="other-img"/>
+                      <br><br>
+                      <p>This would be the walk for the password of "true", i.e., <b>t6^Tr5%Ru8*Ue4$E</b></p>
+										</div>
+									</div>
+<!-- Code example -->	
+<div class="box">
+<pre><code class="language-python">standard_qwerty = [
+    {
+        "lower": ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', None, None],
+        "upper": ['~', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', None, None]
+    },
+    {
+        "lower": [None, None, 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\\'],
+        "upper": [None, None, 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', '|']
+    },
+    {
+        "lower": [None, None, None,'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', None],
+        "upper": [None, None, None,'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', '"', None]
+    },
+    {
+        "lower": [None, None, None, None,'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', None],
+        "upper": [None, None, None, None, 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?', None]
+    },
+]
+
+def get_key_index(key, keyboard):
+    for row_index, row in enumerate(keyboard):
+        for case in ['lower', 'upper']:
+            if key in row[case]:
+                col_index = row[case].index(key)
+                return {
+                    "row": row_index,
+                    "case": case,
+                    "column": col_index
+                }
+    return None
+   
+def standard_deviation(word, keyboard):
+    cipher = []
+
+    for key in word:
+        key_info = get_key_index(key, keyboard)
+        if not key_info:
+            continue
+
+        row = key_info['row']
+        col = key_info['column']
+
+        for i in range(row, -1, -1):
+            try:
+                temp = keyboard[i]['lower'][col]
+                if temp is not None:
+                    cipher.append(temp)
+            except IndexError:
+                continue
+
+        for i in range(0, row + 1):
+            try:
+                temp = keyboard[i]['upper'][col]
+                if temp is not None:
+                    cipher.append(temp)
+            except IndexError:
+                continue
+
+    return ''.join(cipher)
+
+while True:
+    user_input = input("Input: ").lower()
+    if user_input == 'exit':
+        break
+    print(f"Walk: {standard_deviation(user_input, standard_qwerty)}\n")
+</pre></code>
+</div>
+												
+
+
+
+									<h3>Example:</h3>
+									<!-- Work -->
+																		
+<!-- Terminal emulation -->							
+<div class="box">
+<pre class="terminal">
+<span class="greentitle">┌──(</span><span class="blue">nomad㉿nomad</span><span class="greentitle">)-[</span>/Desktop<span class="greentitle">]</span>
+<span class="greentitle">└─</span><span class="blue">$</span> python3 qwerty.py
+
+Input: nomad
+Walk: nji9(IJNo0)Omko0)OKMaw3#WAdr5%RD
+
+Input: true
+Walk: t6^Tr5%Ru8*Ue4$E
+
+Input: false
+Walk: ft6^TFaw3#WAlp-_PLse4$ESe4$E
+
+Input: awake
+Walk: aw3#WAw3#Waw3#WAko0)OKe4$E
+
+Input: bind
+Walk: bhu8*UHBi9(Inji9(IJNdr5%RD
+
+Input: glow
+Walk: gy7&YGlp-_PLo0)Ow3#W
+</pre>
+</div>
+
+
+
+
+
+
+
+
+
+
+                        
+								</section>
+
+						</div>
+					</div>
+
+				<!-- Sidebar -->
+					<div id="sidebar">
+						<div class="inner">
+
+							<!-- Search -->
+								<section id="search" class="alt">
+									<form method="post" action="#">
+										<input type="text" name="query" id="query" placeholder="Search" />
+									</form>
+								</section>
+
+							<!-- Menu -->
+								<nav id="menu">
+									<header class="major">
+										<h2>Menu</h2>
+									</header>
+									<ul>
+										<li><a href="../index.html">Homepage</a></li>
+										<li>
+                      <a href="../writeups.html">writeups</a>
+											<span class="opener"></span>
+											<ul>
+												<li><a href="../writeups/NSACodebreaker2024.html">NSA Codebreaker 2024</a></li>
+												<!--<li><a href="#">Lorem Dolor</a></li>
+												<li><a href="#">Tempus Magna</a></li>
+												<li><a href="#">Feugiat Veroeros</a></li>-->
+											</ul>
+										</li>
+										<li><a href="../projects.html">Projects</a></li>
+										<!--<li><a href="elements.html">Elements</a></li>
+
+										<li><a href="#">Etiam Dolore</a></li>
+										<li><a href="#">Adipiscing</a></li>
+										<li>
+											<span class="opener">Another Submenu</span>
+											<ul>
+												<li><a href="#">Lorem Dolor</a></li>
+												<li><a href="#">Ipsum Adipiscing</a></li>
+												<li><a href="#">Tempus Magna</a></li>
+												<li><a href="#">Feugiat Veroeros</a></li>
+											</ul>
+										</li>
+										<li><a href="#">Maximus Erat</a></li>
+										<li><a href="#">Sapien Mauris</a></li>
+										<li><a href="#">Amet Lacinia</a></li>-->
+									</ul>
+								</nav>
+
+							<!-- Section
+								<section>
+									<header class="major">
+										<h2>Ante interdum</h2>
+									</header>
+									<div class="mini-posts">
+										<article>
+											<a href="#" class="image"><img src="images/pic07.jpg" alt="" /></a>
+											<p>Aenean ornare velit lacus, ac varius enim lorem ullamcorper dolore aliquam.</p>
+										</article>
+										<article>
+											<a href="#" class="image"><img src="images/pic08.jpg" alt="" /></a>
+											<p>Aenean ornare velit lacus, ac varius enim lorem ullamcorper dolore aliquam.</p>
+										</article>
+										<article>
+											<a href="#" class="image"><img src="images/pic09.jpg" alt="" /></a>
+											<p>Aenean ornare velit lacus, ac varius enim lorem ullamcorper dolore aliquam.</p>
+										</article>
+									</div>
+									<ul class="actions">
+										<li><a href="#" class="button">More</a></li>
+									</ul>
+								</section>-->
+
+							<!-- Section -->
+								<section>
+									<header class="major">
+										<h2>Get in touch</h2>
+									</header>
+									<!--<p>Sed varius enim lorem ullamcorper dolore aliquam aenean ornare velit lacus, ac.</p>-->
+									<ul class="contact">
+										<li class="icon solid fa-envelope"><a href="#">nomad1x2sec@gmail.com</a></li>
+										<!--<li class="icon solid fa-phone">(000) 000-0000</li>-->
+										<!--<li class="icon solid fa-home">1234 Somewhere Road #8254<br />Nashville, TN 00000-0000</li>-->
+									</ul>
+								</section>
+
+							<!-- Footer -->
+								<footer id="footer">
+									<!--<p class="copyright">&copy; Untitled. All rights reserved. Demo Images: <a href="https://unsplash.com">Unsplash</a>. Design: <a href="https://html5up.net">HTML5 UP</a>.</p>-->
+									<p class="copyright">Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+								</footer>
+
+						</div>
+					</div>
+
+			</div>
+
+		<!-- Scripts??? -->
+			<script src="../assets/js/jquery.min.js"></script>
+			<script src="../assets/js/browser.min.js"></script>
+			<script src="../assets/js/breakpoints.min.js"></script>
+			<script src="../assets/js/util.js"></script>
+			<script src="../assets/js/main.js"></script>
+
+	</body>
+</html>
