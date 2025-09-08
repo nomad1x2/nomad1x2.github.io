@@ -256,7 +256,7 @@
 						event.preventDefault();
 
 					// Toggle.
-						$menu_openers.not($this).removeClass('active');
+						//$menu_openers.not($this).removeClass('active'); this breaks the other menu items
 						$this.toggleClass('active');
 
 					// Trigger resize (sidebar lock).
@@ -265,5 +265,6 @@
 				});
 
 			});
+
 
 })(jQuery);
