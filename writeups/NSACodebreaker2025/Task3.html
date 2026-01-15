@@ -1,0 +1,216 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>nomad - cybersecurity</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../../assets/css/main.css" />
+		<script defer src="../../assets/prism/prism.js"></script>
+	</head>
+	<body class="writeup">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+
+							<!-- Header -->
+								<header id="header">
+									<a href="../../index.html" class="logo"><strong>nomad</strong> - cybersecurity</a>
+									
+									<ul class="icons">
+										<li><a href="https://github.com/nomad1x2" class="icon brands fa-github"><span class="label">Github</span></a></li>
+									</ul>
+									
+								</header>
+
+							<!-- Content -->
+								<section>
+									<header class="main">
+										<h2>Task 3 - Digging deeper - (Reverse Engineering)</h2>
+									</header>
+									<div class="box">
+										<p>The network administrators confirm that the IP address you provided in your description is an edge router. DAFIN-SOC is asking you to dive deeper and reverse engineer this device. Fortunately, their team managed to pull a memory dump of the device.</p>
+										<p>Scour the device's memory dump and identify anomalous or malicious activity to find out what's going on.</p>
+										<p>Your submission will be a list of IPs and domains, one per line. For example:</p>
+										<p><b>127.0.0.1   localhost<br>192.168.54.131   corp.internal<br>...</b></p>
+										
+										<p><b>Downloads:</b><br>
+											<li>Memory Dump (memory.dump.gz)</li>
+											<li>Metadata (System.map.br)</li>
+											<li>Kernel Image (vmlinux.xz)</li>
+										</p>
+										<p><b>Prompt:</b><br><li>Submit a complete list of affected IPs and FQDNs, one per line.</li></p>
+									</div>
+
+									<hr class="major" />
+									
+									<!-- Work -->							
+									<h3>Solving the task:</h3>
+                  
+                  <p>Writeup in progress...</p>
+                  
+                  <p>Identify the encrypted string:</p>
+                  
+<!-- Code example -->	
+<div class="box">
+<h4>Suspicious string:</h4>
+<pre><code class="language-javascript">dkNlEjxRoVWQaey05Oh/pxd6g+ULZYYTpv4SDz5u10z+wKuPsWeodGb2sBQNqWLSwWAomcc0pnY4BBs0imvAbFFXbiaoI8qQLmPO/VeeJiF5LqC0bKILLEVmRf0hk8fr/Q5RrjLEtUxojc5FjRIBWCOkXpdllOSpyMM4sH8qzdIsC/aMdx4Pd/67O45GeXUFqBmGcncSS8bbHcBAed3uW3Sh3wxjbl2XN+tcd0dqT+dl4yB1aS73kw0pm7b6ykdyp7YiWhF1nSOJNBERaq35fQnApKvWRSmh00RiOiqmeLm5xLzXqFiNOeDbi/EtVM25UHiS6wAw7fNiL3Zsik6nSi5hHdxp4bRgJiZXqMswSe/zE0LFFsLKufeGinuMe/+Yxs0AhBlFp94pB/JrmsIiMgRX+HOI3+nPpV28YGb7tu3pTZc2AqC6Sgz+aaPk56PdY9p50e3V7LZ/tz10j99yfM3gSVP1sSgl8S6igK+GsgeWN30JAj92gAfg+Bxym7AP0UxPH1XNKu8YkeCq1Yw7ryVoZmKC3iUH+J5zA8OCCo8bIjwOlnmKY3scRt/NHNxKbMC7XzrXo3QNBzflVcBlqIKtgT7cT4/Mjt9GYbidCTp2Xc/nKhDZytbzbs9gw+aAvHzNCtlNZTYYiKQVIrWa29IdkghJi5a8nHLafKuWnLV5AdWobxC0hzwF2sVDH01UrGmMg+DM+zaVBq95MTxMjuwAY8OlXAu+a72s2ZXr5Q38EZHypYVckBxGiZByDurDLnmfi2Er2UL+otSh0CfCPz+g/K+lPfxSS7bfLnSZRa7z5+gucslv0OvD7fFL0VJT+rASA6t4ysFkPZiGXZxCFBUwVflQtrHRnunmVp40N4yyAyHLtUYBARXT1FXnJxMlDRuoK5eN3okSCKuPMA6xlx077Wmp7v7GVuZyyuHLkqvwfLwiPWBc5818SsD8tpgEgBHlMQEdNoUvlTZ2dH294ztDhfpZauTIFzut+a67IMky2+bN9NAuuzD7uK/aBG7vwy9EV2fgOuvocDJSKNE+y0IhckWSP7HGB2U9XLjYP0CPkY7BD4M3dQIWJP8AzC6m7b20LA/P6F1qx71AxyRz/PLKjj+zGndOV234IvHjYzyDvgcxmaYEV6/6S8dxKRIfNJs3iTyiorn8f6QAA7jyXlL8M4yFLnj/ugeGPh8iHHrbWuGgdGOSwDDgEmOA2Xx6oGX196n2d5JllGQdAjhz3VK9qUldqcY0T6T2/Lp1Ob5Izajjjv8PwSEuWASVk2DnGzzGux9w5ZNdGhZjsROLcgJwOkBAu2Dz7azxdkXvmWcPEi/6lg7zeRpYINY5zDVLC1fL3xufQSUtWavEFWSm2NOAUshfo4W7nPEJyy20oO/FTmOymxEqcBbYvTwx4PfttBexWvPH1aYowQ09t4LD5lJ6wf1QMzlzpDS09N2GqYkhsBjcqbzoKOAmBbycIwC5e9nBVQVWTut5zoGwm7ApiQxOioqMzyhb8J9qdMbGb6AuI1YVcXWfZ5vx3sOITMZVBr+/RTPcVr2iXUqChVGUdBZvDnGKcoyBEVREGvdo2odgBPy9QcBFERMV3WDCZtXqvIfGfKJPQum0FQ26ij0br/d5J6Em+t/A7izCWuC/hJ5VW9NIvQ==
+</pre></code>
+</div>
+									
+									<hr class="major" />
+									
+									<!--Solution-->
+									<div id="solution">
+										<h3>The solution:</h3>
+									</div>
+									
+									<p>Decrypt the suspicious string:</p>
+                  
+<!-- Code example -->	
+<div class="box">
+<h4>Decrypted string:</h4>
+<pre><code class="language-javascript">203.0.113.97 archive.archlinux.org
+203.0.113.97 distfiles.gentoo.org
+203.0.113.97 dl-cdn.alpinelinux.org
+203.0.113.217 mirror.stream.centos.org
+203.0.113.217 mirrors.alpinelinux.org
+203.0.113.97 repos.opensuse.org
+203.0.113.97 deb.debian.org
+203.0.113.97 ports.ubuntu.org
+203.0.113.217 mirrors.rockylinux.org
+203.0.113.97 download1.rpmfusion.org
+203.0.113.97 security.ubuntu.com
+203.0.113.217 geo.mirror.pkgbuild.com
+203.0.113.97 packages.linuxmint.com
+203.0.113.97 http.kali.org
+203.0.113.97 download.opensuse.org
+203.0.113.217 mirrors.kernel.org
+203.0.113.97 us.archive.ubuntu.com
+203.0.113.168 files.pythonhosted.org
+203.0.113.168 pypi.io
+203.0.113.97 archive.ubuntu.org
+203.0.113.97 cache.nixos.org
+203.0.113.97 dl.fedoraproject.org
+203.0.113.97 repo.almalinux.org
+203.0.113.217 mirrors.fedoraproject.org
+203.0.113.97 ports.ubuntu.com
+203.0.113.97 dl.rockylinux.org
+203.0.113.217 mirrors.rpmfusion.org
+203.0.113.217 mirror.rackspace.com
+203.0.113.97 ftp.us.debian.org
+203.0.113.168 pypi.org
+203.0.113.217 mirrors.opensuse.org
+203.0.113.168 pypi.python.org
+203.0.113.97 security.ubuntu.org
+203.0.113.217 xmirror.voidlinux.org
+203.0.113.97 archive.ubuntu.com
+203.0.113.97 repo-default.voidlinux.org
+203.0.113.97 security.debian.org
+</pre></code>
+</div>
+                  
+                  <p></p>
+									
+									<hr class="major" />
+									
+									<div class="box">
+										<div style="text-align: center;">
+											<p><b>Good work! Let's head back to NSA headquarters to continue with this analysis.</b></p>
+											<span class="image object">
+												<img src="../../images/nsa_codebreaker_2025/badge3.png" alt="" class="badge-img"/>
+											</span>
+										</div>
+									</div>
+									
+									
+									
+									<!--Pages-->
+									<div style="text-align: center;">
+										<ul class="pagination">
+											<li><a href="Task2.html" class="button">Prev</a></li>
+											<li><a href="Task1.html" class="page">1</a></li>
+											<li><a href="Task2.html" class="page">2</a></li>
+											<li><a href="#" class="page active">3</a></li>
+											<li><a href="Task4.html" class="page">4</a></li>
+											<li><a href="Task5.html" class="page">5</a></li>
+											<li><a href="Task6.html" class="page">6</a></li>
+											<li><a href="Task7.html" class="page">7</a></li>
+											<li><a href="Task4.html" class="button">Next</a></li>
+										</ul>
+									</div>
+									
+									
+								</section>
+
+						</div>
+					</div>
+
+				<!-- Sidebar -->
+					<div id="sidebar">
+						<div class="inner">
+
+							<!-- Search -->
+								<section id="search" class="alt">
+									<form method="post" action="#">
+										<input type="text" name="query" id="query" placeholder="Search" />
+									</form>
+								</section>
+
+							<!-- Menu -->
+								<nav id="menu">
+									<header class="major">
+										<h2>Menu</h2>
+									</header>
+									<ul>
+										<li><a href="../NSACodebreaker2025.html">Challenge Home</a></li>
+										<li>
+											<a href="#">Task list</a>
+											<span class="opener"></span>
+											<ul>
+												<li><a href="Task1.html">Task1</a></li>
+												<li><a href="Task2.html">Task2</a></li>
+												<li><a href="#"><b>Task3</b></a></li>
+												<li><a href="Task4.html">Task4</a></li>
+												<li><a href="Task5.html">Task5</a></li>
+												<li><a href="Task6.html">Task6</a></li>
+												<li><a href="Task7.html">Task7</a></li>
+											</ul>
+										</li>
+										<li><a href="#solution">The solution</a></li>
+									</ul>
+								</nav>
+
+							<!-- Section -->
+								<section>
+									<header class="major">
+										<h2>Get in touch</h2>
+									</header>
+									<ul class="contact">
+										<li class="icon solid fa-envelope"><a href="#">nomad1x2sec@gmail.com</a></li>
+									</ul>
+								</section>
+
+							<!-- Footer -->
+								<footer id="footer">
+									<!--<p class="copyright">&copy; Untitled. All rights reserved. Demo Images: <a href="https://unsplash.com">Unsplash</a>. Design: <a href="https://html5up.net">HTML5 UP</a>.</p>-->
+									<p class="copyright">Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+								</footer>
+
+						</div>
+					</div>
+
+			</div>
+
+		<!-- Scripts??? -->
+			<script src="../../assets/js/jquery.min.js"></script>
+			<script src="../../assets/js/browser.min.js"></script>
+			<script src="../../assets/js/breakpoints.min.js"></script>
+			<script src="../../assets/js/util.js"></script>
+			<script src="../../assets/js/main.js"></script>
+
+	</body>
+</html>

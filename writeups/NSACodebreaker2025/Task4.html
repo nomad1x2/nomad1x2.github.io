@@ -1,0 +1,308 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>nomad - cybersecurity</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../../assets/css/main.css" />
+		<script defer src="../../assets/prism/prism.js"></script>
+	</head>
+	<body class="writeup">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+
+							<!-- Header -->
+								<header id="header">
+									<a href="../../index.html" class="logo"><strong>nomad</strong> - cybersecurity</a>
+									
+									<ul class="icons">
+										<li><a href="https://github.com/nomad1x2" class="icon brands fa-github"><span class="label">Github</span></a></li>
+									</ul>
+									
+								</header>
+
+							<!-- Content -->
+								<section>
+									<header class="main">
+										<h2>Task 4 - Unpacking Insight - (Malware Analysis)</h2>
+									</header>
+									<div class="box">
+										<p>Once back at NSA the team contacts the NSA liaison at FBI to see if they have any information about what was discovered in the configuration data. FBI informs us that the facility registered to host that domain is on a watchlist for suspected criminal activity. With this tip, the FBI acquires a warrant and raids the location. Inside the facility, the server is discovered along with a suspect. The suspect is known to the FBI as a low-level malware actor. During questioning, they disclose that they are providing a service to host malware for various cybercrime groups, but recently they were contacted by a much more secretive and sophisticated customer. While they don't appear to know anything about who is paying for the service, they provide the FBI with the malware that was hosted.</p>
+										<p>Back at NSA, you are provided with a copy of the file. There is a lot of high level interest in uncovering who facilitated this attack. The file appears to be obfuscated.</p>
+										<p>You are tasked to work on de-obfuscating the file and report back to the team.</p>
+										
+										<p><b>Downloads:</b><br>
+											<li>obfuscated file (suspicious)</li>
+										</p>
+										<p><b>Prompt:</b><br><li>Submit the file path the malware uses to write a file</li></p>
+									</div>
+
+									<hr class="major" />
+									
+									
+									
+									
+									<!-- Work -->							
+									<h3>Solving the task:</h3>
+									
+                  <p>Writeup in progress...</p>
+
+                  <p>Skibidi</p>
+								
+									<hr class="major" />
+									
+									<!--Solution-->
+									<div id="solution">
+										<h3>The solution:</h3>
+									</div>
+									
+									<p>Identify Skibidi key and decrypt with RC4</P>
+
+<!-- Code example -->	
+<div class="box">
+<h4>Decrypt.py:</h4>
+<pre><code class="language-python">def rc4_init(key):
+    S = list(range(256))
+    j = 0
+    for i in range(256):
+        j = (j + S[i] + key[i % len(key)]) % 256
+        S[i], S[j] = S[j], S[i]
+    return S, 0, 0
+
+def rc4_skip_and_decrypt(data, key, skip_bytes):
+    S, i, j = rc4_init(key)
+    
+    # Skip the first 'skip_bytes' of keystream
+    for _ in range(skip_bytes):
+        i = (i + 1) % 256
+        j = (j + S[i]) % 256
+        S[i], S[j] = S[j], S[i]
+    
+    # Now decrypt our data
+    result = []
+    for byte in data:
+        i = (i + 1) % 256
+        j = (j + S[i]) % 256
+        S[i], S[j] = S[j], S[i]
+        K = S[(S[i] + S[j]) % 256]
+        result.append(byte ^ K)
+    
+    return bytes(result)
+
+key = b"skibidi"
+skip = 0
+
+# DAT_0010d580 (0x26 = 38 bytes) - FUN_00108574
+data1 = bytes([0xc7, 0x16, 0x75, 0xc6, 0x0f, 0xc7, 0x14, 0x36, 0x16, 0xaf, 0x4c, 0x1d, 0x34, 0x01, 0x41, 0xba,
+               0xf9, 0x22, 0xb9, 0xac, 0x42, 0xa6, 0xc7, 0x07, 0x00, 0x09, 0xf7, 0x59, 0xc9, 0xe1, 0x2e, 0x63,
+               0x77, 0xf3, 0xa0, 0x71, 0xdb, 0x1f])
+dec1 = rc4_skip_and_decrypt(data1, key, skip)
+print(f"1. DAT_0010d580 (skip {skip}): {dec1}")
+skip += len(data1)
+
+# DAT_0010d5b0 (0x11 = 17 bytes) - FUN_00108666
+data2 = bytes([0xd2, 0x38, 0xbd, 0x57, 0x18, 0x9e, 0xc1, 0x37, 0x5a, 0xc9, 0xb7, 0xbf, 0x93, 0xda, 0xd3, 0x4b, 0xa4])
+dec2 = rc4_skip_and_decrypt(data2, key, skip)
+print(f"2. DAT_0010d5b0 (skip {skip}): {dec2}")
+skip += len(data2)
+
+# DAT_0010d5c8 (0xd = 13 bytes) - FUN_00108795
+data3 = bytes([0xd5, 0x62, 0xfb, 0x65, 0x4a, 0x1a, 0x46, 0x03, 0xbc, 0xf4, 0xae, 0x73, 0x9e])
+dec3 = rc4_skip_and_decrypt(data3, key, skip)
+print(f"3. DAT_0010d5c8 (skip {skip}): {dec3}")
+skip += len(data3)
+
+# DAT_0010d5d5 (5 bytes) - FUN_00108795
+data4 = bytes([0xb4, 0xb2, 0xe4, 0x8e, 0x6d])
+dec4 = rc4_skip_and_decrypt(data4, key, skip)
+print(f"4. DAT_0010d5d5 (skip {skip}): {dec4}")
+skip += len(data4)
+
+# DAT_0010d5e0 (10 bytes) - FUN_00108795
+data5 = bytes([0x78, 0xc8, 0x50, 0xa5, 0x17, 0x82, 0x7a, 0xfd, 0xbb, 0x88])
+dec5 = rc4_skip_and_decrypt(data5, key, skip)
+print(f"5. DAT_0010d5e0 (skip {skip}): {dec5}")
+skip += len(data5)
+
+# DAT_0010d5f0 (0x1f = 31 bytes) - FUN_00108a0f
+data6 = bytes([0xf3, 0x29, 0x27, 0xc9, 0x62, 0x3a, 0x59, 0x45, 0x15, 0x5f, 0xbd, 0xd9, 0x75, 0x84, 0x79, 0x7a,
+               0x5f, 0xac, 0x1e, 0xa3, 0x30, 0x15, 0x0c, 0xfa, 0x87, 0x0c, 0xc6, 0x3a, 0x26, 0xd9, 0x8b])
+dec6 = rc4_skip_and_decrypt(data6, key, skip)
+print(f"6. DAT_0010d5f0 (skip {skip}): {dec6}")
+skip += len(data6)
+
+# DAT_0010d60f (1 byte) - FUN_00108a0f
+data7 = bytes([0x39])
+dec7 = rc4_skip_and_decrypt(data7, key, skip)
+print(f"7. DAT_0010d60f (skip {skip}): {dec7}")
+skip += len(data7)
+
+# DAT_0010d610 (4 bytes) - FUN_00108a0f
+data8 = bytes([0x4d, 0x54, 0x26, 0x35])
+dec8 = rc4_skip_and_decrypt(data8, key, skip)
+print(f"8. DAT_0010d610 (skip {skip}): {dec8}")
+skip += len(data8)
+
+# DAT_0010d618 (0xc = 12 bytes) - FUN_00107f5d (IP ADDRESS)
+data9 = bytes([0x53, 0xd9, 0xc6, 0xd8, 0x09, 0x82, 0x27, 0xcf, 0xa1, 0xde, 0x17, 0x8a])
+dec9 = rc4_skip_and_decrypt(data9, key, skip)
+print(f"9. DAT_0010d618 (skip {skip}): {dec9}")
+skip += len(data9)
+
+# DAT_0010d630 (0x14 = 20 bytes) - FUN_00107f5d (PATH)
+data10 = bytes([0xd2, 0x20, 0x8a, 0x73, 0x75, 0x62, 0xcb, 0x5b, 0xb5, 0x65, 0xda, 0x5f, 0x74, 0xb1, 0xb5, 0x4a,
+                0x19, 0x7d, 0x57, 0x92])
+dec10 = rc4_skip_and_decrypt(data10, key, skip)
+print(f"10. DAT_0010d630 (skip {skip}): {dec10}")
+skip += len(data10)
+
+# DAT_0010d644 (5 bytes) - FUN_00107f5d
+data11 = bytes([0x10, 0xdb, 0xf5, 0x06, 0x99])
+dec11 = rc4_skip_and_decrypt(data11, key, skip)
+print(f"11. DAT_0010d644 (skip {skip}): {dec11}")
+skip += len(data11)
+
+# DAT_0010d649 (1 byte) - FUN_00107f5d
+data12 = bytes([0xc4])
+dec12 = rc4_skip_and_decrypt(data12, key, skip)
+print(f"12. DAT_0010d649 (skip {skip}): {dec12}")
+skip += len(data12)
+
+# DAT_0010d650 (0x10 = 16 bytes) - FUN_00107f5d
+data13 = bytes([0x57, 0x1f, 0x55, 0x84, 0xdb, 0x05, 0x6f, 0xe9, 0x65, 0x5b, 0x3a, 0x3c, 0x11, 0x2d, 0x8b, 0xe8])
+dec13 = rc4_skip_and_decrypt(data13, key, skip)
+print(f"13. DAT_0010d650 (skip {skip}): {dec13}")
+skip += len(data13)
+
+# DAT_0010d660 (0xe = 14 bytes) - FUN_00107f5d
+data14 = bytes([0x5c, 0xf8, 0x80, 0x3d, 0xc8, 0x84, 0xfc, 0x82, 0x5a, 0xaa, 0x1b, 0x13, 0x9c, 0xb2])
+dec14 = rc4_skip_and_decrypt(data14, key, skip)
+print(f"14. DAT_0010d660 (skip {skip}): {dec14}")
+</pre></code>
+<h4>Output:</h4>
+<pre><code class="language-javascript">1. Path: b'/opt/dafin/intel/ops_brief_redteam.pdf'
+2. Env var: b'DAFIN_SEC_PROFILE'
+3. File to read: b'/proc/cpuinfo'
+4. Search str 1: b'flags'
+5. Search str 2: b'hypervisor'
+6. Command: b'systemd-detect-virt 2>/dev/null'
+7. Single char: b'r'
+8. Short str: b'none'
+9. IP: b'203.0.113.42'
+10. Request: b'GET /module HTTP/1.1'
+11. Path prefix: b'/tmp/'
+12. Separator: b'.'
+13. Filename: b'wijLWcRl1o4mQTX1'
+14. Function: b'execute_module'
+</pre></code>
+</div>
+
+									<p>Putting the full downloaded path together: <b>/tmp/.wijLWcRl1o4mQTX1</b></p>
+									<hr class="major" />
+									
+									
+									
+									
+																		
+									<div class="box">
+										<div style="text-align: center;">
+											<p><b>Superb work unpacking and analyzing that Malware!</b></p>
+											<span class="image object">
+												<img src="../../images/nsa_codebreaker_2025/badge4.png" alt="" class="badge-img"/>
+											</span>
+										</div>
+									</div>
+									
+									
+									<!--Pages-->
+									<div style="text-align: center;">
+										<ul class="pagination">
+											<li><a href="Task3.html" class="button">Prev</a></li>
+											<li><a href="Task1.html" class="page">1</a></li>
+											<li><a href="Task2.html" class="page">2</a></li>
+											<li><a href="Task3.html" class="page">3</a></li>
+											<li><a href="#" class="page active">4</a></li>
+											<li><a href="Task5.html" class="page">5</a></li>
+											<li><a href="Task6.html" class="page">6</a></li>
+											<li><a href="Task7.html" class="page">7</a></li>
+											<li><a href="Task5.html" class="button">Next</a></li>
+										</ul>
+									</div>
+									
+									
+									
+								</section>
+
+						</div>
+					</div>
+
+				<!-- Sidebar -->
+					<div id="sidebar">
+						<div class="inner">
+
+							<!-- Search -->
+								<section id="search" class="alt">
+									<form method="post" action="#">
+										<input type="text" name="query" id="query" placeholder="Search" />
+									</form>
+								</section>
+
+							<!-- Menu -->
+								<nav id="menu">
+									<header class="major">
+										<h2>Menu</h2>
+									</header>
+									<ul>
+										<li><a href="../NSACodebreaker2025.html">Challenge Home</a></li>
+										<li>
+											<a href="#">Task list</a>
+											<span class="opener"></span>
+											<ul>
+												<li><a href="Task1.html">Task1</a></li>
+												<li><a href="Task2.html">Task2</a></li>
+												<li><a href="Task3.html">Task3</a></li>
+												<li><a href="#"><b>Task4</b></a></li>
+												<li><a href="Task5.html">Task5</a></li>
+												<li><a href="Task6.html">Task6</a></li>
+												<li><a href="Task7.html">Task7</a></li>
+											</ul>
+										</li>
+										<li><a href="#solution">The solution</a></li>
+									</ul>
+								</nav>
+
+							<!-- Section -->
+								<section>
+									<header class="major">
+										<h2>Get in touch</h2>
+									</header>
+									<ul class="contact">
+										<li class="icon solid fa-envelope"><a href="#">nomad1x2sec@gmail.com</a></li>
+									</ul>
+								</section>
+
+							<!-- Footer -->
+								<footer id="footer">
+									<!--<p class="copyright">&copy; Untitled. All rights reserved. Demo Images: <a href="https://unsplash.com">Unsplash</a>. Design: <a href="https://html5up.net">HTML5 UP</a>.</p>-->
+									<p class="copyright">Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+								</footer>
+
+						</div>
+					</div>
+
+			</div>
+
+		<!-- Scripts??? -->
+			<script src="../../assets/js/jquery.min.js"></script>
+			<script src="../../assets/js/browser.min.js"></script>
+			<script src="../../assets/js/breakpoints.min.js"></script>
+			<script src="../../assets/js/util.js"></script>
+			<script src="../../assets/js/main.js"></script>
+
+	</body>
+</html>

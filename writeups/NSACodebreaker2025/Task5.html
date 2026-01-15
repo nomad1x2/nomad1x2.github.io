@@ -1,0 +1,304 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>nomad - cybersecurity</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../../assets/css/main.css" />
+		<script defer src="../../assets/prism/prism.js"></script>
+	</head>
+	<body class="writeup">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+
+							<!-- Header -->
+								<header id="header">
+									<a href="../../index.html" class="logo"><strong>nomad</strong> - cybersecurity</a>
+									
+									<ul class="icons">
+										<li><a href="https://github.com/nomad1x2" class="icon brands fa-github"><span class="label">Github</span></a></li>
+									</ul>
+									
+								</header>
+
+							<!-- Content -->
+								<section>
+									<header class="main">
+										<h2>Task 5 - Putting it all together - (Cryptanalysis)</h2>
+									</header>
+									<div class="box">
+										<p>NSA analysts confirm that there is solid evidence that this binary was at least part of what had been installed on the military development network. Unfortunately, we do not yet have enough information to update NSA senior leadership on this threat. We need to move forward with this investigation!</p>
+										<p>The team is stumped - they need to identify something about who was controlling this malware. They look to you. "Do you have any ideas?"</p>
+										
+                    <p><b>Prompt:</b><br><li>Submit the full URL to the adversary's server</li></p>
+									</div>
+
+									<hr class="major" />
+								
+								
+								
+									
+									
+									<!-- Work -->							
+									<h3>Solving the task:</h3>
+									
+                  <p>Writeup in progress...</p>
+																		
+<p>1. Identify memfd send_messsage and what not functions</p>
+
+<p>2. Open pcap from Task2 to verify 203 net</p>
+
+<p>3. Extract found items with dec0de c0ffee</p>
+
+<p>4. Identified AES128-ECB (easy to MeetITM and crack)</p>
+
+<p>5. Run MeetITM code:</p>
+<!-- Code example -->	
+<div class="box">
+<h4>MITM.py:</h4>
+<pre><code class="language-python">import struct
+from Crypto.Cipher import AES
+from collections import defaultdict
+
+C0 = bytes.fromhex("3bc6a7d65de86cdbff3d4f5930d10946")
+PLAINTEXT_BLOCK0 = b"\xDE\xC0\xDE\xC0\xFF\xEE" + b"REQCONN" + b"\x03" * 3
+assert len(PLAINTEXT_BLOCK0) == 16
+
+def aes_key_from_seed(seed: int) -> bytes:
+    return struct.pack("<Q", seed) + b"\x00" * 8
+
+TOTAL = 1 << 26
+
+# Phase 1: build map: AES_k1(PLAINTEXT) -> list of seeds (in case collisions)
+enc_map = dict()
+for s in range(TOTAL):
+    k = aes_key_from_seed(s)
+    val = AES.new(k, AES.MODE_ECB).encrypt(PLAINTEXT_BLOCK0)
+    # store only one seed per value to save memory (collisions extremely unlikely)
+    enc_map[val] = s
+    if (s & 0x1FFFFF) == 0:  # every 2^21 loop iterations print progress
+        print(f"phase1 {s}/{TOTAL}")
+
+print("phase1 done; phase2 starting")
+
+# Phase 2: try decrypting C0 with all k2 and lookup
+for s2 in range(TOTAL):
+    k2 = aes_key_from_seed(s2)
+    dec = AES.new(k2, AES.MODE_ECB).decrypt(C0)
+    s1 = enc_map.get(dec)
+    if s1 is not None:
+        print("FOUND: seed1=", s1, "seed2=", s2, "key1=", aes_key_from_seed(s1).hex(), "key2=", k2.hex())
+        raise SystemExit(0)
+    if (s2 & 0x1FFFFF) == 0:
+        print(f"phase2 {s2}/{TOTAL}")
+print("no match found in MITM (check key derivation assumptions)")
+</pre></code>
+<h4>Output:</h4>
+<pre><code class="language-javascript">Keys here
+</pre></code>
+</div>
+
+									<hr class="major" />
+									
+									<!--Solution-->
+									<div id="solution">
+										<h3>The solution:</h3>
+									</div>
+									
+									
+<!-- Code emulation -->	
+<div class="box">						
+<h4>bruteforceUSB.py:</h4>
+<pre><code class="language-python">import subprocess
+import itertools
+import string
+
+character_list = string.ascii_letters + string.digits + string.punctuation
+
+known_prefix = "*+$+8P{#U0Vw+&v|"
+
+for chars in itertools.product(character_list, repeat=2):
+    attempt = known_prefix + "".join(chars)
+    try:
+        # Call gocryptfs with the current password attempt (after installing)
+        process = subprocess.run(
+            ["gocryptfs", "-passwd", "/mnt/.data"],
+            input=attempt.encode(),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        print(attempt)
+		# Output of the original decryption attempt that was in red at the start
+        if b"Password incorrect" not in process.stderr:
+            print(f"Password found: {attempt}")
+            break
+    except KeyboardInterrupt:
+        print("Brute force interrupted.")
+        break
+</pre></code>
+
+<!-- Terminal emulation -->				
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ python3 bruteforceUSB.py
+*+$+8P{#U0Vw+&v|aa
+*+$+8P{#U0Vw+&v|ab
+*+$+8P{#U0Vw+&v|ac
+*+$+8P{#U0Vw+&v|ad
+*+$+8P{#U0Vw+&v|ae
+*+$+8P{#U0Vw+&v|af
+*+$+8P{#U0Vw+&v|ag
+*+$+8P{#U0Vw+&v|ah
+*+$+8P{#U0Vw+&v|ai
+
+--[Iterations later]--
+
+*+$+8P{#U0Vw+&v|E9
+*+$+8P{#U0Vw+&v|E!
+*+$+8P{#U0Vw+&v|E"
+*+$+8P{#U0Vw+&v|E#
+*+$+8P{#U0Vw+&v|E$
+*+$+8P{#U0Vw+&v|E%
+*+$+8P{#U0Vw+&v|E&
+*+$+8P{#U0Vw+&v|E'
+*+$+8P{#U0Vw+&v|E(
+Password found: *+$+8P{#U0Vw+&v|E(
+</pre>
+
+</div>
+
+									<p><b>*+$+8P{#U0Vw+&v|E(</b> was the correct password and the one we used to decrypt the drive:</p>
+									
+<!-- Terminal emulation -->	
+<div class="box">						
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ sudo ./mnt/unlock         
+Password:  *+$+8P{#U0Vw+&v|E(
+Decrypting master key
+<span class="blue">Filesystem mounted and ready.</span>
+</pre>
+</div>
+				
+									<p>Contents of the drive (we'll dive <em>way</em> deep during the next task):</p>
+									
+<!-- Terminal emulation -->	
+<div class="box">						
+<pre class="terminal">
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ sudo ls /mnt/data 
+Corefile  coredns  microservice
+</pre>
+</div>
+		
+									<p>And of course, entering <b>*+$+8P{#U0Vw+&v|E(</b> into the checker gave me the solve while granting me the status of High Performer.</p>
+
+									<!--,"response":"Still not working. It says 'Password Incorrect.' (in red)"-->
+									<hr class="major" />
+
+
+
+
+									
+									<div class="box">
+										<div style="text-align: center;">
+											<p><b>Brilliant! The malware communications lead us right to the adversary's Mattermost server!</b></p>
+											<span class="image object">
+												<img src="../../images/nsa_codebreaker_2025/badge5.png" alt="" class="badge-img"/>
+											</span>
+										</div>
+									</div>
+									
+									
+									
+									<!--Pages-->
+									<div style="text-align: center;">
+										<ul class="pagination">
+											<li><a href="Task4.html" class="button">Prev</a></li>
+											<li><a href="Task1.html" class="page">1</a></li>
+											<li><a href="Task2.html" class="page">2</a></li>
+											<li><a href="Task3.html" class="page">3</a></li>
+											<li><a href="Task4.html" class="page">4</a></li>
+											<li><a href="#" class="page active">5</a></li>
+											<li><a href="Task6.html" class="page">6</a></li>
+											<li><a href="Task7.html" class="page">7</a></li>
+											<li><a href="Task6.html" class="button">Next</a></li>
+										</ul>
+									</div>
+									
+									
+									
+									
+									
+								</section>
+
+						</div>
+					</div>
+
+				<!-- Sidebar -->
+					<div id="sidebar">
+						<div class="inner">
+
+							<!-- Search -->
+								<section id="search" class="alt">
+									<form method="post" action="#">
+										<input type="text" name="query" id="query" placeholder="Search" />
+									</form>
+								</section>
+
+							<!-- Menu -->
+								<nav id="menu">
+									<header class="major">
+										<h2>Menu</h2>
+									</header>
+									<ul>
+										<li><a href="../NSACodebreaker2025.html">Challenge Home</a></li>
+										<li>
+											<a href="#">Task list</a>
+											<span class="opener"></span>
+											<ul>
+												<li><a href="Task1.html">Task1</a></li>
+												<li><a href="Task2.html">Task2</a></li>
+												<li><a href="Task3.html">Task3</a></li>
+												<li><a href="Task4.html">Task4</a></li>
+												<li><a href="#"><b>Task5</b></a></li>
+												<li><a href="Task6.html">Task6</a></li>
+												<li><a href="Task7.html">Task7</a></li>
+											</ul>
+										</li>
+										<li><a href="#solution">The solution</a></li>
+									</ul>
+								</nav>
+
+							<!-- Section -->
+								<section>
+									<header class="major">
+										<h2>Get in touch</h2>
+									</header>
+									<ul class="contact">
+										<li class="icon solid fa-envelope"><a href="#">nomad1x2sec@gmail.com</a></li>
+									</ul>
+								</section>
+
+							<!-- Footer -->
+								<footer id="footer">
+									<!--<p class="copyright">&copy; Untitled. All rights reserved. Demo Images: <a href="https://unsplash.com">Unsplash</a>. Design: <a href="https://html5up.net">HTML5 UP</a>.</p>-->
+									<p class="copyright">Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+								</footer>
+
+						</div>
+					</div>
+
+			</div>
+
+		<!-- Scripts??? -->
+			<script src="../../assets/js/jquery.min.js"></script>
+			<script src="../../assets/js/browser.min.js"></script>
+			<script src="../../assets/js/breakpoints.min.js"></script>
+			<script src="../../assets/js/util.js"></script>
+			<script src="../../assets/js/main.js"></script>
+
+	</body>
+</html>
