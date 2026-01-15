@@ -111,89 +111,7 @@ print("no match found in MITM (check key derivation assumptions)")
 									</div>
 									
 									
-<!-- Code emulation -->	
-<div class="box">						
-<h4>bruteforceUSB.py:</h4>
-<pre><code class="language-python">import subprocess
-import itertools
-import string
 
-character_list = string.ascii_letters + string.digits + string.punctuation
-
-known_prefix = "*+$+8P{#U0Vw+&v|"
-
-for chars in itertools.product(character_list, repeat=2):
-    attempt = known_prefix + "".join(chars)
-    try:
-        # Call gocryptfs with the current password attempt (after installing)
-        process = subprocess.run(
-            ["gocryptfs", "-passwd", "/mnt/.data"],
-            input=attempt.encode(),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-        print(attempt)
-		# Output of the original decryption attempt that was in red at the start
-        if b"Password incorrect" not in process.stderr:
-            print(f"Password found: {attempt}")
-            break
-    except KeyboardInterrupt:
-        print("Brute force interrupted.")
-        break
-</pre></code>
-
-<!-- Terminal emulation -->				
-<pre class="terminal">
-<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ python3 bruteforceUSB.py
-*+$+8P{#U0Vw+&v|aa
-*+$+8P{#U0Vw+&v|ab
-*+$+8P{#U0Vw+&v|ac
-*+$+8P{#U0Vw+&v|ad
-*+$+8P{#U0Vw+&v|ae
-*+$+8P{#U0Vw+&v|af
-*+$+8P{#U0Vw+&v|ag
-*+$+8P{#U0Vw+&v|ah
-*+$+8P{#U0Vw+&v|ai
-
---[Iterations later]--
-
-*+$+8P{#U0Vw+&v|E9
-*+$+8P{#U0Vw+&v|E!
-*+$+8P{#U0Vw+&v|E"
-*+$+8P{#U0Vw+&v|E#
-*+$+8P{#U0Vw+&v|E$
-*+$+8P{#U0Vw+&v|E%
-*+$+8P{#U0Vw+&v|E&
-*+$+8P{#U0Vw+&v|E'
-*+$+8P{#U0Vw+&v|E(
-Password found: *+$+8P{#U0Vw+&v|E(
-</pre>
-
-</div>
-
-									<p><b>*+$+8P{#U0Vw+&v|E(</b> was the correct password and the one we used to decrypt the drive:</p>
-									
-<!-- Terminal emulation -->	
-<div class="box">						
-<pre class="terminal">
-<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ sudo ./mnt/unlock         
-Password:  *+$+8P{#U0Vw+&v|E(
-Decrypting master key
-<span class="blue">Filesystem mounted and ready.</span>
-</pre>
-</div>
-				
-									<p>Contents of the drive (we'll dive <em>way</em> deep during the next task):</p>
-									
-<!-- Terminal emulation -->	
-<div class="box">						
-<pre class="terminal">
-<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ sudo ls /mnt/data 
-Corefile  coredns  microservice
-</pre>
-</div>
-		
-									<p>And of course, entering <b>*+$+8P{#U0Vw+&v|E(</b> into the checker gave me the solve while granting me the status of High Performer.</p>
 
 									<!--,"response":"Still not working. It says 'Password Incorrect.' (in red)"-->
 									<hr class="major" />
@@ -301,4 +219,5 @@ Corefile  coredns  microservice
 			<script src="../../assets/js/main.js"></script>
 
 	</body>
+
 </html>
