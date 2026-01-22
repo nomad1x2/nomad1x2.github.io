@@ -50,16 +50,468 @@
 									<!-- Work -->							
 									<h3>Solving the task:</h3>
                   
-                  <p>Writeup in progress...</p>
+				  
+				  
+				  
+				  
+				  
+                  <p>We are given the memory dmup, the system map, and the kernel image. Since we're dealing with a Linux memory dump, we can use the <a href="https://volatilityfoundation.org/the-volatility-framework/" target="_blank">Volatility Framework</a> to enumerate and analyze it (output cut off):</p>
                   
-                  <p>Identify the encrypted string:</p>
-                  
+<div class="box">
+<h4>List options for linux dumps:</h4>
+<pre class="terminal"><span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ vol --help | grep linux
+    banners.Banners     Attempts to identify potential linux banners in an
+    linux.bash.Bash     Recovers bash command history from memory.
+    linux.boottime.Boottime
+    linux.capabilities.Capabilities
+    linux.check_afinfo.Check_afinfo
+    linux.check_creds.Check_creds
+    linux.check_idt.Check_idt
+    linux.check_modules.Check_modules
+    linux.check_syscall.Check_syscall
+    linux.ebpf.EBPF     Enumerate eBPF programs
+    ...
+</pre>
+<h4>Identify memory dump OS version:</h4>
+<pre class="terminal"><span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ vol -f memory.dump banners.Banners
+Volatility 3 Framework 2.26.2
+Progress:  100.00               PDB scanning finished
+Offset  Banner
+
+0x4280af        Linux version 5.15.134 (dsu@Ubuntu) (x86_64-openwrt-linux-musl-gcc (OpenWrt GCC 12.3.0 r23497-6637af95aa) 12.3.0, GNU ld (GNU Binutils) 2.40.0) #0 SMP Mon Oct 9 21:45:35 2023
+0x2000220       Linux version 5.15.134 (dsu@Ubuntu) (x86_64-openwrt-linux-musl-gcc (OpenWrt GCC 12.3.0 r23497-6637af95aa) 12.3.0, GNU ld (GNU Binutils) 2.40.0) #0 SMP Mon Oct 9 21:45:35 2023
+0x2d93258       Linux version 5.15.134 (dsu@Ubuntu) (x86_64-openwrt-linux-musl-gcc (OpenWrt GCC 12.3.0 r23497-6637af95aa) 12.3.0, GNU ld (GNU Binutils) 2.40.0) #0 SMP Mon Oct 9 21:45:35 202323
+</pre>
+<h4>Now lets try dumping open files for each process:</h4>
+<pre class="terminal"><span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ vol -f memory.dump linux.lsof.Lsof
+Volatility 3 Framework 2.26.2
+Progress:  100.00               Stacking attempts finished
+Unsatisfied requirement plugins.Lsof.kernel.layer_name:
+Unsatisfied requirement plugins.Lsof.kernel.symbol_table_name:
+
+A translation layer requirement was not fulfilled.  Please verify that:
+        A file was provided to create this layer (by -f, --single-location or by config)
+        The file exists and is readable
+        The file is a valid memory image and was acquired cleanly
+
+A symbol table requirement was not fulfilled.  Please verify that:
+        The associated translation layer requirement was fulfilled
+        You have the correct symbol file for the requirement
+        The symbol file is under the correct directory or zip file
+        The symbol file is named appropriately or contains the correct banner
+
+Unable to validate the plugin requirements: ['plugins.Lsof.kernel.layer_name', 'plugins.Lsof.kernel.symbol_table_name']
+</pre>
+</div>
+				  
+				  
+				  <p>Now we get an error, but this is where our other files (System.map and vmlinux) come into play.</p>
+				  <p>The output lets us know that a symbol table is required. Researching into how exactly we can map a symbol file to a memory dump, I came across this <a href="https://www.hackthebox.com/blog/how-to-create-linux-symbol-tables-volatility" target="_blank">HackTheBox</a> article that basically walked me through it step by step using a tool called <a href="https://github.com/volatilityfoundation/dwarf2json" target="_blank">dwarf2json</a>. This tool allows us to create a json file with the mapped symbol tables that we can use with the memory dump:</p>
+				  
+<div class="box">
+<pre class="terminal"><span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ dwarf2json linux --system-map System.map --elf vmlinux >> Symbols.json && head -50 Symbols.json
+{
+  "metadata": {
+    "linux": {
+      "symbols": [
+        {
+          "kind": "dwarf",
+          "name": "vmlinux",
+          "hash_type": "sha256",
+          "hash_value": "0b2a9fbce46e8e56db4e50ae993f298486f70b635b89452e15cbff9016d5e50e"
+        },
+        {
+          "kind": "symtab",
+          "name": "vmlinux",
+          "hash_type": "sha256",
+          "hash_value": "0b2a9fbce46e8e56db4e50ae993f298486f70b635b89452e15cbff9016d5e50e"
+        },
+        {
+          "kind": "system-map",
+          "name": "System.map",
+          "hash_type": "sha256",
+          "hash_value": "126b8c2f72781060c42d48331539946cabe028dac1d297c4f11e95714a949b26"
+        }
+      ],
+      "types": [
+        {
+          "kind": "dwarf",
+          "name": "vmlinux",
+          "hash_type": "sha256",
+          "hash_value": "0b2a9fbce46e8e56db4e50ae993f298486f70b635b89452e15cbff9016d5e50e"
+        }
+      ]
+    },
+    "producer": {
+      "name": "dwarf2json",
+      "version": "0.6.0"
+    },
+    "format": "6.2.0"
+  },
+  "base_types": {
+    "_Bool": {
+      "size": 1,
+      "signed": true,
+      "kind": "bool",
+      "endian": "little"
+    },
+    "__int128": {
+      "size": 16,
+      "signed": true,
+      "kind": "int",
+      "endian": "little"
+    ...
+</pre>
+</div>				  
+
+				  <p>And now with specifying where we saved the symbol map to, we can continue analyzing the memory dump (since I saved the json file to my current directory, I used the '-s' flag with my current directory '.'):</p>
+				  
+<div class="box">
+<pre class="terminal"><span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ vol -f memory.dump -s ./ linux.lsof.Lsof
+Volatility 3 Framework 2.26.2
+Progress:  100.00               Stacking attempts finished
+PID     TID     Process FD      Path    Device  Inode   Type    Mode    Changed Modified        Accessed        Size
+
+1       1       procd   0       /dev/console    0:19    36      CHR     crw-------      2025-09-06 04:53:42.140000 UTC  2025-09-06 04:53:42.140000 UTC  2025-09-06 04:53:42.140000 UTC  0
+1       1       procd   1       /dev/console    0:19    36      CHR     crw-------      2025-09-06 04:53:42.140000 UTC  2025-09-06 04:53:42.140000 UTC  2025-09-06 04:53:42.140000 UTC  0
+1       1       procd   2       /dev/console    0:19    36      CHR     crw-------      2025-09-06 04:53:42.140000 UTC  2025-09-06 04:53:42.140000 UTC  2025-09-06 04:53:42.140000 UTC  0
+1       1       procd   3       anon_inode:[6519]       0:11    6519    -       ?rw-------      2025-09-06 04:53:34.720000 UTC  2025-09-06 04:53:34.720000 UTC  2025-09-06 04:53:34.720000 UTC  0
+1       1       procd   4       pipe:[118]      0:10    118     FIFO    prw-------      2025-09-06 04:54:13.710000 UTC  2025-09-06 04:54:13.710000 UTC  2025-09-06 04:54:13.710000 UTC  0
+...
+1524    1524    odhcpd  11      pipe:[619]      0:10    619     FIFO    prw-------      2025-09-06 04:54:09.840000 UTC  2025-09-06 04:54:09.840000 UTC  2025-09-06 04:54:09.840000 UTC  0
+1524    1524    odhcpd  12      pipe:[619]      0:10    619     FIFO    prw-------      2025-09-06 04:54:09.840000 UTC  2025-09-06 04:54:09.840000 UTC  2025-09-06 04:54:09.840000 UTC  0
+1524    1524    odhcpd  13      socket:[620]    0:6     620     SOCK    srwxrwxrwx      -       -       -       0
+1552    1552    4       0       /dev/ttyS0      0:19    52      CHR     crw-rw----      2025-09-06 04:53:42.190000 UTC  2025-09-06 04:54:16.190000 UTC  2025-09-06 04:54:10.190000 UTC  0
+1552    1552    4       1       /dev/ttyS0      0:19    52      CHR     crw-rw----      2025-09-06 04:53:42.190000 UTC  2025-09-06 04:54:16.190000 UTC  2025-09-06 04:54:10.190000 UTC  0
+1552    1552    4       2       /dev/ttyS0      0:19    52      CHR     crw-rw----      2025-09-06 04:53:42.190000 UTC  2025-09-06 04:54:16.190000 UTC  2025-09-06 04:54:10.190000 UTC  0
+1552    1552    4       5       /memfd:c (deleted)      0:1     1025    REG     -r--r--r--      2025-09-06 04:54:16.380000 UTC  2025-09-06 04:54:16.360000 UTC  2025-09-06 04:54:16.660000 UTC  1652
+1744    1744    ntpd    0       /dev/null       0:19    16      CHR     crw-rw-rw-      2025-09-06 04:53:42.040000 UTC  2025-09-06 04:53:42.040000 UTC  2025-09-06 04:53:42.040000 UTC  0
+1744    1744    ntpd    1       /dev/null       0:19    16      CHR     crw-rw-rw-      2025-09-06 04:53:42.040000 UTC  2025-09-06 04:53:42.040000 UTC  2025-09-06 04:53:42.040000 UTC  0
+1744    1744    ntpd    2       /dev/null       0:19    16      CHR     crw-rw-rw-      2025-09-06 04:53:42.040000 UTC  2025-09-06 04:53:42.040000 UTC  2025-09-06 04:53:42.040000 UTC  0
+1744    1744    ntpd    3       anon_inode:[6519]       0:11    6519    -       ?rw-------      2025-09-06 04:53:34.720000 UTC  2025-09-06 04:53:34.720000 UTC  2025-09-06 04:53:34.720000 UTC  0
+1744    1744    ntpd    4       pipe:[775]      0:10    775     FIFO    prw-------      2025-09-06 04:54:12.640000 UTC  2025-09-06 04:54:12.640000 UTC  2025-09-06 04:54:12.640000 UTC  0
+1744    1744    ntpd    5       pipe:[775]      0:10    775     FIFO    prw-------      2025-09-06 04:54:12.640000 UTC  2025-09-06 04:54:12.640000 UTC  2025-09-06 04:54:12.640000 UTC  0
+1744    1744    ntpd    6       socket:[777]    0:6     777     SOCK    srwxrwxrwx      -       -       -       0
+1749    1749    ntpd    0       /dev/null       0:19    16      CHR     crw-rw-rw-      2025-09-06 04:53:42.040000 UTC  2025-09-06 04:53:42.040000 UTC  2025-09-06 04:53:42.040000 UTC  0
+1749    1749    ntpd    1       /dev/null       0:19    16      CHR     crw-rw-rw-      2025-09-06 04:53:42.040000 UTC  2025-09-06 04:53:42.040000 UTC  2025-09-06 04:53:42.040000 UTC  0
+1749    1749    ntpd    2       /dev/null       0:19    16      CHR     crw-rw-rw-      2025-09-06 04:53:42.040000 UTC  2025-09-06 04:53:42.040000 UTC  2025-09-06 04:53:42.040000 UTC  0
+1749    1749    ntpd    3       socket:[784]    0:6     784     SOCK    srwxrwxrwx      -       -       -       0
+1854    1854    sh      0       /dev/ttyS0      0:19    52      CHR     crw-rw----      2025-09-06 04:53:42.190000 UTC  2025-09-06 04:54:16.190000 UTC  2025-09-06 04:54:10.190000 UTC  0
+1854    1854    sh      1       /dev/ttyS0      0:19    52      CHR     crw-rw----      2025-09-06 04:53:42.190000 UTC  2025-09-06 04:54:16.190000 UTC  2025-09-06 04:54:10.190000 UTC  0
+1854    1854    sh      2       /dev/ttyS0      0:19    52      CHR     crw-rw----      2025-09-06 04:53:42.190000 UTC  2025-09-06 04:54:16.190000 UTC  2025-09-06 04:54:10.190000 UTC  0
+1854    1854    sh      5       /memfd:c (deleted)      0:1     1025    REG     -r--r--r--      2025-09-06 04:54:16.380000 UTC  2025-09-06 04:54:16.360000 UTC  2025-09-06 04:54:16.660000 UTC  1652
+</pre>
+</div>		
+
+				  <p>Because this task was asking for a list of IPs and domains, my first thought immediately went to trying to identify the etc/hosts file... but of course it couldn't be that simple. I then went on to looking at the running processes to see if I could identify any interesting ones, and only one stood out that had the simple name of just '4':</p>
+
+<div class="box">
+<pre class="terminal"><span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ vol -f memory.dump -s ./  linux.proc.Maps
+Volatility 3 Framework 2.26.2
+Progress:  100.00               Stacking attempts finished
+PID     Process Start   End     Flags   PgOff   Major   Minor   Inode   File Path       File output
+
+...
+1552    4       0x563870e1d000  0x563870e1e000  r--     0x0     0       1       1024    /memfd:x (deleted)      Disabled
+1552    4       0x563870e1e000  0x563870e1f000  r-x     0x1000  0       1       1024    /memfd:x (deleted)      Disabled
+1552    4       0x563870e1f000  0x563870e20000  r--     0x2000  0       1       1024    /memfd:x (deleted)      Disabled
+1552    4       0x563870e20000  0x563870e21000  r--     0x2000  0       1       1024    /memfd:x (deleted)      Disabled
+1552    4       0x563870e21000  0x563870e22000  rw-     0x3000  0       1       1024    /memfd:x (deleted)      Disabled
+...
+</pre>
+</div>	
+
+				  <p>What's interesting here is that the process, '4', was using/opening a file in memory. The <a href="https://hackage.haskell.org/package/memfd" target="_blank">memfd</a> key annotates a 'memory file descriptor' which "<i>lets us open memory-only files that are not linked into a directory and are not backed by persistent storage. Such a file is described as an "anonymous file". It behaves like a regular file, and so can be modified, truncated, memory-mapped, and so on. However, unlike a regular file, it lives in RAM and has a volatile backing storage. Once all references to the file are dropped, it is automatically released.</i>"</p>
+				  
+				  <p>This is a very common technique that adversaries use while creating malware. Their malware can stay in RAM without having anything hard-written to storage; another obfuscation technique to hide what they're doing.</p>
+				  
+				  <p>With that being said, if we can somehow identify the information within that memfd, then maybe we can find more information on malicious IPs and domains.</p>
+				  
+				  <p>Researching further, I stumbled across the <a href="https://man7.org/linux/man-pages/man8/crash.8.html" target="_blank">crash</a> tool used for "<i>interactively analyzing the state of the Linux system while it is running, or after a kernel crash has occurred and a core dump has been created by the netdump, diskdump, LKCD, kdump, xendump kvmdump or VMware facilities.</i>"</p>
+				  
+				  <p>Using this tool, we can translate the virtual memory addresses (that we found with Volatility3/linux.proc.Maps Start and End addresses above) to physical addresses, and then eventually carve out those bytes manually.</p>
+
+<div class="box">
+<h4>Crash Tool CLI:</h4>
+<p>Usage: crash &lt;NAMELIST&gt; &lt;MEMORY-IMAGE&gt;</p>
+<p>Where NAMELIST is the pathname to an uncompressed kernel image (vmlinux) and MEMORY-IMAGE is the  kernel core dump file (memory.dump).</p>
+<pre class="terminal"><span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ crash vmlinux memory.dump
+...
+      KERNEL: vmlinux
+    DUMPFILE: memory.dump
+        CPUS: 2
+        DATE: Sat Sep  6 00:54:16 EDT 2025
+      UPTIME: 00:04:34
+LOAD AVERAGE: 0.70, 0.19, 0.06
+       TASKS: 102
+    NODENAME: OpenWrt
+     RELEASE: 5.15.134
+     VERSION: #0 SMP Mon Oct 9 21:45:35 2023
+     MACHINE: x86_64  (2095 Mhz)
+      MEMORY: 127.5 MB
+       PANIC: ""
+         PID: 0
+     COMMAND: "swapper/0"
+        TASK: ffffffff82a13940  (1 of 2)  [THREAD_INFO: ffffffff82a13940]
+         CPU: 0
+       STATE: TASK_RUNNING
+     WARNING: panic task not found
+crash>
+</pre>
+<h4>Crash Command: vm</h4>
+<p>Displays basic virtual memory information of a context.</p>
+<p>Usage: vm -p &lt;PID&gt;</p>
+<p>Where the '-p' flag is used to translate each virtual page to its physical address, and PID is the suspicious memfd PID we identified (1552 -- <b>physical addresses highlighted in green</b>).</p>
+<pre class="terminal">crash> vm -p 1552
+
+PID: 1552     TASK: ffff888003edad40  CPU: 1    COMMAND: "4"
+
+       MM               PGD          RSS    TOTAL_VM
+ffff8880030639c0  ffff888000a16000   484k     672k
+
+      VMA           START       END     FLAGS FILE
+ffff8880002d1660 563870e1d000 563870e1e000     71 memfd:x
+
+VIRTUAL     PHYSICAL
+<span class="greentitle">563870e1d000    d6d000</span>
+
+      VMA           START       END     FLAGS FILE
+ffff8880002d1048 563870e1e000 563870e1f000     75 memfd:x
+
+VIRTUAL     PHYSICAL
+<span class="greentitle">563870e1e000    d8c000</span>
+
+      VMA           START       END     FLAGS FILE
+ffff8880002d1c78 563870e1f000 563870e20000     71 memfd:x
+
+VIRTUAL     PHYSICAL
+<span class="greentitle">563870e1f000    711000</span>
+
+      VMA           START       END     FLAGS FILE
+ffff8880002d0828 563870e20000 563870e21000 100071 memfd:x
+
+VIRTUAL     PHYSICAL
+<span class="greentitle">563870e20000    dcd000</span>
+
+      VMA           START       END     FLAGS FILE
+ffff888000973048 563870e21000 563870e22000 100073 memfd:x
+
+VIRTUAL     PHYSICAL
+<span class="greentitle">563870e21000    534000</span>
+...
+</pre>
+<p>Virtual to physical addresses:</p>
+563870e1d000     -> <b>d6d000</b><br>
+563870e1e000     -> <b>d8c000</b><br>
+563870e1f000     -> <b>711000</b><br>
+563870e20000     -> <b>dcd000</b><br>
+563870e21000     -> <b>534000</b>
+</div>	
+				  <p>Now that we have the physical addresses, we can calculate the memfd file's offsets by using the <a href="https://man7.org/linux/man-pages/man1/readelf.1.html" target="_blank">readelf</a> tool:</p>
+
+<div class="box">
+<h4>Readelf:</h4>
+<p>Usage: readelf -lW &lt;ELF-FILE&gt;</p>
+<p>Where the '-l' flag displays the program headers, and ELF-FILE is the memory.dump.</p>
+<pre class="terminal"><span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ readelf -lW memory.dump
+
+Elf file type is CORE (Core file)
+Entry point 0x0
+There are 6 program headers, starting at offset 192
+
+Program Headers:
+  Type           Offset    VirtAddr           PhysAddr           FileSiz   MemSiz       Flg Align
+  NOTE           0x000210  0x0000000000000000 0x0000000000000000 0x000660  0x000660     0
+  LOAD           0x000870  0x0000000000000000 0x0000000000000000 0x0a0000  0x0a0000     0
+  LOAD           0x0a0870  0x00000000000a0000 0x00000000000a0000 0x010000  0x010000     0
+  LOAD           <span class="greentitle">0x0b0870</span>  0x00000000000c0000 <span class="greentitle">0x00000000000c0000</span> 0x7f40000 0x7f40000    0
+  LOAD           0x7ff0870 0x00000000fd000000 0x00000000fd000000 0x1000000 0x1000000    0
+  LOAD           0x8ff0870 0x00000000fffc0000 0x00000000fffc0000 0x040000  0x040000     0
+...
+</pre>
+</div>
+
+				  <p>The program header offset we are looking for is highlighted in green (0x0b0870). The reason this is the correct offset is because this is the offset that fits all physical addresses we found with the crash tool:</p>
+
+				  <div class="box">
+					<p>
+					0x000c0000 ≤ <b>0x00d6d000</b> &lt; 0x07fc0000<br>
+					0x000c0000 ≤ <b>0x00d8c000</b> &lt; 0x07fc0000<br>
+					0x000c0000 ≤ <b>0x00711000</b> &lt; 0x07fc0000<br>
+					0x000c0000 ≤ <b>0x00dcd000</b> &lt; 0x07fc0000<br>
+					0x000c0000 ≤ <b>0x00534000</b> &lt; 0x07fc0000<br>
+					</p>
+					<p><i>Note: we get 0x07fc0000 by adding the physical address at offset 0x0b0870 (0x000c0000) and the file size (0x7f40000).</i></p>
+				  </div>
+				  
+				  <p>Now that we have the correct program header where the memfd file is located, we can then calculate the specific file offset for each memfd page we located earlier. That formula is:</p>
+				  
+				  <p><b>headerOffset + (memfdPhysical - headerPhysical) = fileOffset</b></p>
+
+				  <div class="box">
+					<p>
+					0x000b0870 + (0x00d6d000 - 0x000c0000) = <b>0x00d5d870</b><br>
+					0x000b0870 + (0x00d8c000 - 0x000c0000) = <b>0x00d7c870</b><br>
+					0x000b0870 + (0x00711000 - 0x000c0000) = <b>0x00701870</b><br>
+					0x000b0870 + (0x00dcd000 - 0x000c0000) = <b>0x00dbd870</b><br>
+					0x000b0870 + (0x00534000 - 0x000c0000) = <b>0x00524870</b><br>
+					</p>
+				  </div>
+
+                  <p>We now have all of the pieces to extract this memfd file, and we can do so by using the <a href="https://man7.org/linux/man-pages/man1/dd.1.html" target="_blank">dd</a> utility:</p>
+				  
+<div class="box">
+<h4>dd:</h4>
+<p>Usage: dd if= &lt;FILE&gt; of= &lt;FILE&gt; bs= &lt;BYTES&gt; \ skip= &lt;N&gt; count= &lt;N&gt; seek= &lt;N&gt; conv= &lt;CONVS&gt;</p>
+<p>Where:<br><br>
+if = our input file <b>(memory.dump)</b>.<br>
+of = our output file <b>(memfd.recovered)</b>.<br>
+bs = read and write up to BYTES bytes at a time.<br>
+skip = skip N ibs-sized input blocks <b>(our calculated file offsets from above)</b>.<br>
+count = copy only N input blocks <b>(page offset size difference, 0x1000 from our proc.Maps dump)</b>.<br>
+seek = skip N obs-sized output blocks <b>(page offset sizes)</b>.<br>
+conv = converts the file as per the comma separated symbol list <b>(appends copied bytes as stream)</b>.
+</p>
+
+<pre class="terminal"><span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ dd if=memory.dump of=memfd.recovered bs=1 \
+  skip=$((0x0d5d870)) count=$((0x1000)) seek=$((0x0000)) conv=notrunc
+
+4096+0 records in
+4096+0 records out
+4096 bytes (4.1 kB, 4.0 KiB) copied, 1.51336 s, 2.7 kB/s
+
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ dd if=memory.dump of=memfd.recovered bs=1 \
+  skip=$((0x0d7c870)) count=$((0x1000)) seek=$((0x1000)) conv=notrunc
+
+4096+0 records in
+4096+0 records out
+4096 bytes (4.1 kB, 4.0 KiB) copied, 1.27291 s, 3.2 kB/s
+
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ dd if=memory.dump of=memfd.recovered bs=1 \
+  skip=$((0x0701870)) count=$((0x1000)) seek=$((0x2000)) conv=notrunc
+
+4096+0 records in
+4096+0 records out
+4096 bytes (4.1 kB, 4.0 KiB) copied, 1.43794 s, 2.8 kB/s
+
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ dd if=memory.dump of=memfd.recovered bs=1 \
+  skip=$((0x0524870)) count=$((0x1000)) seek=$((0x3000)) conv=notrunc
+  
+4096+0 records in
+4096+0 records out
+4096 bytes (4.1 kB, 4.0 KiB) copied, 1.56166 s, 2.6 kB/s  
+
+
+<span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ file memfd.recovered
+memfd.recovered: ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib/ld-musl-x86_64.so.1, missing section headers at 59168
+</pre>
+
+<h4>Running strings on the file:</h4>
+<pre class="terminal"><span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ strings memfd.recovered
+...
+3&ropening %s
+fopen
+opened %s
+fseek
+ftell
+malloc
+fread
+malloc tok
+realloc tok
+opening <span class="greentitle">/etc/hosts</span>
+<span class="greentitle">/etc/hosts</span>
+fopen <span class="greentitle">/etc/hosts</span>
+%s %s
+warning: weird token count (%zu); ignoring last... check this fff
+Usage: %s <encoded file>
+<span class="greentitle">Decoded payload</span> too short to even have the key...
+service dnsmasq restart
+;*3$"
+?456789:;<=
+ !"#$%&'()*+,-./0123
+dkNlEjxRoVWQaey05Oh/pxd6g+ULZYYTpv4SDz5u10z+wKuPsWeodGb2sBQNqWLSwWAomcc0pnY4BBs0imvAbFFXbiaoI8qQLmPO/VeeJiF5LqC0bKILLEVmRf0hk8fr/Q5RrjLEtUxojc5FjRIBWCOkXpdllOSpyMM4sH8qzdIsC/aMdx4Pd/67O45GeXUFqBmGcncSS8bbHcBAed3uW3Sh3wxjbl2XN+tcd0dqT+dl4yB1aS73kw0pm7b6ykdyp7YiWhF1nSOJNBERaq35fQnApKvWRSmh00RiOiqmeLm5xLzXqFiNOeDbi/EtVM25UHiS6wAw7fNiL3Zsik6nSi5hHdxp4bRgJiZXqMswSe/zE0LFFsLKufeGinuMe/+Yxs0AhBlFp94pB/JrmsIiMgRX+HOI3+nPpV28YGb7tu3pTZc2AqC6Sgz+aaPk56PdY9p50e3V7LZ/tz10j99yfM3gSVP1sSgl8S6igK+GsgeWN30JAj92gAfg+Bxym7AP0UxPH1XNKu8YkeCq1Yw7ryVoZmKC3iUH+J5zA8OCCo8bIjwOlnmKY3scRt/NHNxKbMC7XzrXo3QNBzflVcBlqIKtgT7cT4/Mjt9GYbidCTp2Xc/nKhDZytbzbs9gw+aAvHzNCtlNZTYYiKQVIrWa29IdkghJi5a8nHLafKuWnLV5AdWobxC0hzwF2sVDH01UrGmMg+DM+zaVBq95MTxMjuwAY8OlXAu+a72s2ZXr5Q38EZHypYVckBxGiZByDurDLnmfi2Er2UL+otSh0CfCPz+g/K+lPfxSS7bfLnSZRa7z5+gucslv0OvD7fFL0VJT+rASA6t4ysFkPZiGXZxCFBUwVflQtrHRnunmVp40N4yyAyHLtUYBARXT1FXnJxMlDRuoK5eN3okSCKuPMA6xlx077Wmp7v7GVuZyyuHLkqvwfLwiPWBc5818SsD8tpgEgBHlMQEdNoUvlTZ2dH294ztDhfpZauTIFzut+a67IMky2+bN9NAuuzD7uK/aBG7vwy9EV2fgOuvocDJSKNE+y0IhckWSP7HGB2U9XLjYP0CPkY7BD4M3dQIWJP8AzC6m7b20LA/P6F1qx71AxyRz/PLKjj+zGndOV234IvHjYzyDvgcxmaYEV6/6S8dxKRIfNJs3iTyiorn8f6QAA7jyXlL8M4yFLnj/ugeGPh8iHHrbWuGgdGOSwDDgEmOA2Xx6oGX196n2d5JllGQdAjhz3VK9qUldqcY0T6T2/Lp1Ob5Izajjjv8PwSEuWASVk2DnGzzGux9w5ZNdGhZjsROLcgJwOkBAu2Dz7azxdkXvmWcPEi/6lg7zeRpYINY5zDVLC1fL3xufQSUtWavEFWSm2NOAUshfo4W7nPEJyy20oO/FTmOymxEqcBbYvTwx4PfttBexWvPH1aYowQ09t4LD5lJ6wf1QMzlzpDS09N2GqYkhsBjcqbzoKOAmBbycIwC5e9nBVQVWTut5zoGwm7ApiQxOioqMzyhb8J9qdMbGb6AuI1YVcXWfZ5vx3sOITMZVBr+/RTPcVr2iXUqChVGUdBZvDnGKcoyBEVREGvdo2odgBPy9QcBFERMV3WDCZtXqvIfGfKJPQum0FQ26ij0br/d5J6Em+t/A7izCWuC/hJ5VW9NIvQ==
+</pre>
+</div>
+
+                  <p>Now we're getting somewhere... and we've identified '/etc/host' and 'decoded payload' strings... This must be it, and we also see a rather large, seemingly encrypted string (that's suspicious...):</p>
+
 <!-- Code example -->	
 <div class="box">
 <h4>Suspicious string:</h4>
 <pre><code class="language-javascript">dkNlEjxRoVWQaey05Oh/pxd6g+ULZYYTpv4SDz5u10z+wKuPsWeodGb2sBQNqWLSwWAomcc0pnY4BBs0imvAbFFXbiaoI8qQLmPO/VeeJiF5LqC0bKILLEVmRf0hk8fr/Q5RrjLEtUxojc5FjRIBWCOkXpdllOSpyMM4sH8qzdIsC/aMdx4Pd/67O45GeXUFqBmGcncSS8bbHcBAed3uW3Sh3wxjbl2XN+tcd0dqT+dl4yB1aS73kw0pm7b6ykdyp7YiWhF1nSOJNBERaq35fQnApKvWRSmh00RiOiqmeLm5xLzXqFiNOeDbi/EtVM25UHiS6wAw7fNiL3Zsik6nSi5hHdxp4bRgJiZXqMswSe/zE0LFFsLKufeGinuMe/+Yxs0AhBlFp94pB/JrmsIiMgRX+HOI3+nPpV28YGb7tu3pTZc2AqC6Sgz+aaPk56PdY9p50e3V7LZ/tz10j99yfM3gSVP1sSgl8S6igK+GsgeWN30JAj92gAfg+Bxym7AP0UxPH1XNKu8YkeCq1Yw7ryVoZmKC3iUH+J5zA8OCCo8bIjwOlnmKY3scRt/NHNxKbMC7XzrXo3QNBzflVcBlqIKtgT7cT4/Mjt9GYbidCTp2Xc/nKhDZytbzbs9gw+aAvHzNCtlNZTYYiKQVIrWa29IdkghJi5a8nHLafKuWnLV5AdWobxC0hzwF2sVDH01UrGmMg+DM+zaVBq95MTxMjuwAY8OlXAu+a72s2ZXr5Q38EZHypYVckBxGiZByDurDLnmfi2Er2UL+otSh0CfCPz+g/K+lPfxSS7bfLnSZRa7z5+gucslv0OvD7fFL0VJT+rASA6t4ysFkPZiGXZxCFBUwVflQtrHRnunmVp40N4yyAyHLtUYBARXT1FXnJxMlDRuoK5eN3okSCKuPMA6xlx077Wmp7v7GVuZyyuHLkqvwfLwiPWBc5818SsD8tpgEgBHlMQEdNoUvlTZ2dH294ztDhfpZauTIFzut+a67IMky2+bN9NAuuzD7uK/aBG7vwy9EV2fgOuvocDJSKNE+y0IhckWSP7HGB2U9XLjYP0CPkY7BD4M3dQIWJP8AzC6m7b20LA/P6F1qx71AxyRz/PLKjj+zGndOV234IvHjYzyDvgcxmaYEV6/6S8dxKRIfNJs3iTyiorn8f6QAA7jyXlL8M4yFLnj/ugeGPh8iHHrbWuGgdGOSwDDgEmOA2Xx6oGX196n2d5JllGQdAjhz3VK9qUldqcY0T6T2/Lp1Ob5Izajjjv8PwSEuWASVk2DnGzzGux9w5ZNdGhZjsROLcgJwOkBAu2Dz7azxdkXvmWcPEi/6lg7zeRpYINY5zDVLC1fL3xufQSUtWavEFWSm2NOAUshfo4W7nPEJyy20oO/FTmOymxEqcBbYvTwx4PfttBexWvPH1aYowQ09t4LD5lJ6wf1QMzlzpDS09N2GqYkhsBjcqbzoKOAmBbycIwC5e9nBVQVWTut5zoGwm7ApiQxOioqMzyhb8J9qdMbGb6AuI1YVcXWfZ5vx3sOITMZVBr+/RTPcVr2iXUqChVGUdBZvDnGKcoyBEVREGvdo2odgBPy9QcBFERMV3WDCZtXqvIfGfKJPQum0FQ26ij0br/d5J6Em+t/A7izCWuC/hJ5VW9NIvQ==
 </pre></code>
 </div>
+									
+									
+                  <p>The next step is to import the memfd file into Ghidra and see if we can find any code to decrypt that string. Luckily, the recovered file isn't that big (16KB) and only had a handful of functions. With some scanning, finding the relevant code was fairly easy:</p>
+									
+<!-- Code example -->	
+<div class="box">
+<h4>UndefinedFunction_00101c7e (Seemingly main equivalent):</h4>
+<pre><code class="language-javascript">undefined8 UndefinedFunction_00101c7e(int param_1,undefined8 *param_2)
+
+{
+  undefined8 uVar1;
+  long in_FS_OFFSET;
+  undefined8 uStack_40;
+  ulong uStack_38;
+  void *pvStack_30;
+  undefined4 *puStack_28;
+  undefined4 *puStack_20;
+  long lStack_18;
+  long lStack_10;
+  
+  lStack_10 = *(long *)(in_FS_OFFSET + 0x28);
+  if (param_1 == 2) {
+    FUN_001012bf();
+    uStack_40 = 0;
+    pvStack_30 = (void *)FUN_00101383(param_2[1],&uStack_40);
+    if (pvStack_30 == (void *)0x0) {
+      uVar1 = 1;
+    }
+    else {
+      uStack_38 = 0;
+      puStack_28 = (undefined4 *)FUN_00101609(pvStack_30,uStack_40,&uStack_38);
+      free(pvStack_30);
+      if (puStack_28 == (undefined4 *)0x0) {
+        uVar1 = 1;
+      }
+      else if (uStack_38 < 4) {
+        fwrite("Decoded payload too short to even have the key...\n",1,0x32,(FILE *)0x0);
+        free(puStack_28);
+        uVar1 = 1;
+      }
+      else {
+        puStack_20 = puStack_28 + 1;
+        lStack_18 = uStack_38 - 4;
+        FUN_001018fb(puStack_20,lStack_18,*puStack_28);
+        FUN_0010197e(puStack_20,lStack_18);
+        system("service dnsmasq restart");
+        free(puStack_28);
+        FUN_0010156c();
+        uVar1 = 0;
+      }
+    }
+  }
+  else {
+    fprintf((FILE *)0x0,"Usage: %s <encoded file>\n",*param_2);
+    uVar1 = 1;
+  }
+  if (lStack_10 != *(long *)(in_FS_OFFSET + 0x28)) {
+                    /* WARNING: Subroutine does not return */
+    __stack_chk_fail();
+  }
+  return uVar1;
+}
+</pre></code>
+</div>
+								
+								<p>From here we can gather a bit more information from other context clues, such as "Decoded payload too short to even have the key...\n",1,0x32..." This appears to decrypt something that was decoded with a 32-byte decryption key. It must be that string that we found.</p>
+								
+								<p>Following the code, we see that uStack_38 is u</p>
+									
+									
+									
 									
 									<hr class="major" />
 									
