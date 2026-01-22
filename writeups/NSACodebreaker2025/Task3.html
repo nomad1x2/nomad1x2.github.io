@@ -55,7 +55,7 @@
 				  
 				  
 				  
-                  <p>We are given the memory dmup, the system map, and the kernel image. Since we're dealing with a Linux memory dump, we can use the <a href="https://volatilityfoundation.org/the-volatility-framework/" target="_blank">Volatility Framework</a> to enumerate and analyze it (output cut off):</p>
+                  <p>We are given the memory dmup, the system map, and the kernel image. Since we're dealing with a Linux memory dump, we can use the <a href="https://volatilityfoundation.org/the-volatility-framework/" target="_blank">Volatility Framework</a> to enumerate and analyze it (filtered for brevity):</p>
                   
 <div class="box">
 <h4>List options for linux dumps:</h4>
@@ -106,10 +106,10 @@ Unable to validate the plugin requirements: ['plugins.Lsof.kernel.layer_name', '
 				  
 				  
 				  <p>Now we get an error, but this is where our other files (System.map and vmlinux) come into play.</p>
-				  <p>The output lets us know that a symbol table is required. Researching into how exactly we can map a symbol file to a memory dump, I came across this <a href="https://www.hackthebox.com/blog/how-to-create-linux-symbol-tables-volatility" target="_blank">HackTheBox</a> article that basically walked me through it step by step using a tool called <a href="https://github.com/volatilityfoundation/dwarf2json" target="_blank">dwarf2json</a>. This tool allows us to create a json file with the mapped symbol tables that we can use with the memory dump:</p>
+				  <p>The output lets us know that a symbol table is required. Researching into how exactly we can map a symbol file to a memory dump, I came across this <a href="https://www.hackthebox.com/blog/how-to-create-linux-symbol-tables-volatility" target="_blank">HackTheBox</a> article that basically walked me through it step by step using a tool called <a href="https://github.com/volatilityfoundation/dwarf2json" target="_blank">dwarf2json</a>. This tool allows us to create a json file with the mapped symbol tables that we can use with the memory dump (output filtered for brevity):</p>
 				  
 <div class="box">
-<pre class="terminal"><span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ dwarf2json linux --system-map System.map --elf vmlinux >> Symbols.json && head -50 Symbols.json
+<pre class="terminal"><span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ dwarf2json linux --system-map System.map --elf vmlinux >> Symbols.json && cat Symbols.json
 {
   "metadata": {
     "linux": {
@@ -126,22 +126,7 @@ Unable to validate the plugin requirements: ['plugins.Lsof.kernel.layer_name', '
           "hash_type": "sha256",
           "hash_value": "0b2a9fbce46e8e56db4e50ae993f298486f70b635b89452e15cbff9016d5e50e"
         },
-        {
-          "kind": "system-map",
-          "name": "System.map",
-          "hash_type": "sha256",
-          "hash_value": "126b8c2f72781060c42d48331539946cabe028dac1d297c4f11e95714a949b26"
-        }
-      ],
-      "types": [
-        {
-          "kind": "dwarf",
-          "name": "vmlinux",
-          "hash_type": "sha256",
-          "hash_value": "0b2a9fbce46e8e56db4e50ae993f298486f70b635b89452e15cbff9016d5e50e"
-        }
-      ]
-    },
+...
     "producer": {
       "name": "dwarf2json",
       "version": "0.6.0"
@@ -160,7 +145,7 @@ Unable to validate the plugin requirements: ['plugins.Lsof.kernel.layer_name', '
       "signed": true,
       "kind": "int",
       "endian": "little"
-    ...
+...
 </pre>
 </div>				  
 
@@ -190,20 +175,11 @@ PID     TID     Process FD      Path    Device  Inode   Type    Mode    Changed 
 1744    1744    ntpd    2       /dev/null       0:19    16      CHR     crw-rw-rw-      2025-09-06 04:53:42.040000 UTC  2025-09-06 04:53:42.040000 UTC  2025-09-06 04:53:42.040000 UTC  0
 1744    1744    ntpd    3       anon_inode:[6519]       0:11    6519    -       ?rw-------      2025-09-06 04:53:34.720000 UTC  2025-09-06 04:53:34.720000 UTC  2025-09-06 04:53:34.720000 UTC  0
 1744    1744    ntpd    4       pipe:[775]      0:10    775     FIFO    prw-------      2025-09-06 04:54:12.640000 UTC  2025-09-06 04:54:12.640000 UTC  2025-09-06 04:54:12.640000 UTC  0
-1744    1744    ntpd    5       pipe:[775]      0:10    775     FIFO    prw-------      2025-09-06 04:54:12.640000 UTC  2025-09-06 04:54:12.640000 UTC  2025-09-06 04:54:12.640000 UTC  0
-1744    1744    ntpd    6       socket:[777]    0:6     777     SOCK    srwxrwxrwx      -       -       -       0
-1749    1749    ntpd    0       /dev/null       0:19    16      CHR     crw-rw-rw-      2025-09-06 04:53:42.040000 UTC  2025-09-06 04:53:42.040000 UTC  2025-09-06 04:53:42.040000 UTC  0
-1749    1749    ntpd    1       /dev/null       0:19    16      CHR     crw-rw-rw-      2025-09-06 04:53:42.040000 UTC  2025-09-06 04:53:42.040000 UTC  2025-09-06 04:53:42.040000 UTC  0
-1749    1749    ntpd    2       /dev/null       0:19    16      CHR     crw-rw-rw-      2025-09-06 04:53:42.040000 UTC  2025-09-06 04:53:42.040000 UTC  2025-09-06 04:53:42.040000 UTC  0
-1749    1749    ntpd    3       socket:[784]    0:6     784     SOCK    srwxrwxrwx      -       -       -       0
-1854    1854    sh      0       /dev/ttyS0      0:19    52      CHR     crw-rw----      2025-09-06 04:53:42.190000 UTC  2025-09-06 04:54:16.190000 UTC  2025-09-06 04:54:10.190000 UTC  0
-1854    1854    sh      1       /dev/ttyS0      0:19    52      CHR     crw-rw----      2025-09-06 04:53:42.190000 UTC  2025-09-06 04:54:16.190000 UTC  2025-09-06 04:54:10.190000 UTC  0
-1854    1854    sh      2       /dev/ttyS0      0:19    52      CHR     crw-rw----      2025-09-06 04:53:42.190000 UTC  2025-09-06 04:54:16.190000 UTC  2025-09-06 04:54:10.190000 UTC  0
-1854    1854    sh      5       /memfd:c (deleted)      0:1     1025    REG     -r--r--r--      2025-09-06 04:54:16.380000 UTC  2025-09-06 04:54:16.360000 UTC  2025-09-06 04:54:16.660000 UTC  1652
+...
 </pre>
 </div>		
 
-				  <p>Because this task was asking for a list of IPs and domains, my first thought immediately went to trying to identify the etc/hosts file... but of course it couldn't be that simple. I then went on to looking at the running processes to see if I could identify any interesting ones, and only one stood out that had the simple name of just '4':</p>
+				  <p>Because this task was asking for a list of IPs and domains, my first thought immediately went to trying to identify the etc/hosts file... but of course it couldn't be that simple. I then went on to looking at the running processes to see if I could identify any interesting ones, and one stood out that had the simple name of just '4'. Again, output filtered for brevity:</p>
 
 <div class="box">
 <pre class="terminal"><span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ vol -f memory.dump -s ./  linux.proc.Maps
@@ -233,7 +209,7 @@ PID     Process Start   End     Flags   PgOff   Major   Minor   Inode   File Pat
 
 <div class="box">
 <h4>Crash Tool CLI:</h4>
-<p>Usage: crash &lt;NAMELIST&gt; &lt;MEMORY-IMAGE&gt;</p>
+<p>Usage: <code>crash &lt;NAMELIST&gt; &lt;MEMORY-IMAGE&gt;</code></p>
 <p>Where NAMELIST is the pathname to an uncompressed kernel image (vmlinux) and MEMORY-IMAGE is the  kernel core dump file (memory.dump).</p>
 <pre class="terminal"><span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ crash vmlinux memory.dump
 ...
@@ -260,7 +236,7 @@ crash>
 </pre>
 <h4>Crash Command: vm</h4>
 <p>Displays basic virtual memory information of a context.</p>
-<p>Usage: vm -p &lt;PID&gt;</p>
+<p>Usage: <code>vm -p &lt;PID&gt;</code></p>
 <p>Where the '-p' flag is used to translate each virtual page to its physical address, and PID is the suspicious memfd PID we identified (1552 -- <b>physical addresses highlighted in green</b>).</p>
 <pre class="terminal">crash> vm -p 1552
 
@@ -311,7 +287,7 @@ VIRTUAL     PHYSICAL
 
 <div class="box">
 <h4>Readelf:</h4>
-<p>Usage: readelf -lW &lt;ELF-FILE&gt;</p>
+<p>Usage: <code>readelf -lW &lt;ELF-FILE&gt;</code></p>
 <p>Where the '-l' flag displays the program headers, and ELF-FILE is the memory.dump.</p>
 <pre class="terminal"><span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ readelf -lW memory.dump
 
@@ -341,7 +317,7 @@ Program Headers:
 					0x000c0000 ≤ <b>0x00dcd000</b> &lt; 0x07fc0000<br>
 					0x000c0000 ≤ <b>0x00534000</b> &lt; 0x07fc0000<br>
 					</p>
-					<p><i>Note: we get 0x07fc0000 by adding the physical address at offset 0x0b0870 (0x000c0000) and the file size (0x7f40000).</i></p>
+					<p><i>Note: we get 0x07fc0000 by adding together the physical address at offset 0x0b0870 (0x000c0000) and the file size (0x7f40000).</i></p>
 				  </div>
 				  
 				  <p>Now that we have the correct program header where the memfd file is located, we can then calculate the specific file offset for each memfd page we located earlier. That formula is:</p>
@@ -362,7 +338,7 @@ Program Headers:
 				  
 <div class="box">
 <h4>dd:</h4>
-<p>Usage: dd if= &lt;FILE&gt; of= &lt;FILE&gt; bs= &lt;BYTES&gt; \ skip= &lt;N&gt; count= &lt;N&gt; seek= &lt;N&gt; conv= &lt;CONVS&gt;</p>
+<p>Usage: <code>dd if= &lt;FILE&gt; of= &lt;FILE&gt; bs= &lt;BYTES&gt; \ skip= &lt;N&gt; count= &lt;N&gt; seek= &lt;N&gt; conv= &lt;CONVS&gt;</code></p>
 <p>Where:<br><br>
 if = our input file <b>(memory.dump)</b>.<br>
 of = our output file <b>(memfd.recovered)</b>.<br>
@@ -370,7 +346,7 @@ bs = read and write up to BYTES bytes at a time.<br>
 skip = skip N ibs-sized input blocks <b>(our calculated file offsets from above)</b>.<br>
 count = copy only N input blocks <b>(page offset size difference, 0x1000 from our proc.Maps dump)</b>.<br>
 seek = skip N obs-sized output blocks <b>(page offset sizes)</b>.<br>
-conv = converts the file as per the comma separated symbol list <b>(appends copied bytes as stream)</b>.
+conv = converts the file as per the comma separated symbol list <b>('notrunc' appends copied bytes as stream)</b>.
 </p>
 
 <pre class="terminal"><span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ dd if=memory.dump of=memfd.recovered bs=1 \
@@ -433,7 +409,7 @@ dkNlEjxRoVWQaey05Oh/pxd6g+ULZYYTpv4SDz5u10z+wKuPsWeodGb2sBQNqWLSwWAomcc0pnY4BBs0
 </pre>
 </div>
 
-                  <p>Now we're getting somewhere... and we've identified '/etc/host' and 'decoded payload' strings... This must be it, and we also see a rather large, seemingly encrypted string (that's suspicious...):</p>
+                  <p>Now we're getting somewhere... and we've identified '/etc/hosts' and 'decoded payload' strings... This must be it, and we also see a rather large, seemingly encrypted string (that's suspicious...):</p>
 
 <!-- Code example -->	
 <div class="box">
@@ -443,7 +419,7 @@ dkNlEjxRoVWQaey05Oh/pxd6g+ULZYYTpv4SDz5u10z+wKuPsWeodGb2sBQNqWLSwWAomcc0pnY4BBs0
 </div>
 									
 									
-                  <p>The next step is to import the memfd file into Ghidra and see if we can find any code to decrypt that string. Luckily, the recovered file isn't that big (16KB) and only had a handful of functions. With some scanning, finding the relevant code was fairly easy:</p>
+                  <p>The next step is to import the memfd file into Ghidra and see if we can find any code to decrypt that string. Luckily, the recovered file is small (about 16 KB) and only contains a handful of functions, so it didn’t take long to find the entry point that matters:</p>
 									
 <!-- Code example -->	
 <div class="box">
@@ -506,21 +482,193 @@ dkNlEjxRoVWQaey05Oh/pxd6g+ULZYYTpv4SDz5u10z+wKuPsWeodGb2sBQNqWLSwWAomcc0pnY4BBs0
 </pre></code>
 </div>
 								
-								<p>From here we can gather a bit more information from other context clues, such as "Decoded payload too short to even have the key...\n",1,0x32..." This appears to decrypt something that was decoded with a 32-byte decryption key. It must be that string that we found.</p>
+								<p>Looking at the code flow, input is first read and passed into <code>FUN_00101609</code>. Immediately after that call, the program checks a conditional and displays an error message <code>"Decoded payload too short to even have the key..."</code>. That tells us two things right away: <code>FUN_00101609</code> is decoding the input, and the decoded output is expected to start with a key. If that key isn’t present, the program stops.</p>
 								
-								<p>Following the code, we see that uStack_38 is u</p>
-									
-									
-									
-									
-									<hr class="major" />
-									
-									<!--Solution-->
-									<div id="solution">
-										<h3>The solution:</h3>
-									</div>
-									
-									<p>Decrypt the suspicious string:</p>
+								<p>Tracing back through the code, we find that the buffer returned by <code>FUN_00101609</code> is stored in <code>puStack_28</code> and treated as an array of 4-byte values. The program checks that the decoded length is at least four bytes, then pulls the first four bytes out with <code>*puStack_28</code> and passes that value directly into <code>FUN_001018fb</code>. This must be the decryption code. The pointer is advanced past those four bytes, the length is reduced, and the remaining bytes are decrypted in place. We can verify this with the contents of those functions:</p>
+																	
+<!-- Code example -->	
+<div class="box">
+<h4>FUN_00101609 (Possible decoding):</h4>
+<pre><code class="language-javascript">void * FUN_00101609(long param_1,size_t param_2,long *param_3)
+
+{
+  long lVar1;
+  char cVar2;
+  char cVar3;
+  char cVar4;
+  char cVar5;
+  char cVar6;
+  char cVar7;
+  uint uVar8;
+  void *__ptr;
+  void *pvVar9;
+  ulong local_38;
+  ulong local_30;
+  long local_28;
+  ulong local_20;
+  
+  __ptr = malloc(param_2);
+  if (__ptr == (void *)0x0) {
+    perror("malloc");
+    pvVar9 = (void *)0x0;
+  }
+  else {
+    local_38 = 0;
+    for (local_30 = 0; local_30 < param_2; local_30 = local_30 + 1) {
+      cVar2 = *(char *)((ulong)*(byte *)(local_30 + param_1) + 0x104040);
+      if ((-1 < cVar2) || (cVar2 == -2)) {
+        *(undefined1 *)((long)__ptr + local_38) = *(undefined1 *)(param_1 + local_30);
+        local_38 = local_38 + 1;
+      }
+    }
+    pvVar9 = malloc((local_38 >> 2) * 3 + 4);
+    if (pvVar9 == (void *)0x0) {
+      perror("malloc");
+      free(__ptr);
+      pvVar9 = (void *)0x0;
+    }
+    else {
+      local_28 = 0;
+      local_20 = 0;
+      while (local_20 < local_38) {
+        if (local_20 < local_38) {
+          cVar2 = *(char *)((ulong)*(byte *)(local_20 + (long)__ptr) + 0x104040);
+          local_20 = local_20 + 1;
+        }
+        else {
+          cVar2 = -2;
+        }
+        if (local_20 < local_38) {
+          cVar3 = *(char *)((ulong)*(byte *)(local_20 + (long)__ptr) + 0x104040);
+          local_20 = local_20 + 1;
+        }
+        else {
+          cVar3 = -2;
+        }
+        if (local_20 < local_38) {
+          cVar4 = *(char *)((ulong)*(byte *)(local_20 + (long)__ptr) + 0x104040);
+          local_20 = local_20 + 1;
+        }
+        else {
+          cVar4 = -2;
+        }
+        if (local_20 < local_38) {
+          cVar5 = *(char *)((ulong)*(byte *)(local_20 + (long)__ptr) + 0x104040);
+          local_20 = local_20 + 1;
+        }
+        else {
+          cVar5 = -2;
+        }
+        if ((cVar2 < '\0') || (cVar3 < '\0')) break;
+        cVar6 = cVar4;
+        if (cVar4 < '\0') {
+          cVar6 = '\0';
+        }
+        cVar7 = cVar5;
+        if (cVar5 < '\0') {
+          cVar7 = '\0';
+        }
+        uVar8 = (int)cVar7 | (int)cVar2 << 0x12 | (int)cVar3 << 0xc | (int)cVar6 << 6;
+        *(char *)(local_28 + (long)pvVar9) = (char)(uVar8 >> 0x10);
+        lVar1 = local_28 + 1;
+        if (cVar4 != -2) {
+          *(char *)(local_28 + 1 + (long)pvVar9) = (char)(uVar8 >> 8);
+          lVar1 = local_28 + 2;
+        }
+        local_28 = lVar1;
+        if (cVar5 != -2) {
+          *(char *)(local_28 + (long)pvVar9) = (char)uVar8;
+          local_28 = local_28 + 1;
+        }
+        if ((cVar4 == -2) || (cVar5 == -2)) break;
+      }
+      free(__ptr);
+      *param_3 = local_28;
+    }
+  }
+  return pvVar9;
+}
+</pre></code>
+<h4>FUN_001018fb (Possible decryption):</h4>
+<pre><code class="language-javascript">void FUN_001018fb(long param_1,ulong param_2,uint param_3)
+
+{
+  byte bVar1;
+  undefined1 local_17;
+  undefined4 local_14;
+  undefined8 local_10;
+  
+  local_17 = (byte)param_3;
+  local_14 = param_3;
+  for (local_10 = 0; local_10 < param_2; local_10 = local_10 + 1) {
+    local_14 = local_14 + 0x722633ad;
+    bVar1 = *(byte *)(local_10 + param_1);
+    *(byte *)(local_10 + param_1) = bVar1 ^ (byte)(local_14 >> 0xd) ^ (byte)local_14 ^ local_17;
+    local_17 = bVar1;
+  }
+  return;
+}
+</pre></code>
+</div>		
+							
+								<p>Looking closer at <code>FUN_00101609</code>, it matches the behavior of a base64 decoder. It filters valid characters, maps them through a lookup table, and rebuilds raw bytes in 3-byte chunks. The decoded output and its length are returned to the caller, which lines up with how the main function treats its result.</p>
+								
+								<p>The decryption itself happens in <code>FUN_001018fb</code>. This function takes a pointer to the encrypted data, a length, and a 32-bit value pulled from the start of the decoded buffer. That 32-bit value acts as the decryption seed. For each byte, the function updates an internal state by adding the fixed constant <code>0x722633ad</code>, then XORs the current byte using parts of that state along with a one-byte feedback value from the previous byte. The data is modified in place, which explains why the decrypted buffer is passed straight into the next function without copying.</p>
+
+								
+								<p>The string we recovered earlier <i>has</i> to be a base64 encoded string that contains the key + the payload. When <code>FUN_00101609</code> decodes it, the first four bytes become a 32-bit seed for <code>FUN_001018fb</code>, and everything after that is encrypted payload data.</p>
+								
+																
+								<hr class="major" />
+								
+								<!--Solution-->
+								<div id="solution">
+									<h3>The solution:</h3>
+								</div>
+
+								<p>From here, we can create a script that reverses this entire process, and feed it that suspicious string we found to hopefully find any malicious IP mappings:</p>
+<!-- Code example -->	
+<div class="box">
+<h4>Decrypt.py (lacking error handling):</h4>
+<pre><code class="language-python">import base64
+import struct
+
+suspiciousString = """dkNlEjxRoVWQaey05Oh/pxd6g+ULZYYTpv4SDz5u10z+wKuPsWeodGb2sBQNqWLSwWAomcc0pnY4BBs0imvAbFFXbiaoI8qQLmPO/VeeJiF5LqC0bKILLEVmRf0hk8fr/Q5RrjLEtUxojc5FjRIBWCOkXpdllOSpyMM4sH8qzdIsC/aMdx4Pd/67O45GeXUFqBmGcncSS8bbHcBAed3uW3Sh3wxjbl2XN+tcd0dqT+dl4yB1aS73kw0pm7b6ykdyp7YiWhF1nSOJNBERaq35fQnApKvWRSmh00RiOiqmeLm5xLzXqFiNOeDbi/EtVM25UHiS6wAw7fNiL3Zsik6nSi5hHdxp4bRgJiZXqMswSe/zE0LFFsLKufeGinuMe/+Yxs0AhBlFp94pB/JrmsIiMgRX+HOI3+nPpV28YGb7tu3pTZc2AqC6Sgz+aaPk56PdY9p50e3V7LZ/tz10j99yfM3gSVP1sSgl8S6igK+GsgeWN30JAj92gAfg+Bxym7AP0UxPH1XNKu8YkeCq1Yw7ryVoZmKC3iUH+J5zA8OCCo8bIjwOlnmKY3scRt/NHNxKbMC7XzrXo3QNBzflVcBlqIKtgT7cT4/Mjt9GYbidCTp2Xc/nKhDZytbzbs9gw+aAvHzNCtlNZTYYiKQVIrWa29IdkghJi5a8nHLafKuWnLV5AdWobxC0hzwF2sVDH01UrGmMg+DM+zaVBq95MTxMjuwAY8OlXAu+a72s2ZXr5Q38EZHypYVckBxGiZByDurDLnmfi2Er2UL+otSh0CfCPz+g/K+lPfxSS7bfLnSZRa7z5+gucslv0OvD7fFL0VJT+rASA6t4ysFkPZiGXZxCFBUwVflQtrHRnunmVp40N4yyAyHLtUYBARXT1FXnJxMlDRuoK5eN3okSCKuPMA6xlx077Wmp7v7GVuZyyuHLkqvwfLwiPWBc5818SsD8tpgEgBHlMQEdNoUvlTZ2dH294ztDhfpZauTIFzut+a67IMky2+bN9NAuuzD7uK/aBG7vwy9EV2fgOuvocDJSKNE+y0IhckWSP7HGB2U9XLjYP0CPkY7BD4M3dQIWJP8AzC6m7b20LA/P6F1qx71AxyRz/PLKjj+zGndOV234IvHjYzyDvgcxmaYEV6/6S8dxKRIfNJs3iTyiorn8f6QAA7jyXlL8M4yFLnj/ugeGPh8iHHrbWuGgdGOSwDDgEmOA2Xx6oGX196n2d5JllGQdAjhz3VK9qUldqcY0T6T2/Lp1Ob5Izajjjv8PwSEuWASVk2DnGzzGux9w5ZNdGhZjsROLcgJwOkBAu2Dz7azxdkXvmWcPEi/6lg7zeRpYINY5zDVLC1fL3xufQSUtWavEFWSm2NOAUshfo4W7nPEJyy20oO/FTmOymxEqcBbYvTwx4PfttBexWvPH1aYowQ09t4LD5lJ6wf1QMzlzpDS09N2GqYkhsBjcqbzoKOAmBbycIwC5e9nBVQVWTut5zoGwm7ApiQxOioqMzyhb8J9qdMbGb6AuI1YVcXWfZ5vx3sOITMZVBr+/RTPcVr2iXUqChVGUdBZvDnGKcoyBEVREGvdo2odgBPy9QcBFERMV3WDCZtXqvIfGfKJPQum0FQ26ij0br/d5J6Em+t/A7izCWuC/hJ5VW9NIvQ=="""
+
+# quick + dirty port of FUN_001018fb from the memfd binary
+# first 4 bytes = seed, rest = ciphertext
+# constant 0x722633AD is part of the algo, not the key
+
+def decrypt(buf: bytearray, key: int) -> None:
+    s = key & 0xFFFFFFFF
+    fb = key & 0xFF # one-byte feedback starts as low byte of seed
+    for i in range(len(buf)):
+        s = (s + 0x722633AD) & 0xFFFFFFFF
+        c = buf[i]
+        buf[i] = c ^ ((s >> 13) & 0xFF) ^ (s & 0xFF) ^ fb
+        fb = c  # previous ciphertext byte
+
+raw = base64.b64decode(suspiciousString)
+
+key = struct.unpack_from("&lt;I", raw, 0)[0]
+ct  = bytearray(raw[4:])
+
+decrypt(ct, key)
+
+#plaintext
+print("\nkey =", hex(key),"\n")
+print(ct.decode("utf-8"))
+</pre></code>
+<h4>Output:</h4>
+<pre class="terminal"><span class="greentitle">nomad@LAPTOP-7SLS1EV9</span>:<span class="blue">~</span>$ python3 Decrypt.py
+
+key = 0x12654376
+
+203.0.113.97 archive.archlinux.org 203.0.113.97 distfiles.gentoo.org 203.0.113.97 dl-cdn.alpinelinux.org 203.0.113.217 mirror.stream.centos.org 203.0.113.217 mirrors.alpinelinux.org 203.0.113.97 repos.opensuse.org 203.0.113.97 deb.debian.org 203.0.113.97 ports.ubuntu.org 203.0.113.217 mirrors.rockylinux.org 203.0.113.97 download1.rpmfusion.org 203.0.113.97 security.ubuntu.com 203.0.113.217 geo.mirror.pkgbuild.com 203.0.113.97 packages.linuxmint.com 203.0.113.97 http.kali.org 203.0.113.97 download.opensuse.org 203.0.113.217 mirrors.kernel.org 203.0.113.97 us.archive.ubuntu.com 203.0.113.168 files.pythonhosted.org 203.0.113.168 pypi.io 203.0.113.97 archive.ubuntu.org 203.0.113.97 cache.nixos.org 203.0.113.97 dl.fedoraproject.org 203.0.113.97 repo.almalinux.org 203.0.113.217 mirrors.fedoraproject.org 203.0.113.97 ports.ubuntu.com 203.0.113.97 dl.rockylinux.org 203.0.113.217 mirrors.rpmfusion.org 203.0.113.217 mirror.rackspace.com 203.0.113.97 ftp.us.debian.org 203.0.113.168 pypi.org 203.0.113.217 mirrors.opensuse.org 203.0.113.168 pypi.python.org 203.0.113.97 security.ubuntu.org 203.0.113.217 xmirror.voidlinux.org 203.0.113.97 archive.ubuntu.com 203.0.113.97 repo-default.voidlinux.org 203.0.113.97 security.debian.org
+</pre>
+</div>
+
+								<p>Look at that, we found our IPs and domains! Since the task asks for one IP + domain per line, we just need to clear up the formatting and submit:</p>
                   
 <!-- Code example -->	
 <div class="box">
