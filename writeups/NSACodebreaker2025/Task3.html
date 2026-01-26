@@ -399,13 +399,15 @@ opening <span class="greentitle">/etc/hosts</span>
 fopen <span class="greentitle">/etc/hosts</span>
 %s %s
 warning: weird token count (%zu); ignoring last... check this fff
-Usage: %s <encoded file>
+Usage: %s &lt;encoded file&gt;
 <span class="greentitle">Decoded payload</span> too short to even have the key...
 service dnsmasq restart
 ;*3$"
-?456789:;<=
+?456789:;&lt;=
  !"#$%&'()*+,-./0123
-dkNlEjxRoVWQaey05Oh/pxd6g+ULZYYTpv4SDz5u10z+wKuPsWeodGb2sBQNqWLSwWAomcc0pnY4BBs0imvAbFFXbiaoI8qQLmPO/VeeJiF5LqC0bKILLEVmRf0hk8fr/Q5RrjLEtUxojc5FjRIBWCOkXpdllOSpyMM4sH8qzdIsC/aMdx4Pd/67O45GeXUFqBmGcncSS8bbHcBAed3uW3Sh3wxjbl2XN+tcd0dqT+dl4yB1aS73kw0pm7b6ykdyp7YiWhF1nSOJNBERaq35fQnApKvWRSmh00RiOiqmeLm5xLzXqFiNOeDbi/EtVM25UHiS6wAw7fNiL3Zsik6nSi5hHdxp4bRgJiZXqMswSe/zE0LFFsLKufeGinuMe/+Yxs0AhBlFp94pB/JrmsIiMgRX+HOI3+nPpV28YGb7tu3pTZc2AqC6Sgz+aaPk56PdY9p50e3V7LZ/tz10j99yfM3gSVP1sSgl8S6igK+GsgeWN30JAj92gAfg+Bxym7AP0UxPH1XNKu8YkeCq1Yw7ryVoZmKC3iUH+J5zA8OCCo8bIjwOlnmKY3scRt/NHNxKbMC7XzrXo3QNBzflVcBlqIKtgT7cT4/Mjt9GYbidCTp2Xc/nKhDZytbzbs9gw+aAvHzNCtlNZTYYiKQVIrWa29IdkghJi5a8nHLafKuWnLV5AdWobxC0hzwF2sVDH01UrGmMg+DM+zaVBq95MTxMjuwAY8OlXAu+a72s2ZXr5Q38EZHypYVckBxGiZByDurDLnmfi2Er2UL+otSh0CfCPz+g/K+lPfxSS7bfLnSZRa7z5+gucslv0OvD7fFL0VJT+rASA6t4ysFkPZiGXZxCFBUwVflQtrHRnunmVp40N4yyAyHLtUYBARXT1FXnJxMlDRuoK5eN3okSCKuPMA6xlx077Wmp7v7GVuZyyuHLkqvwfLwiPWBc5818SsD8tpgEgBHlMQEdNoUvlTZ2dH294ztDhfpZauTIFzut+a67IMky2+bN9NAuuzD7uK/aBG7vwy9EV2fgOuvocDJSKNE+y0IhckWSP7HGB2U9XLjYP0CPkY7BD4M3dQIWJP8AzC6m7b20LA/P6F1qx71AxyRz/PLKjj+zGndOV234IvHjYzyDvgcxmaYEV6/6S8dxKRIfNJs3iTyiorn8f6QAA7jyXlL8M4yFLnj/ugeGPh8iHHrbWuGgdGOSwDDgEmOA2Xx6oGX196n2d5JllGQdAjhz3VK9qUldqcY0T6T2/Lp1Ob5Izajjjv8PwSEuWASVk2DnGzzGux9w5ZNdGhZjsROLcgJwOkBAu2Dz7azxdkXvmWcPEi/6lg7zeRpYINY5zDVLC1fL3xufQSUtWavEFWSm2NOAUshfo4W7nPEJyy20oO/FTmOymxEqcBbYvTwx4PfttBexWvPH1aYowQ09t4LD5lJ6wf1QMzlzpDS09N2GqYkhsBjcqbzoKOAmBbycIwC5e9nBVQVWTut5zoGwm7ApiQxOioqMzyhb8J9qdMbGb6AuI1YVcXWfZ5vx3sOITMZVBr+/RTPcVr2iXUqChVGUdBZvDnGKcoyBEVREGvdo2odgBPy9QcBFERMV3WDCZtXqvIfGfKJPQum0FQ26ij0br/d5J6Em+t/A7izCWuC/hJ5VW9NIvQ==
+<span class="greentitle">
+dkNlEjxRoVWQaey05Oh/pxd6g+ULZYYT ... [--CHARS OMITTED--] ... vIfGfKJPQum0FQ26ij0br/d5J6Em+t/A7izCWuC/hJ5VW9NIvQ==
+</span>
 </pre>
 </div>
 
@@ -413,7 +415,7 @@ dkNlEjxRoVWQaey05Oh/pxd6g+ULZYYTpv4SDz5u10z+wKuPsWeodGb2sBQNqWLSwWAomcc0pnY4BBs0
 
 <!-- Code example -->	
 <div class="box">
-<h4>Suspicious string:</h4>
+<h4>Full suspicious string:</h4>
 <pre><code class="language-javascript">dkNlEjxRoVWQaey05Oh/pxd6g+ULZYYTpv4SDz5u10z+wKuPsWeodGb2sBQNqWLSwWAomcc0pnY4BBs0imvAbFFXbiaoI8qQLmPO/VeeJiF5LqC0bKILLEVmRf0hk8fr/Q5RrjLEtUxojc5FjRIBWCOkXpdllOSpyMM4sH8qzdIsC/aMdx4Pd/67O45GeXUFqBmGcncSS8bbHcBAed3uW3Sh3wxjbl2XN+tcd0dqT+dl4yB1aS73kw0pm7b6ykdyp7YiWhF1nSOJNBERaq35fQnApKvWRSmh00RiOiqmeLm5xLzXqFiNOeDbi/EtVM25UHiS6wAw7fNiL3Zsik6nSi5hHdxp4bRgJiZXqMswSe/zE0LFFsLKufeGinuMe/+Yxs0AhBlFp94pB/JrmsIiMgRX+HOI3+nPpV28YGb7tu3pTZc2AqC6Sgz+aaPk56PdY9p50e3V7LZ/tz10j99yfM3gSVP1sSgl8S6igK+GsgeWN30JAj92gAfg+Bxym7AP0UxPH1XNKu8YkeCq1Yw7ryVoZmKC3iUH+J5zA8OCCo8bIjwOlnmKY3scRt/NHNxKbMC7XzrXo3QNBzflVcBlqIKtgT7cT4/Mjt9GYbidCTp2Xc/nKhDZytbzbs9gw+aAvHzNCtlNZTYYiKQVIrWa29IdkghJi5a8nHLafKuWnLV5AdWobxC0hzwF2sVDH01UrGmMg+DM+zaVBq95MTxMjuwAY8OlXAu+a72s2ZXr5Q38EZHypYVckBxGiZByDurDLnmfi2Er2UL+otSh0CfCPz+g/K+lPfxSS7bfLnSZRa7z5+gucslv0OvD7fFL0VJT+rASA6t4ysFkPZiGXZxCFBUwVflQtrHRnunmVp40N4yyAyHLtUYBARXT1FXnJxMlDRuoK5eN3okSCKuPMA6xlx077Wmp7v7GVuZyyuHLkqvwfLwiPWBc5818SsD8tpgEgBHlMQEdNoUvlTZ2dH294ztDhfpZauTIFzut+a67IMky2+bN9NAuuzD7uK/aBG7vwy9EV2fgOuvocDJSKNE+y0IhckWSP7HGB2U9XLjYP0CPkY7BD4M3dQIWJP8AzC6m7b20LA/P6F1qx71AxyRz/PLKjj+zGndOV234IvHjYzyDvgcxmaYEV6/6S8dxKRIfNJs3iTyiorn8f6QAA7jyXlL8M4yFLnj/ugeGPh8iHHrbWuGgdGOSwDDgEmOA2Xx6oGX196n2d5JllGQdAjhz3VK9qUldqcY0T6T2/Lp1Ob5Izajjjv8PwSEuWASVk2DnGzzGux9w5ZNdGhZjsROLcgJwOkBAu2Dz7azxdkXvmWcPEi/6lg7zeRpYINY5zDVLC1fL3xufQSUtWavEFWSm2NOAUshfo4W7nPEJyy20oO/FTmOymxEqcBbYvTwx4PfttBexWvPH1aYowQ09t4LD5lJ6wf1QMzlzpDS09N2GqYkhsBjcqbzoKOAmBbycIwC5e9nBVQVWTut5zoGwm7ApiQxOioqMzyhb8J9qdMbGb6AuI1YVcXWfZ5vx3sOITMZVBr+/RTPcVr2iXUqChVGUdBZvDnGKcoyBEVREGvdo2odgBPy9QcBFERMV3WDCZtXqvIfGfKJPQum0FQ26ij0br/d5J6Em+t/A7izCWuC/hJ5VW9NIvQ==
 </pre></code>
 </div>
@@ -452,7 +454,7 @@ dkNlEjxRoVWQaey05Oh/pxd6g+ULZYYTpv4SDz5u10z+wKuPsWeodGb2sBQNqWLSwWAomcc0pnY4BBs0
       if (puStack_28 == (undefined4 *)0x0) {
         uVar1 = 1;
       }
-      else if (uStack_38 < 4) {
+      else if (uStack_38 &lt; 4) {
         fwrite("Decoded payload too short to even have the key...\n",1,0x32,(FILE *)0x0);
         free(puStack_28);
         uVar1 = 1;
@@ -470,7 +472,7 @@ dkNlEjxRoVWQaey05Oh/pxd6g+ULZYYTpv4SDz5u10z+wKuPsWeodGb2sBQNqWLSwWAomcc0pnY4BBs0
     }
   }
   else {
-    fprintf((FILE *)0x0,"Usage: %s <encoded file>\n",*param_2);
+    fprintf((FILE *)0x0,"Usage: %s &lt;encoded file&gt;\n",*param_2);
     uVar1 = 1;
   }
   if (lStack_10 != *(long *)(in_FS_OFFSET + 0x28)) {
@@ -713,7 +715,6 @@ key = 0x12654376
 </pre></code>
 </div>
                   
-                  <p></p>
 									
 									<hr class="major" />
 									
