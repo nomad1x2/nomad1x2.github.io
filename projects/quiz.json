@@ -2285,7 +2285,7 @@
       "options": {
         "a.": "A list of adversary cyber capabilities",
         "b.": "A classified list of all DOD networks",
-        "c.": "Helps ensure AF personnel know non-releasable info",
+        "c.": "A list that helps ensure AF personnel know non-releasable info",
         "d.": "A database of known cyber vulnerabilities"
       },
       "answer": {
@@ -2941,4 +2941,5 @@
       }
     }
   }
+
 }
