@@ -10,180 +10,117 @@
   <body>
     <div id="root"></div>
 
-    <!--
-      The Python source is stored in a <script type="text/plain"> block.
-      This prevents the HTML parser from interpreting ANY tags inside it,
-      so </style>, </script>, triple-quoted strings etc. are all safe.
-    -->
     <script id="app-source" type="text/plain">
 import streamlit as st
 import json
 import random
 import time
-import os
-from pathlib import Path
+import pyodide_http
+pyodide_http.patch_all()
+import urllib.request
 
-st.set_page_config(
-    page_title="Quiz",
-    layout="centered",
-    initial_sidebar_state="collapsed",
-)
+QUIZ_URL = "https://nomad1x2.github.io/projects/quiz.json"
 
 CSS = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
 html, body, [class*="css"] {
     font-family: 'Inter', sans-serif !important;
     background-color: #141414 !important;
     color: #e8e8e8 !important;
 }
 .stApp { background-color: #141414 !important; }
-
 .question-card {
-    background: #1e1e1e;
-    border: 1px solid #333;
-    border-radius: 10px;
-    padding: 1.75rem 1.75rem 1.25rem;
-    margin-bottom: 1rem;
+    background: #1e1e1e; border: 1px solid #333; border-radius: 10px;
+    padding: 1.75rem 1.75rem 1.25rem; margin-bottom: 1rem;
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 .question-meta {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #666;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-bottom: 0.6rem;
+    font-size: 0.75rem; font-weight: 600; color: #666;
+    text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.6rem;
 }
-.question-text {
-    font-size: 1.05rem;
-    font-weight: 600;
-    color: #f0f0f0;
-    line-height: 1.65;
-    margin: 0;
-}
-
+.question-text { font-size: 1.05rem; font-weight: 600; color: #f0f0f0; line-height: 1.65; margin: 0; }
 div[data-testid="stRadio"] {
-    background: #1e1e1e;
-    border: 1px solid #333;
-    border-radius: 10px;
-    padding: 1.1rem 1.25rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-    display: block !important;
+    background: #1e1e1e; border: 1px solid #333; border-radius: 10px;
+    padding: 1.1rem 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; display: block !important;
 }
 div[data-testid="stRadio"] > div,
 div[data-testid="stRadio"] > div[role="radiogroup"] {
-    gap: 0.4rem !important;
-    display: flex !important;
-    flex-direction: column !important;
-    width: 100% !important;
+    gap: 0.4rem !important; display: flex !important; flex-direction: column !important; width: 100% !important;
 }
 div[data-testid="stRadio"] > div > label,
-div[data-testid="stRadio"] > div[role="radiogroup"] > label {
-    width: 100% !important;
-    box-sizing: border-box !important;
-}
+div[data-testid="stRadio"] > div[role="radiogroup"] > label { width: 100% !important; box-sizing: border-box !important; }
 div[data-testid="stRadio"] label {
-    display: flex !important;
-    align-items: center !important;
-    padding: 0.6rem 0.9rem !important;
-    border: 1px solid #2e2e2e !important;
-    border-radius: 7px !important;
-    margin: 0 !important;
-    cursor: pointer !important;
-    background: #252525 !important;
-    transition: background 0.12s, border-color 0.12s !important;
-    line-height: 1.5 !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
+    display: flex !important; align-items: center !important; padding: 0.6rem 0.9rem !important;
+    border: 1px solid #2e2e2e !important; border-radius: 7px !important; margin: 0 !important;
+    cursor: pointer !important; background: #252525 !important;
+    transition: background 0.12s, border-color 0.12s !important; line-height: 1.5 !important;
+    width: 100% !important; box-sizing: border-box !important;
 }
-div[data-testid="stRadio"] label:hover {
-    background: #2a2f3d !important;
-    border-color: #4a6fa5 !important;
-}
+div[data-testid="stRadio"] label:hover { background: #2a2f3d !important; border-color: #4a6fa5 !important; }
 div[data-testid="stRadio"] label p {
-    margin: 0 !important;
-    font-size: 0.95rem !important;
-    color: #e0e0e0 !important;
-    font-family: 'Inter', sans-serif !important;
+    margin: 0 !important; font-size: 0.95rem !important;
+    color: #e0e0e0 !important; font-family: 'Inter', sans-serif !important;
 }
 div[data-testid="stRadio"] > label { display: none !important; }
 div[data-testid="stRadio"] label > div:last-child { flex: 1 !important; }
-div[data-testid="stElementContainer"][width="fit-content"] {
-    width: 100% !important;
-    max-width: 100% !important;
-}
-
+div[data-testid="stElementContainer"][width="fit-content"] { width: 100% !important; max-width: 100% !important; }
 .progress-label { font-size: 2rem; color: #666; font-weight: 500; }
 .timer-text { color: #e0e0e0; }
 .timer-warn { color: #e05555 !important; }
-
 .feedback-correct {
-    background: #1a2e22; border: 1px solid #2e5c3a;
-    border-left: 4px solid #3d9e58; border-radius: 7px;
-    padding: 0.8rem 1rem; font-size: 0.9rem; font-weight: 600;
-    color: #5ec47a; margin-bottom: 1rem;
+    background: #1a2e22; border: 1px solid #2e5c3a; border-left: 4px solid #3d9e58;
+    border-radius: 7px; padding: 0.8rem 1rem; font-size: 0.9rem;
+    font-weight: 600; color: #5ec47a; margin-bottom: 1rem;
 }
 .feedback-wrong {
-    background: #2e1a1a; border: 1px solid #5c2e2e;
-    border-left: 4px solid #a03030; border-radius: 7px;
-    padding: 0.8rem 1rem; font-size: 0.9rem; font-weight: 600;
-    color: #e06060; margin-bottom: 1rem;
+    background: #2e1a1a; border: 1px solid #5c2e2e; border-left: 4px solid #a03030;
+    border-radius: 7px; padding: 0.8rem 1rem; font-size: 0.9rem;
+    font-weight: 600; color: #e06060; margin-bottom: 1rem;
 }
-.feedback-explanation {
-    margin-top: 0.35rem; font-size: 0.84rem;
-    font-weight: 400; color: #aaa; line-height: 1.5;
-}
-
-.score-big { font-size: 3.5rem; font-weight: 700; text-align: center; color: #f0f0f0; }
+.feedback-explanation { margin-top: 0.35rem; font-size: 0.84rem; font-weight: 400; color: #aaa; line-height: 1.5; }
+.score-big { font-size: 3.5rem; font-weight: 700; text-align: center; color: #f0f0f0; line-height: 1.1; }
 .score-sub { text-align: center; font-size: 1rem; color: #888; margin-bottom: 1.5rem; margin-top: 0.3rem; }
 .stat-row { display: flex; gap: 0.75rem; margin: 1rem 0; }
 .stat-box {
-    flex: 1; background: #1e1e1e; border: 1px solid #333;
-    border-radius: 8px; padding: 0.9rem 0.5rem; text-align: center;
+    flex: 1; background: #1e1e1e; border: 1px solid #333; border-radius: 8px;
+    padding: 0.9rem 0.5rem; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.25);
 }
 .stat-val { font-size: 1.5rem; font-weight: 700; color: #f0f0f0; }
-.stat-lbl { font-size: 0.7rem; color: #666; text-transform: uppercase; margin-top: 0.2rem; }
-
+.stat-lbl { font-size: 0.7rem; color: #666; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.2rem; }
 .stButton > button {
     font-family: 'Inter', sans-serif !important; font-weight: 500 !important;
     border-radius: 7px !important; font-size: 0.9rem !important; width: 100% !important;
     padding: 0.6rem 1.1rem !important; background-color: #252525 !important;
-    border: 1px solid #3a3a3a !important; color: #e0e0e0 !important;
+    border: 1px solid #3a3a3a !important; color: #e0e0e0 !important; transition: all 0.15s ease !important;
 }
 .stButton > button:hover { background-color: #2e2e2e !important; border-color: #555 !important; }
 div[data-testid="column"]:last-child .stButton > button {
     font-size: 0.72rem !important; padding: 0.18rem 0.5rem !important;
+    line-height: 1.2 !important; min-height: unset !important; height: auto !important;
     color: #555 !important; background: transparent !important; border-color: #2a2a2a !important;
 }
 div[data-testid="column"]:last-child .stButton > button:hover {
     color: #999 !important; border-color: #444 !important; background: #1a1a1a !important;
 }
-
 label[data-testid="stWidgetLabel"] p,
 div[data-testid="stSlider"] label p,
 div[data-testid="stCheckbox"] label p { font-size: 0.9rem !important; color: #aaa !important; }
-.stTextInput input { background-color: #1e1e1e !important; color: #e0e0e0 !important; }
-
+.stTextInput input { background-color: #1e1e1e !important; color: #e0e0e0 !important; border: 1px solid #333 !important; }
 #MainMenu, footer, header { visibility: hidden; }
 .block-container { padding-top: 2rem !important; max-width: 680px !important; }
-
 details { background: #1e1e1e !important; border: 1px solid #333 !important; border-radius: 8px !important; }
 summary { color: #ccc !important; }
 </style>
 """
-
 st.markdown(CSS, unsafe_allow_html=True)
 
 
-def load_questions(json_path):
-    with open(json_path, "r", encoding="utf-8") as f:
-        data = json.load(f)
+@st.cache_data
+def load_questions():
+    with urllib.request.urlopen(QUIZ_URL) as response:
+        data = json.loads(response.read().decode("utf-8"))
     return data["questions"]
 
 def format_time(seconds):
@@ -202,12 +139,12 @@ def reset_quiz():
         del st.session_state[key]
 
 
-SCRIPT_DIR = Path(__file__).parent
-DEFAULT_JSON = "quiz.json"
-for candidate in [SCRIPT_DIR / "quiz.json", Path("quiz.json")]:
-    if candidate.exists():
-        DEFAULT_JSON = str(candidate)
-        break
+# Load questions (cached after first fetch)
+try:
+    ALL_QUESTIONS = load_questions()
+except Exception as e:
+    st.error(f"Could not load quiz questions from {QUIZ_URL}\n\nError: {e}")
+    st.stop()
 
 if "quiz_active" not in st.session_state:
     st.session_state.quiz_active = False
@@ -218,11 +155,11 @@ if "quiz_active" not in st.session_state:
 if not st.session_state.quiz_active:
 
     st.markdown("## Quiz Setup")
-    json_path = st.text_input("Question bank (JSON file)", value=DEFAULT_JSON)
 
+    total_available = len(ALL_QUESTIONS)
     col1, col2 = st.columns(2)
     with col1:
-        num_questions = st.slider("Number of questions", 5, 100, 10, 5)
+        num_questions = st.slider("Number of questions", 5, min(100, total_available), 10, 5)
     with col2:
         randomize = st.checkbox("Randomize order", value=True)
 
@@ -234,36 +171,29 @@ if not st.session_state.quiz_active:
         timer_minutes = st.slider("Duration (minutes)", 1, 60, 10, disabled=not use_timer)
 
     instant_feedback = st.checkbox("Show correct answer after each question", value=True)
+    st.markdown(f"*{total_available} questions available*")
 
-    st.markdown("")
     if st.button("Start Quiz"):
-        if not os.path.exists(json_path):
-            st.error(f"File not found: {json_path}")
-        else:
-            try:
-                all_q = load_questions(json_path)
-                keys = list(all_q.keys())
-                if randomize:
-                    random.shuffle(keys)
-                chosen = keys[:min(num_questions, len(keys))]
-                st.session_state.questions        = {k: all_q[k] for k in chosen}
-                st.session_state.q_keys           = chosen
-                st.session_state.quiz_active      = True
-                st.session_state.current_q        = 0
-                st.session_state.selected_answers = {}
-                st.session_state.answered         = {}
-                st.session_state.score            = 0
-                st.session_state.start_time       = time.time()
-                st.session_state.q_start_time     = time.time()
-                st.session_state.elapsed_times    = []
-                st.session_state.time_up          = False
-                st.session_state.use_timer        = use_timer
-                st.session_state.timer_seconds    = timer_minutes * 60
-                st.session_state.instant_feedback = instant_feedback
-                st.session_state.total            = len(chosen)
-                st.rerun()
-            except Exception as e:
-                st.error(f"Failed to load questions: {e}")
+        keys = list(ALL_QUESTIONS.keys())
+        if randomize:
+            random.shuffle(keys)
+        chosen = keys[:num_questions]
+        st.session_state.questions        = {k: ALL_QUESTIONS[k] for k in chosen}
+        st.session_state.q_keys           = chosen
+        st.session_state.quiz_active      = True
+        st.session_state.current_q        = 0
+        st.session_state.selected_answers = {}
+        st.session_state.answered         = {}
+        st.session_state.score            = 0
+        st.session_state.start_time       = time.time()
+        st.session_state.q_start_time     = time.time()
+        st.session_state.elapsed_times    = []
+        st.session_state.time_up          = False
+        st.session_state.use_timer        = use_timer
+        st.session_state.timer_seconds    = timer_minutes * 60
+        st.session_state.instant_feedback = instant_feedback
+        st.session_state.total            = num_questions
+        st.rerun()
 
 
 # ── QUIZ SCREEN ───────────────────────────────────────────────────────────────
@@ -285,7 +215,6 @@ elif st.session_state.quiz_active:
 
     # ── RESULTS ──────────────────────────────────────────────────────────────
     if idx >= total:
-
         score   = st.session_state.score
         pct     = (score / total) * 100 if total else 0
         elapsed = int(time.time() - st.session_state.start_time)
@@ -321,11 +250,9 @@ elif st.session_state.quiz_active:
 
         c1, c2 = st.columns(2)
         with c1:
-            if st.button("Restart Quiz"):
-                reset_quiz(); st.rerun()
+            if st.button("Restart Quiz"): reset_quiz(); st.rerun()
         with c2:
-            if st.button("New Settings"):
-                reset_quiz(); st.rerun()
+            if st.button("New Settings"): reset_quiz(); st.rerun()
 
     # ── ACTIVE QUESTION ───────────────────────────────────────────────────────
     else:
@@ -350,8 +277,7 @@ elif st.session_state.quiz_active:
             )
         with exit_col:
             if st.button("Exit", key="exit_btn", use_container_width=True):
-                st.session_state.current_q = total
-                st.rerun()
+                st.session_state.current_q = total; st.rerun()
 
         st.progress(idx / total)
         st.markdown("<div style='height:0.75rem'></div>", unsafe_allow_html=True)
@@ -362,14 +288,11 @@ elif st.session_state.quiz_active:
         )
 
         option_labels = [f"{k}  {v}" for k, v in opts.items()]
-
         default_idx = None
         if q_key in st.session_state.selected_answers:
             saved = st.session_state.selected_answers[q_key]
             for i, lbl in enumerate(option_labels):
-                if lbl == saved:
-                    default_idx = i
-                    break
+                if lbl == saved: default_idx = i; break
 
         st.radio("Select an answer:", option_labels, index=default_idx,
                  key=f"radio_{q_key}", disabled=already_answered)
@@ -419,14 +342,13 @@ elif st.session_state.quiz_active:
     <script type="module">
       import { mount } from "https://cdn.jsdelivr.net/npm/@stlite/browser@0.85.1/build/stlite.js";
 
-      const source = document.getElementById("app-source").textContent;
-
       mount(
         {
           entrypoint: "streamlit_app.py",
           files: {
-            "streamlit_app.py": source,
+            "streamlit_app.py": document.getElementById("app-source").textContent,
           },
+          requirements: ["pyodide-http"],
         },
         document.getElementById("root")
       );
