@@ -337,9 +337,6 @@ def reset_quiz():
     for key in list(st.session_state.keys()):
         del st.session_state[key]
 
-
-# ── Locate default quiz.json ──────────────────────────────────────────────────
-
 SCRIPT_DIR = Path(__file__).parent
 DEFAULT_JSON = "quiz.json"
 for candidate in [SCRIPT_DIR / "quiz.json", Path("quiz.json")]:
@@ -349,11 +346,6 @@ for candidate in [SCRIPT_DIR / "quiz.json", Path("quiz.json")]:
 
 if "quiz_active" not in st.session_state:
     st.session_state.quiz_active = False
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-# CONFIG SCREEN
-# ══════════════════════════════════════════════════════════════════════════════
 
 if not st.session_state.quiz_active:
 
@@ -406,11 +398,6 @@ if not st.session_state.quiz_active:
             except Exception as e:
                 st.error(f"Failed to load questions: {e}")
 
-
-# ══════════════════════════════════════════════════════════════════════════════
-# QUIZ SCREEN
-# ══════════════════════════════════════════════════════════════════════════════
-
 elif st.session_state.quiz_active:
 
     questions = st.session_state.questions
@@ -427,7 +414,6 @@ elif st.session_state.quiz_active:
             st.session_state.current_q = total
             st.rerun()
 
-    # ── RESULTS ──────────────────────────────────────────────────────────────
     if idx >= total:
 
         score   = st.session_state.score
@@ -490,7 +476,6 @@ elif st.session_state.quiz_active:
                 reset_quiz()
                 st.rerun()
 
-    # ── ACTIVE QUESTION ───────────────────────────────────────────────────────
     else:
         q_key            = q_keys[idx]
         q_data           = questions[q_key]
@@ -498,14 +483,12 @@ elif st.session_state.quiz_active:
         correct_key      = list(q_data["answer"].keys())[0]
         already_answered = q_key in st.session_state.answered
 
-        # Build timer string if needed
         timer_str = ""
         if st.session_state.use_timer:
             remaining = st.session_state.timer_seconds - elapsed
             warn_cls  = "timer-warn" if remaining < 60 else "timer-text"
             timer_str = f'<span class="{warn_cls}">{format_time(remaining)}</span>'
 
-        # Progress label + Exit button on same row
         prog_col, exit_col = st.columns([8, 1])
         with prog_col:
             timer_suffix = f"&nbsp;&nbsp;{timer_str}" if timer_str else ""
@@ -520,11 +503,9 @@ elif st.session_state.quiz_active:
                 st.session_state.current_q = total
                 st.rerun()
 
-        # Progress bar full-width below
         st.progress(idx / total)
         st.markdown("<div style='height:0.75rem'></div>", unsafe_allow_html=True)
 
-        # Question card
         st.markdown(
             f'<div class="question-card">'
             f'<div class="question-meta">Question {idx + 1}</div>'
@@ -535,7 +516,6 @@ elif st.session_state.quiz_active:
 
         option_labels = [f"{k}  {v}" for k, v in opts.items()]
 
-        # Restore saved selection
         default_idx = None
         if q_key in st.session_state.selected_answers:
             saved = st.session_state.selected_answers[q_key]
@@ -544,7 +524,6 @@ elif st.session_state.quiz_active:
                     default_idx = i
                     break
 
-        # Answers (radio)
         selected = st.radio(
             "Select an answer:",
             option_labels,
@@ -553,7 +532,6 @@ elif st.session_state.quiz_active:
             disabled=already_answered,
         )
 
-        # Next / Finish button
         btn_label = "Finish" if (already_answered and idx == total - 1) else "Next"
         if st.button(btn_label, use_container_width=True):
             if not already_answered:
@@ -582,7 +560,6 @@ elif st.session_state.quiz_active:
                 st.session_state.q_start_time = time.time()
                 st.rerun()
 
-        # Feedback
         if already_answered and st.session_state.instant_feedback:
             is_correct = st.session_state.answered[q_key]
             expl       = list(q_data["answer"].values())[0]
@@ -600,7 +577,6 @@ elif st.session_state.quiz_active:
                     unsafe_allow_html=True,
                 )
 
-        # Auto-refresh for live timer
         if st.session_state.use_timer and not already_answered:
             time.sleep(0.5)
             st.rerun()
