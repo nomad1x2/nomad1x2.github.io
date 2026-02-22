@@ -1,0 +1,2944 @@
+{
+  "questions": {
+    "1": {
+      "question": "What document provides the highest level of strategic planning for national security?",
+      "options": {
+        "a.": "National Defense Strategy (NDS)",
+        "b.": "National Military Strategy (NMS)",
+        "c.": "National Security Strategy (NSS)",
+        "d.": "National Cyberspace Policy"
+      },
+      "answer": {
+        "c.": "The NSS provides the highest level of strategic planning, prepared by the president and submitted to Congress."
+      }
+    },
+    "2": {
+      "question": "What is the legal foundation for the National Security Strategy?",
+      "options": {
+        "a.": "The Patriot Act of 2001",
+        "b.": "The Goldwater-Nichols Act of 1986",
+        "c.": "Title 10 of the US Code",
+        "d.": "Executive Order 13800"
+      },
+      "answer": {
+        "b.": "The Goldwater-Nichols Act of 1986 is the legal foundation for the NSS and helped streamline the military chain of command."
+      }
+    },
+    "3": {
+      "question": "Who develops and signs the National Defense Strategy (NDS)?",
+      "options": {
+        "a.": "The President and Joint Chiefs",
+        "b.": "The CJCS",
+        "c.": "DOD, signed by the SECDEF",
+        "d.": "Congress and the President"
+      },
+      "answer": {
+        "c.": "The NDS is developed by the DOD and signed by the SECDEF, supporting the NSS by establishing overarching defense objectives."
+      }
+    },
+    "4": {
+      "question": "The NDS outlines how many top-level defense priorities?",
+      "options": {
+        "a.": "Three",
+        "b.": "Five",
+        "c.": "Six",
+        "d.": "Four"
+      },
+      "answer": {
+        "d.": "The NDS outlines four top-level defense priorities related to defending the homeland, deterrence, and building warfighting advantage."
+      }
+    },
+    "5": {
+      "question": "The National Military Strategy (NMS) is the strategic guidance of which position?",
+      "options": {
+        "a.": "Secretary of Defense",
+        "b.": "Chairman of the Joint Chiefs of Staff (CJCS)",
+        "c.": "President of the United States",
+        "d.": "Director of National Intelligence"
+      },
+      "answer": {
+        "b.": "The NMS is the CJCS's strategic guidance, providing logic and framework to achieve NDS priorities."
+      }
+    },
+    "6": {
+      "question": "What concept in the NMS generates warfighting advantages by synchronizing operations across all warfighting domains?",
+      "options": {
+        "a.": "Strategic Deterrence",
+        "b.": "Integrated Deterrence",
+        "c.": "Unified Campaigning",
+        "d.": "Operational Control"
+      },
+      "answer": {
+        "b.": "Integrated Deterrence synchronizes operations across domains, theaters, instruments of national power, and allies to generate warfighting advantages."
+      }
+    },
+    "7": {
+      "question": "Prior to which administration did no solid cyber guidance exist?",
+      "options": {
+        "a.": "The 40th administration",
+        "b.": "The 41st administration",
+        "c.": "The 43rd administration",
+        "d.": "The 45th administration"
+      },
+      "answer": {
+        "c.": "Prior to the 43rd administration, no solid cyber guidance existed."
+      }
+    },
+    "8": {
+      "question": "Cyber became a high-priority political interest item following what events?",
+      "options": {
+        "a.": "The Cold War and Berlin Wall fall",
+        "b.": "9/11, the standup of the DHS, and identification of critical infrastructures",
+        "c.": "The 2008 financial crisis and OPM data breach",
+        "d.": "The Gulf War and Operation Desert Storm"
+      },
+      "answer": {
+        "b.": "Cyber became a high priority following 9/11, the standup of the DHS, and the identification of critical infrastructures."
+      }
+    },
+    "9": {
+      "question": "National Cyberspace Policy has been one of the highest national security priorities since what year?",
+      "options": {
+        "a.": "1999",
+        "b.": "2001",
+        "c.": "2002",
+        "d.": "2005"
+      },
+      "answer": {
+        "c.": "National Cyberspace Policy has been one of the highest national security priorities since 2002."
+      }
+    },
+    "10": {
+      "question": "What is the primary goal of National Cyberspace Policy?",
+      "options": {
+        "a.": "To develop offensive cyber capabilities",
+        "b.": "To prevent or minimize disruptions to critical information infrastructures",
+        "c.": "To establish the Cyber Mission Force",
+        "d.": "To regulate internet commerce"
+      },
+      "answer": {
+        "b.": "The goal is to prevent or minimize disruptions to critical information infrastructures, thereby protecting people, economy, services, and national security."
+      }
+    },
+    "11": {
+      "question": "The NMS-CO emphasizes which two types of cyberspace operations?",
+      "options": {
+        "a.": "ISR and OPE",
+        "b.": "DODIN Ops and ISR",
+        "c.": "OCO and DCO",
+        "d.": "SIGINT and HUMINT"
+      },
+      "answer": {
+        "c.": "The National Military Strategy for Cyberspace Operations emphasizes OCO and DCO, which is fundamental."
+      }
+    },
+    "12": {
+      "question": "Joint Publication 3-12 sets forth joint doctrine governing which activities?",
+      "options": {
+        "a.": "Air Force specific cyber operations",
+        "b.": "The military's activities in joint cyberspace operations",
+        "c.": "Intelligence community cyber activities",
+        "d.": "DHS civilian cyber defense"
+      },
+      "answer": {
+        "b.": "JP 3-12 sets forth joint doctrine to govern the activities and performance of the military in joint cyberspace operations."
+      }
+    },
+    "13": {
+      "question": "AFDD 3-12 is the Air Force's foundational doctrine publication for operations in what domain?",
+      "options": {
+        "a.": "Air",
+        "b.": "Space",
+        "c.": "Information",
+        "d.": "Cyberspace"
+      },
+      "answer": {
+        "d.": "AFDD 3-12 is the AF's foundational doctrine publication for AF operations in, through, and from the cyberspace domain."
+      }
+    },
+    "14": {
+      "question": "AFPD 17-2 establishes AF policy for what activities?",
+      "options": {
+        "a.": "Training and evaluation of cyber forces",
+        "b.": "Planning and executing AF and joint cyber operations",
+        "c.": "Procurement of cyber tools and systems",
+        "d.": "Classification of cyber intelligence"
+      },
+      "answer": {
+        "b.": "AFPD 17-2 establishes AF policy for planning and executing AF and joint cyber operations."
+      }
+    },
+    "15": {
+      "question": "Combatant Command (COCOM) authority is exercised by whom?",
+      "options": {
+        "a.": "Service Chiefs",
+        "b.": "The CJCS",
+        "c.": "Commanders of combatant commands as directed by the President or SECDEF",
+        "d.": "The National Security Council"
+      },
+      "answer": {
+        "c.": "COCOM is exercised by commanders of combatant commands as directed by the President or the SECDEF."
+      }
+    },
+    "16": {
+      "question": "Administrative Control (ADCON) is described as what type of authority?",
+      "options": {
+        "a.": "A warfighting authority",
+        "b.": "NOT a warfighting authority",
+        "c.": "An offensive authority",
+        "d.": "A joint operational authority"
+      },
+      "answer": {
+        "b.": "ADCON is NOT a warfighting authority; it governs administration and support along service lines."
+      }
+    },
+    "17": {
+      "question": "Operational Control (OPCON) does NOT include authority over which of the following?",
+      "options": {
+        "a.": "Assigning tasks",
+        "b.": "Designating objectives",
+        "c.": "Logistics and administrative matters",
+        "d.": "Organizing commands and forces"
+      },
+      "answer": {
+        "c.": "OPCON does not include authoritative direction for logistics or matters of administration, discipline, internal organization, or training."
+      }
+    },
+    "18": {
+      "question": "Tactical Control (TACON) provides authority limited to what?",
+      "options": {
+        "a.": "Full operational command of assigned forces",
+        "b.": "Administrative and logistic support direction",
+        "c.": "Detailed direction and control of movements or maneuvers within the operational area",
+        "d.": "Strategic-level direction of campaigns"
+      },
+      "answer": {
+        "c.": "TACON is limited to detailed direction and control of movements or maneuvers within the operational area to accomplish assigned missions or tasks."
+      }
+    },
+    "19": {
+      "question": "What type of support is given to the supported force as a whole rather than a particular subdivision?",
+      "options": {
+        "a.": "Mutual Support",
+        "b.": "Direct Support",
+        "c.": "Close Support",
+        "d.": "General Support"
+      },
+      "answer": {
+        "d.": "General Support is given to the supported force as a whole rather than to a particular subdivision thereof."
+      }
+    },
+    "20": {
+      "question": "What is the DODIN formerly known as?",
+      "options": {
+        "a.": "AFNET",
+        "b.": "Global Information Grid (GIG)",
+        "c.": "Defense Data Network",
+        "d.": "Joint Intelligence Network"
+      },
+      "answer": {
+        "b.": "The DODIN is the older Global Information Grid (GIG), renamed in 2013."
+      }
+    },
+    "21": {
+      "question": "The DODIN was renamed from the GIG in what year?",
+      "options": {
+        "a.": "2010",
+        "b.": "2011",
+        "c.": "2013",
+        "d.": "2015"
+      },
+      "answer": {
+        "c.": "The Global Information Grid (GIG) was renamed to the DODIN in 2013."
+      }
+    },
+    "22": {
+      "question": "The Cyber Mission Force (CMF) was formed in what year by which organizations?",
+      "options": {
+        "a.": "2010, by the Air Force and NSA",
+        "b.": "2012, by the Joint Staff and USCYBERCOM",
+        "c.": "2014, by SECDEF and the CJCS",
+        "d.": "2016, by USCYBERCOM and DHS"
+      },
+      "answer": {
+        "b.": "The CMF was formed in 2012 by the Joint Staff and USCYBERCOM."
+      }
+    },
+    "23": {
+      "question": "How many Cyber Mission Teams (CMTs) does the CMF consist of?",
+      "options": {
+        "a.": "100",
+        "b.": "115",
+        "c.": "133",
+        "d.": "150"
+      },
+      "answer": {
+        "c.": "The CMF consists of 133 Cyber Mission Teams."
+      }
+    },
+    "24": {
+      "question": "When did the CMF achieve Initial Operational Capability (IOC)?",
+      "options": {
+        "a.": "January 2015",
+        "b.": "October 2016",
+        "c.": "May 2017",
+        "d.": "December 2018"
+      },
+      "answer": {
+        "b.": "The CMF became IOC in October 2016, meeting requirements to complete the big mission."
+      }
+    },
+    "25": {
+      "question": "When did the CMF achieve Full Operational Capability (FOC)?",
+      "options": {
+        "a.": "January 2018",
+        "b.": "September 2018",
+        "c.": "17 May 2018",
+        "d.": "17 May 2019"
+      },
+      "answer": {
+        "c.": "The CMF became FOC on 17 May 2018, four months ahead of schedule."
+      }
+    },
+    "26": {
+      "question": "What are the three Lines of Operation (LOOs) of the CMF?",
+      "options": {
+        "a.": "OCO, ISR, and OPSEC",
+        "b.": "DODIN Ops, DCO, and OCO",
+        "c.": "ISR, IO, and OPE",
+        "d.": "SIGINT, HUMINT, and OSINT"
+      },
+      "answer": {
+        "b.": "The three CMF Lines of Operation are DODIN Ops, DCO, and OCO."
+      }
+    },
+    "27": {
+      "question": "Which CMF subordinate command is responsible for defending the nation?",
+      "options": {
+        "a.": "Cyber Combat Mission Force (CCMF)",
+        "b.": "Cyber Protection Force (CPF)",
+        "c.": "Cyber National Mission Force (CNMF)",
+        "d.": "Joint Force Headquarters-Cyber"
+      },
+      "answer": {
+        "c.": "The Cyber National Mission Force (CNMF) aligns with the DOD's mission to defend the nation against cyber threats."
+      }
+    },
+    "28": {
+      "question": "The CNMF-HQ exercises OPCON over which teams?",
+      "options": {
+        "a.": "CMTs and CSTs",
+        "b.": "NMTs, NSTs, and National CPTs",
+        "c.": "DODIN CPTs and MAJCOM CPTs",
+        "d.": "Service CPTs and Combat Mission Teams"
+      },
+      "answer": {
+        "b.": "CNMF-HQ exercises OPCON over the NMTs, NSTs, and National CPTs."
+      }
+    },
+    "29": {
+      "question": "What partnerships are critical to CNMF success?",
+      "options": {
+        "a.": "FBI and CIA only",
+        "b.": "NSA, DOD, IC, DHS, and FBI",
+        "c.": "DHS and NATO allies",
+        "d.": "INTERPOL and Five Eyes partners"
+      },
+      "answer": {
+        "b.": "CNMF success relies on partnerships with NSA, DOD, and IC, as well as DHS and FBI."
+      }
+    },
+    "30": {
+      "question": "National Mission Teams (NMTs) are aligned against what?",
+      "options": {
+        "a.": "Specific geographic regions",
+        "b.": "A specific cyberspace threat",
+        "c.": "Combatant command requirements",
+        "d.": "DODIN infrastructure segments"
+      },
+      "answer": {
+        "b.": "NMTs are aligned against a specific cyberspace threat and are tactical units who normally include DCO response actions."
+      }
+    },
+    "31": {
+      "question": "How many Cyber Protection Teams (CPTs) does the Cyber Protection Force (CPF) have?",
+      "options": {
+        "a.": "27",
+        "b.": "45",
+        "c.": "68",
+        "d.": "133"
+      },
+      "answer": {
+        "c.": "The CPF has the largest slice of the CMF pie with 68 teams (CPTs)."
+      }
+    },
+    "32": {
+      "question": "What four types of missions does the CPF conduct?",
+      "options": {
+        "a.": "Attack, exploit, defend, recover",
+        "b.": "Survey, secure, protect, and recover",
+        "c.": "Hunt, detect, analyze, and report",
+        "d.": "Plan, train, execute, and assess"
+      },
+      "answer": {
+        "b.": "The CPF's mission includes conducting survey, secure, protect, and recover missions."
+      }
+    },
+    "33": {
+      "question": "Who has directive authority for cyberspace operations over all DOD agencies?",
+      "options": {
+        "a.": "Commander, US CYBERCOM",
+        "b.": "Commander in Chief",
+        "c.": "Commander, US STRATCOM, delegated to JFHQ-DODIN",
+        "d.": "SECDEF"
+      },
+      "answer": {
+        "c.": "Commander, US STRATCOM (CDRUSSTRATCOM) has directive authority for cyberspace operations over all DOD agencies, by which the authority is delegated to JFHQ-DODIN."
+      }
+    },
+    "34": {
+      "question": "Which entity is the sole entity that conducts DCO-Responsive Actions (DCO-RA)?",
+      "options": {
+        "a.": "Combat Mission Teams (CMTs)",
+        "b.": "Cyber Protection Teams (CPTs)",
+        "c.": "National Mission Teams (NMTs)",
+        "d.": "JFHQ-DODIN"
+      },
+      "answer": {
+        "c.": "NMTs are the sole entity who conduct DCO-RAs."
+      }
+    },
+    "35": {
+      "question": "How many Combat Mission Teams (CMTs) are within the CMF?",
+      "options": {
+        "a.": "15",
+        "b.": "20",
+        "c.": "27",
+        "d.": "35"
+      },
+      "answer": {
+        "c.": "There are a total of 27 CMTs within the CMF."
+      }
+    },
+    "36": {
+      "question": "The Cyberspace Combat Mission Force (CCMF) aligns with which DOD cyber mission area?",
+      "options": {
+        "a.": "Defend the nation",
+        "b.": "Secure, operate, and defend the DODIN",
+        "c.": "Provide CCMD support",
+        "d.": "Conduct intelligence operations"
+      },
+      "answer": {
+        "c.": "The CCMF's mission aligns with DOD's third cyber mission area: CCMD support, and this is where OCOs are carried out."
+      }
+    },
+    "37": {
+      "question": "JFHQ-C executes OPCON over which teams?",
+      "options": {
+        "a.": "NMTs and NSTs",
+        "b.": "DODIN CPTs and National CPTs",
+        "c.": "CMTs and CSTs in specific AORs",
+        "d.": "Service CPTs and MAJCOM CPTs"
+      },
+      "answer": {
+        "c.": "JFHQ-C executes OPCON over CMTs and CSTs in specific AORs."
+      }
+    },
+    "38": {
+      "question": "Which service's cyber component is responsible for USEUCOM, USSTRATCOM, and USTRANSCOM?",
+      "options": {
+        "a.": "Army Cyber Command (ARCYBER)",
+        "b.": "Fleet Cyber Command (FLTCYBER)",
+        "c.": "Air Forces Cyber (AFCYBER)",
+        "d.": "Marine Forces Cyberspace Command (MARFORCYBER)"
+      },
+      "answer": {
+        "c.": "Air Forces Cyber (AFCYBER) is responsible for USEUCOM, USSTRATCOM, and USTRANSCOM."
+      }
+    },
+    "39": {
+      "question": "Combat Support Teams (CSTs) are comprised of which personnel?",
+      "options": {
+        "a.": "Network defenders and firewall admins",
+        "b.": "Capability developers, OCO analysts/planners, and DCO mitigation planners",
+        "c.": "Intel analysts and SIGINT operators",
+        "d.": "System administrators and vulnerability managers"
+      },
+      "answer": {
+        "b.": "CSTs are comprised of capability developers, OCO analysts and planners, and DCO mitigation planners, to support the CMT mission."
+      }
+    },
+    "40": {
+      "question": "What are the three DOD cyberspace mission areas?",
+      "options": {
+        "a.": "Offense, defense, and intelligence",
+        "b.": "Defend the nation, secure/operate/defend the DODIN, and provide CCMD support",
+        "c.": "ISR, IO, and cyber warfare",
+        "d.": "Hunt, detect, and respond"
+      },
+      "answer": {
+        "b.": "The three DOD mission areas are: defend the nation against a cyberspace attack, secure/operate/defend the DODIN, and provide CCMD support."
+      }
+    },
+    "41": {
+      "question": "The private sector owns and operates over what percentage of all cyberspace networks and infrastructure?",
+      "options": {
+        "a.": "50 percent",
+        "b.": "70 percent",
+        "c.": "80 percent",
+        "d.": "90 percent"
+      },
+      "answer": {
+        "d.": "The private sector owns and operates over 90 percent of all the networks and infrastructure of cyberspace and is the first line of defense."
+      }
+    },
+    "42": {
+      "question": "DODIN Operations include which activities?",
+      "options": {
+        "a.": "Hacking into enemy networks and exploiting vulnerabilities",
+        "b.": "Designing, building, configuring, securing, operating, maintaining, and sustaining the information environment",
+        "c.": "Conducting offensive cyber attacks against adversaries",
+        "d.": "Collecting and analyzing intelligence on threats"
+      },
+      "answer": {
+        "b.": "DODIN Operations include designing, building, configuring, securing, operating, maintaining, and sustaining the information environment, done proactively."
+      }
+    },
+    "43": {
+      "question": "Offensive Cyberspace Operations (OCO) are intended to do what?",
+      "options": {
+        "a.": "Defend DOD networks from intrusion",
+        "b.": "Project power by the application of force in and through cyberspace",
+        "c.": "Collect intelligence on adversaries",
+        "d.": "Prepare the environment for follow-on operations"
+      },
+      "answer": {
+        "b.": "OCO is intended to project power by the application of force in and through cyberspace, authorized like operations in the physical domains."
+      }
+    },
+    "44": {
+      "question": "DCO's goal is to change what paradigm?",
+      "options": {
+        "a.": "The defender having significant advantage",
+        "b.": "The attacker enjoying significant advantage",
+        "c.": "Equal footing between attacker and defender",
+        "d.": "Intelligence dominating over cyber effects"
+      },
+      "answer": {
+        "b.": "DCO's goal is to change the current paradigm where the attacker enjoys significant advantage, to outmaneuver adversaries and protect critical infrastructure."
+      }
+    },
+    "45": {
+      "question": "DCO-Internal Defensive Measures (DCO-IDM) involves hunting on what type of terrain?",
+      "options": {
+        "a.": "Enemy cyber terrain (red space)",
+        "b.": "Friendly cyber terrain",
+        "c.": "Neutral third-party networks",
+        "d.": "Critical civilian infrastructure"
+      },
+      "answer": {
+        "b.": "DCO-IDM involves hunting on friendly cyber terrain for threats and directing appropriate responses."
+      }
+    },
+    "46": {
+      "question": "What does Cyber Operational Preparation of the Environment (OPE) consist of?",
+      "options": {
+        "a.": "Conducting live attacks on adversary networks",
+        "b.": "Non-intel enabling activities to plan and prepare for potential follow-on military cyber operations",
+        "c.": "Collecting SIGINT on foreign adversaries",
+        "d.": "Training exercises using simulated environments"
+      },
+      "answer": {
+        "b.": "Cyber OPE consists of non-intel enabling activities to plan and prepare for potential follow-on military cyber operations."
+      }
+    },
+    "47": {
+      "question": "Cyber ISR focuses on mapping what?",
+      "options": {
+        "a.": "Friendly DODIN topology",
+        "b.": "Adversary cyberspace",
+        "c.": "Critical civilian infrastructure",
+        "d.": "COCOM areas of responsibility"
+      },
+      "answer": {
+        "b.": "Cyber ISR focuses on tactical and operational intel and on mapping adversary cyberspace."
+      }
+    },
+    "48": {
+      "question": "According to JP 3-13, Information Operations employ information-related capabilities to do what?",
+      "options": {
+        "a.": "Destroy adversary physical infrastructure",
+        "b.": "Influence, disrupt, corrupt, or usurp adversary decision-making",
+        "c.": "Collect signals intelligence on enemy forces",
+        "d.": "Secure friendly networks from intrusion"
+      },
+      "answer": {
+        "b.": "IO employs information-related capabilities to influence, disrupt, corrupt, or usurp the decision-making of adversaries while protecting our own."
+      }
+    },
+    "49": {
+      "question": "What is the purpose of Information Operations?",
+      "options": {
+        "a.": "To destroy adversary communications infrastructure",
+        "b.": "To influence adversary and potential adversary decision-making to achieve friendly objectives",
+        "c.": "To collect and process intelligence data",
+        "d.": "To defend DODIN from cyber attacks"
+      },
+      "answer": {
+        "b.": "The purpose of IO is to influence adversary and potential adversary decision-making to achieve friendly objectives."
+      }
+    },
+    "50": {
+      "question": "The information environment consists of which three interrelated dimensions?",
+      "options": {
+        "a.": "Strategic, operational, and tactical",
+        "b.": "Social, political, and military",
+        "c.": "Physical, informational, and cognitive",
+        "d.": "Electronic, digital, and physical"
+      },
+      "answer": {
+        "c.": "The information environment consists of three interrelated dimensions: physical, informational, and cognitive."
+      }
+    },
+    "51": {
+      "question": "The Physical Dimension of the information environment is composed of what?",
+      "options": {
+        "a.": "Beliefs, norms, and ideologies",
+        "b.": "Command and control systems, key decision makers, and supporting infrastructure",
+        "c.": "Intelligence databases and analysis tools",
+        "d.": "Network protocols and data packets"
+      },
+      "answer": {
+        "b.": "The Physical Dimension is composed of command and control systems, key decision makers, and supporting infrastructure."
+      }
+    },
+    "52": {
+      "question": "The Information Dimension is where what activities take place?",
+      "options": {
+        "a.": "Physical attacks on networks occur",
+        "b.": "Cognitive decision-making happens",
+        "c.": "Information is collected, processed, stored, disseminated, protected, and where C2 is exercised",
+        "d.": "Psychological operations are planned"
+      },
+      "answer": {
+        "c.": "The Information Dimension is where and how information is collected, processed, stored, disseminated, and protected, and where C2 of military forces is exercised."
+      }
+    },
+    "53": {
+      "question": "The Cognitive Dimension encompasses what?",
+      "options": {
+        "a.": "Physical systems and hardware",
+        "b.": "The minds of those who transmit, receive, and respond to information",
+        "c.": "Network infrastructure and communications",
+        "d.": "Intelligence databases and reports"
+      },
+      "answer": {
+        "b.": "The Cognitive Dimension encompasses the minds of those who transmit, receive, and respond to or act on information."
+      }
+    },
+    "54": {
+      "question": "Which dimension of the information environment is the most important?",
+      "options": {
+        "a.": "Physical Dimension",
+        "b.": "Information Dimension",
+        "c.": "Cognitive Dimension",
+        "d.": "All are equally important"
+      },
+      "answer": {
+        "c.": "The Cognitive Dimension is the most important component of the information environment."
+      }
+    },
+    "55": {
+      "question": "Information Assurance is defined as the process of doing what?",
+      "options": {
+        "a.": "Encrypting all data at rest and in transit",
+        "b.": "Processing, storing, and transmitting the right information to the right people at the right time",
+        "c.": "Protecting networks from unauthorized access",
+        "d.": "Auditing and logging all system activities"
+      },
+      "answer": {
+        "b.": "Information Assurance is defined as the process of processing, storing, and transmitting the right information to the right people at the right time."
+      }
+    },
+    "56": {
+      "question": "Confidentiality in the CIA triad refers to what?",
+      "options": {
+        "a.": "Ensuring data cannot be modified",
+        "b.": "Ensuring data is always accessible",
+        "c.": "Protecting who has access to what info (need to know)",
+        "d.": "Verifying user identity"
+      },
+      "answer": {
+        "c.": "Confidentiality protects who has access to what info, based on need to know."
+      }
+    },
+    "57": {
+      "question": "Integrity in information assurance refers to what?",
+      "options": {
+        "a.": "Who has access to the data",
+        "b.": "Reliable access to data",
+        "c.": "Data does not change without authorization (hashing)",
+        "d.": "Accountability for actions taken"
+      },
+      "answer": {
+        "c.": "Integrity ensures data doesn't change without authorization, often enforced through hashing."
+      }
+    },
+    "58": {
+      "question": "Non-Repudiation in information assurance refers to what?",
+      "options": {
+        "a.": "Encrypting data to protect confidentiality",
+        "b.": "Verifying the identity of a user",
+        "c.": "Accountability — you can't deny actions you performed",
+        "d.": "Ensuring data remains unchanged"
+      },
+      "answer": {
+        "c.": "Non-Repudiation is about accountability — you can't say you didn't do it."
+      }
+    },
+    "59": {
+      "question": "The Wing Cybersecurity Office (WCO) addresses what?",
+      "options": {
+        "a.": "Offensive cyber operations for the wing",
+        "b.": "All cybersecurity requirements on the base for IT under base comms control",
+        "c.": "Classification and handling of SCI material",
+        "d.": "Training and certification of cyber operators"
+      },
+      "answer": {
+        "b.": "The WCO addresses all cybersecurity requirements on the base for IT under the control of the base communications SQ/FLT."
+      }
+    },
+    "60": {
+      "question": "The Information Assurance Officer (IAO) serves as what?",
+      "options": {
+        "a.": "The wing-level cybersecurity authority",
+        "b.": "The single liaison between the organization and the WCO for COMPUSEC matters",
+        "c.": "The classification authority for SCI material",
+        "d.": "The commander of the cyber protection team"
+      },
+      "answer": {
+        "b.": "The IAO is a unit-level position that acts as the single liaison between the organization and the WCO for all COMPUSEC matters."
+      }
+    },
+    "61": {
+      "question": "The Special Security Officer (SSO) is responsible for the security management of what type of material?",
+      "options": {
+        "a.": "FOUO and CUI material",
+        "b.": "All classified information",
+        "c.": "All types of SCI material within their organization",
+        "d.": "COMSEC material only"
+      },
+      "answer": {
+        "c.": "The SSO is responsible for the security management, operation, implementation, use, and dissemination of all types of SCI material within their organization."
+      }
+    },
+    "62": {
+      "question": "The goal of OPSEC is to protect what?",
+      "options": {
+        "a.": "Network infrastructure from attack",
+        "b.": "Critical information (CI)",
+        "c.": "SCI material from unauthorized disclosure",
+        "d.": "Personnel from insider threats"
+      },
+      "answer": {
+        "b.": "The goal of OPSEC is to protect critical information (CI), which includes specific facts about friendly intentions, capabilities, and activities."
+      }
+    },
+    "63": {
+      "question": "What is the first step in the OPSEC process?",
+      "options": {
+        "a.": "Analysis of Threats",
+        "b.": "Assessment of Risk",
+        "c.": "Identification of Critical Information (CI)",
+        "d.": "Application of Countermeasures"
+      },
+      "answer": {
+        "c.": "The first step in the OPSEC process is Identification of Critical Information (CI), beginning with the Critical Information List (CIL)."
+      }
+    },
+    "64": {
+      "question": "Who approves the Critical Information List (CIL)?",
+      "options": {
+        "a.": "The Wing Cybersecurity Office",
+        "b.": "USCYBERCOM",
+        "c.": "Commanders",
+        "d.": "The CJCS"
+      },
+      "answer": {
+        "c.": "Commanders approve the CIL."
+      }
+    },
+    "65": {
+      "question": "What does the second step of the OPSEC process (Analysis of Threats) involve?",
+      "options": {
+        "a.": "Applying countermeasures to vulnerabilities",
+        "b.": "Researching and analyzing intel, CI, and OSINFO to determine adversary knowledge and capabilities",
+        "c.": "Identifying what critical information exists",
+        "d.": "Assessing risk based on identified vulnerabilities"
+      },
+      "answer": {
+        "b.": "The Analysis of Threats step involves research and analysis of intel, CI, and OSINFO to determine the adversary's knowledge and intel capabilities."
+      }
+    },
+    "66": {
+      "question": "What is the last step of the OPSEC process?",
+      "options": {
+        "a.": "Analysis of Vulnerabilities",
+        "b.": "Assessment of Risk",
+        "c.": "Identification of Critical Information",
+        "d.": "Application of Appropriate OPSEC Countermeasures"
+      },
+      "answer": {
+        "d.": "The Application of Appropriate OPSEC Countermeasures is the last step of the OPSEC process, where the commander implements selected countermeasures."
+      }
+    },
+    "67": {
+      "question": "OPSEC is the responsibility of whom?",
+      "options": {
+        "a.": "Only commanders and officers",
+        "b.": "The Wing Cybersecurity Office",
+        "c.": "All members within the US military",
+        "d.": "Intelligence personnel only"
+      },
+      "answer": {
+        "c.": "OPSEC is the responsibility of ALL members within the US military."
+      }
+    },
+    "68": {
+      "question": "The 1B4X1 is responsible for what primary duties?",
+      "options": {
+        "a.": "Managing network infrastructure and servers",
+        "b.": "Conducting network attack, network defense, and network exploitation",
+        "c.": "Patching and maintaining network equipment",
+        "d.": "Performing intelligence analysis and reporting"
+      },
+      "answer": {
+        "b.": "1B4X1 uses on-net tools and TTPs for conducting network attack, network defense, and network exploitation."
+      }
+    },
+    "69": {
+      "question": "What skill level is awarded upon completion of tech school (IST)?",
+      "options": {
+        "a.": "1B411",
+        "b.": "1B431",
+        "c.": "1B451",
+        "d.": "1B471"
+      },
+      "answer": {
+        "b.": "1B431 (Apprentice) is awarded upon completion of tech school (IST)."
+      }
+    },
+    "70": {
+      "question": "What skill level requires SMSgt minimum or MSgt with line number?",
+      "options": {
+        "a.": "1B471 (Craftsman)",
+        "b.": "1B451 (Journeyman)",
+        "c.": "1B491 (Superintendent)",
+        "d.": "1B000 (CEM)"
+      },
+      "answer": {
+        "c.": "1B491 (Superintendent) requires SMSgt minimum, or MSgt with line number."
+      }
+    },
+    "71": {
+      "question": "Prefix 'U' on an AFSC indicates expertise in what?",
+      "options": {
+        "a.": "Formal training instructor duties",
+        "b.": "Information Operations expertise including MILDEC, PSYOPS, OPSEC",
+        "c.": "Unmanned systems operations",
+        "d.": "Unified command staff experience"
+      },
+      "answer": {
+        "b.": "Prefix U indicates Information Operations (IO) expertise and knowledge specializing in MILDEC, PSYOPS, OPSEC, Network Warfare, and Electronic Warfare Operations."
+      }
+    },
+    "72": {
+      "question": "The 1D7X1 career field is called what?",
+      "options": {
+        "a.": "Cyber Systems Operations",
+        "b.": "Cyber Transport Systems",
+        "c.": "Cyber Defense Operations",
+        "d.": "Cyber Warfare Operations"
+      },
+      "answer": {
+        "c.": "1D7X1 is the Cyber Defense Operations career field."
+      }
+    },
+    "73": {
+      "question": "The 1N0X1 career field analyzes intel to evaluate threats to what?",
+      "options": {
+        "a.": "DOD computer networks",
+        "b.": "US and allied forces",
+        "c.": "Critical civilian infrastructure",
+        "d.": "Intelligence community systems"
+      },
+      "answer": {
+        "b.": "The 1N0X1 All Source Intel Analyst analyzes intel to evaluate threats to US and allied forces."
+      }
+    },
+    "74": {
+      "question": "The 17DXX officer career field operates, secures, configures, designs, maintains, and extends what?",
+      "options": {
+        "a.": "Offensive cyber weapons systems",
+        "b.": "Intelligence collection platforms",
+        "c.": "Cyberspace infrastructure",
+        "d.": "Classified networks only"
+      },
+      "answer": {
+        "c.": "17DXX (Warfighter Commo Operations Officer) operates, secures, configures, designs, maintains, sustains, and extends cyberspace infrastructure."
+      }
+    },
+    "75": {
+      "question": "The 17SXX commands crews to accomplish what missions?",
+      "options": {
+        "a.": "DODIN operations and network management",
+        "b.": "OCO and DCO missions",
+        "c.": "Intelligence collection and reporting",
+        "d.": "Training and evaluation of cyber forces"
+      },
+      "answer": {
+        "b.": "The 17SXX (Cyber Effects Operations Officer) commands crews to accomplish OCO and DCO missions."
+      }
+    },
+    "76": {
+      "question": "Contractor oversight is provided by whom?",
+      "options": {
+        "a.": "The commanding officer of the unit",
+        "b.": "The Wing Cybersecurity Office",
+        "c.": "A Contracting Officer's Representative (COR)",
+        "d.": "USCYBERCOM directly"
+      },
+      "answer": {
+        "c.": "Oversight is provided by a Contracting Officer's Representative (COR), responsible for ensuring all aspects of the legal contract are fulfilled."
+      }
+    },
+    "77": {
+      "question": "16th Air Force (AFCYBER) falls under which major command?",
+      "options": {
+        "a.": "AFSOC",
+        "b.": "ACC",
+        "c.": "AMC",
+        "d.": "AETC"
+      },
+      "answer": {
+        "b.": "16th Air Force falls under ACC (Air Combat Command)."
+      }
+    },
+    "78": {
+      "question": "Where is 16th Air Force headquartered?",
+      "options": {
+        "a.": "Fort Meade, Maryland",
+        "b.": "Scott AFB, Illinois",
+        "c.": "Joint Base San Antonio-Lackland, Texas",
+        "d.": "Langley AFB, Virginia"
+      },
+      "answer": {
+        "c.": "16th Air Force is headquartered at Joint Base San Antonio-Lackland, Texas."
+      }
+    },
+    "79": {
+      "question": "16th Air Force is the result of which merger?",
+      "options": {
+        "a.": "24 AF and 25 AF",
+        "b.": "14 AF and 24 AF",
+        "c.": "25 AF and AFCYBER",
+        "d.": "ACC and AFSPC cyber components"
+      },
+      "answer": {
+        "a.": "16th AF is the result of the 24 AF/25 AF merger."
+      }
+    },
+    "80": {
+      "question": "16th AF integrates which capabilities?",
+      "options": {
+        "a.": "Airlift, tanker, and combat aircraft",
+        "b.": "Multisource ISR, cyber warfare, electronic warfare, and information operations",
+        "c.": "Nuclear, space, and cyber operations",
+        "d.": "Special operations and intelligence functions"
+      },
+      "answer": {
+        "b.": "16th AF integrates multisource ISR, cyber warfare, electronic warfare, and information operations capabilities."
+      }
+    },
+    "81": {
+      "question": "Which operations center receives orders from US CYBERCOM and tasks 16AF subordinate units?",
+      "options": {
+        "a.": "616th Operations Center (616 OC)",
+        "b.": "690th Operations Center",
+        "c.": "AFNOC",
+        "d.": "JFHQ-C"
+      },
+      "answer": {
+        "a.": "The 616th Operations Center receives orders and tasks from US CYBERCOM and tasks 16AF subordinate units to perform a wide range of cyber missions."
+      }
+    },
+    "82": {
+      "question": "The 616 OC operates which weapon system?",
+      "options": {
+        "a.": "CVA/H weapon system",
+        "b.": "CSCS weapon system",
+        "c.": "Cyber Command and Control Mission System (C3MS)",
+        "d.": "CDA weapon system"
+      },
+      "answer": {
+        "c.": "The 616 OC operates the Cyber Command and Control Mission System (C3MS) weapon system."
+      }
+    },
+    "83": {
+      "question": "Where is the 67th Cyberspace Wing located?",
+      "options": {
+        "a.": "Fort Meade, MD",
+        "b.": "Scott AFB, Illinois",
+        "c.": "Joint Base San Antonio-Lackland, Texas",
+        "d.": "Peterson AFB, Colorado"
+      },
+      "answer": {
+        "c.": "The 67 CW is located at Joint Base San Antonio-Lackland, Texas."
+      }
+    },
+    "84": {
+      "question": "The 67 CW employs which weapon system?",
+      "options": {
+        "a.": "C3MS",
+        "b.": "CSCS",
+        "c.": "CDA",
+        "d.": "Cyberspace Vulnerability Assessment/Hunter (CVA/H)"
+      },
+      "answer": {
+        "d.": "The 67 CW employs the Cyberspace Vulnerability Assessment/Hunter (CVA/H) weapon system."
+      }
+    },
+    "85": {
+      "question": "The 67 CW comprises how many groups and units across how many operating locations?",
+      "options": {
+        "a.": "Three groups and 20 units across 5 locations",
+        "b.": "Four groups and 26 units across 7 operating locations",
+        "c.": "Five groups and 30 units across 10 locations",
+        "d.": "Two groups and 15 units across 4 locations"
+      },
+      "answer": {
+        "b.": "The 67 CW comprises four groups and 26 units across 7 operating locations."
+      }
+    },
+    "86": {
+      "question": "The 67 CW employs more than how many Airmen, civilians, and contractors?",
+      "options": {
+        "a.": "500",
+        "b.": "1,000",
+        "c.": "2,000",
+        "d.": "5,000"
+      },
+      "answer": {
+        "c.": "The 67 CW employs more than 2,000 Airmen, civilians, and contractors."
+      }
+    },
+    "87": {
+      "question": "What are the four groups that make up the 67th CW?",
+      "options": {
+        "a.": "26 COG, 690 COG, 566 COG, and 867 COG",
+        "b.": "67 COG, 318 COG, 567 COG, and 867 COG",
+        "c.": "91 COS, 305 COS, 352 COS, and 375 COS",
+        "d.": "83 NOS, 561 NOS, 690 COS, and 691 COS"
+      },
+      "answer": {
+        "b.": "The 67 CW consists of the 67th COG, 318th COG, 567th COG, and 867th COG."
+      }
+    },
+    "88": {
+      "question": "The 67 COG's mission is to provide forces for computer network operations for which organizations?",
+      "options": {
+        "a.": "16 AF, ACC, and AETC",
+        "b.": "US STRATCOM, US CYBERCOM, and other combatant commands",
+        "c.": "NSA, CIA, and DHS",
+        "d.": "JFHQ-DODIN, JFHQ-C, and CNMF"
+      },
+      "answer": {
+        "b.": "The 67 COG provides forces to conduct AF computer network operations for US STRATCOM, US CYBERCOM, and other combatant commands."
+      }
+    },
+    "89": {
+      "question": "How many active squadrons make up the 67 COG?",
+      "options": {
+        "a.": "Three",
+        "b.": "Four",
+        "c.": "Five",
+        "d.": "Six"
+      },
+      "answer": {
+        "c.": "The 67 COG consists of five active squadrons: 91st, 305th, 352nd, 375th, and 390th COS."
+      }
+    },
+    "90": {
+      "question": "The 91 COS executes computer network exploitation as a delegated authority from which organization?",
+      "options": {
+        "a.": "DHS",
+        "b.": "CIA",
+        "c.": "NSA",
+        "d.": "FBI"
+      },
+      "answer": {
+        "c.": "The 91 COS executes computer network exploitation as an NSA delegated authority to address IC requirements."
+      }
+    },
+    "91": {
+      "question": "The 390 COS mission is to generate mission-ready offensive cyber maneuver forces for whom?",
+      "options": {
+        "a.": "16 AF and ACC",
+        "b.": "USCYBERCOM and develops cyber tacticians for the service, Joint Force, and Nation",
+        "c.": "NSA and the intelligence community",
+        "d.": "JFHQ-DODIN and JFHQ-C"
+      },
+      "answer": {
+        "b.": "The 390 COS generates mission-ready offensive cyber maneuver forces for USCYBERCOM and develops cyber tacticians for the service, Joint Force, and Nation."
+      }
+    },
+    "92": {
+      "question": "Where is the 39th Information Operations Squadron (39 IOS) located?",
+      "options": {
+        "a.": "JBSA-Lackland, Texas",
+        "b.": "Fort Meade, Maryland",
+        "c.": "Hurlburt Field, Florida",
+        "d.": "Scott AFB, Illinois"
+      },
+      "answer": {
+        "c.": "The 39 IOS is located at Hurlburt Field, Florida."
+      }
+    },
+    "93": {
+      "question": "The 39 IOS hosts Initial Qualification Training (IQT) for which career field?",
+      "options": {
+        "a.": "17DXX",
+        "b.": "1D7X1",
+        "c.": "1B4",
+        "d.": "1N4X2"
+      },
+      "answer": {
+        "c.": "The 39 IOS hosts the IQT for the majority of 1B4 students as the follow-on training from tech school."
+      }
+    },
+    "94": {
+      "question": "The 318 RANS mission is to operate, manage, and maintain what capabilities?",
+      "options": {
+        "a.": "OCO weapon systems and platforms",
+        "b.": "ACC's cyber range and Model and Simulation (M&S) capabilities",
+        "c.": "AFNET boundary protection systems",
+        "d.": "Classified intelligence databases"
+      },
+      "answer": {
+        "b.": "The 318 RANS operates, manages, and maintains ACC's cyber range and Model and Simulation capabilities."
+      }
+    },
+    "95": {
+      "question": "The 346 TS conducts operational tests under what conditions?",
+      "options": {
+        "a.": "Lab-controlled environments",
+        "b.": "Realistic combat conditions",
+        "c.": "Simulated adversary networks",
+        "d.": "Live DOD network environments"
+      },
+      "answer": {
+        "b.": "The 346 TS conducts operational tests under realistic combat conditions for any item or component of a weapons system."
+      }
+    },
+    "96": {
+      "question": "Where is the 567 COG located?",
+      "options": {
+        "a.": "Fort Meade, MD",
+        "b.": "JBSA-Lackland, Texas",
+        "c.": "Scott AFB, Illinois",
+        "d.": "Peterson AFB, Colorado"
+      },
+      "answer": {
+        "c.": "The 567 COG is located at Scott AFB, Illinois."
+      }
+    },
+    "97": {
+      "question": "The 567 COG prepares local cyberspace defenders to sustain what?",
+      "options": {
+        "a.": "Basic network administration skills",
+        "b.": "Advanced cyberspace defense TTPs",
+        "c.": "Offensive cyber operation capabilities",
+        "d.": "Intelligence collection procedures"
+      },
+      "answer": {
+        "b.": "The 567 COG prepares local cyberspace defenders to sustain advanced cyberspace defense TTPs to ensure freedom of action within friendly cyberspace."
+      }
+    },
+    "98": {
+      "question": "The 867 COG was stood up on what date?",
+      "options": {
+        "a.": "15 June 2018",
+        "b.": "18 Sep 2020",
+        "c.": "1 October 2021",
+        "d.": "17 May 2018"
+      },
+      "answer": {
+        "b.": "The 867 COG was stood up on 18 Sep 2020."
+      }
+    },
+    "99": {
+      "question": "Where is the 867 COG located?",
+      "options": {
+        "a.": "JBSA-Lackland, Texas",
+        "b.": "Scott AFB, Illinois",
+        "c.": "Fort Meade, MD",
+        "d.": "Ramstein AB, Germany"
+      },
+      "answer": {
+        "c.": "The 867 COG is located at Fort Meade, MD."
+      }
+    },
+    "100": {
+      "question": "The 867 COG has two missions. What are they?",
+      "options": {
+        "a.": "DODIN ops and DCO",
+        "b.": "ISR and intelligence operations",
+        "c.": "OCO and providing defensive capabilities to the CNMF",
+        "d.": "Training and testing of cyber capabilities"
+      },
+      "answer": {
+        "c.": "The 867 COG has two missions: OCO and providing defensive capabilities to the CNMF."
+      }
+    },
+    "101": {
+      "question": "Within the 867 COG, which squadrons are the OCO units?",
+      "options": {
+        "a.": "833 COS and 836 COS",
+        "b.": "315 COS and 341 COS",
+        "c.": "92 COS and 834 COS",
+        "d.": "835 COS and 837 COS"
+      },
+      "answer": {
+        "b.": "The 315 COS and 341 COS are the OCO units within the 867 COG."
+      }
+    },
+    "102": {
+      "question": "The 833 and 836 COS are National CPTs providing what capabilities to the CNMF?",
+      "options": {
+        "a.": "OCO capabilities",
+        "b.": "DCO capabilities",
+        "c.": "Intelligence analysis",
+        "d.": "Training and exercises"
+      },
+      "answer": {
+        "b.": "The 833 and 836 COS are National CPTs who provide DCO capabilities to the CNMF."
+      }
+    },
+    "103": {
+      "question": "The 688 CW is described as what?",
+      "options": {
+        "a.": "The AF's newest combat wing",
+        "b.": "The AF's premier cyberspace warfighting organization",
+        "c.": "The primary offensive cyber wing",
+        "d.": "The CCMD support wing"
+      },
+      "answer": {
+        "b.": "The 688 CW is the AF's premier cyberspace warfighting organization."
+      }
+    },
+    "104": {
+      "question": "The 688 CW's mission includes engineering, building, operating, securing, defending, and extending what?",
+      "options": {
+        "a.": "Offensive cyber weapon systems",
+        "b.": "Intelligence collection platforms",
+        "c.": "The AF cyberspace domain to enable and assure AF core missions and the Joint Fight",
+        "d.": "DODIN connectivity for all DOD components"
+      },
+      "answer": {
+        "c.": "The 688 CW's mission is to engineer, build, operate, secure, defend, and extend the AF cyberspace domain to enable and assure AF core missions and the Joint Fight."
+      }
+    },
+    "105": {
+      "question": "The 26 COG performs cyberspace and active-defense operations through how many squadrons?",
+      "options": {
+        "a.": "Two",
+        "b.": "Three",
+        "c.": "Four",
+        "d.": "Five"
+      },
+      "answer": {
+        "b.": "The 26 COG performs cyberspace and active-defense operations to achieve full-spectrum cyberspace capabilities through its three squadrons."
+      }
+    },
+    "106": {
+      "question": "The 26 NOS provides C2 and computer defense for more than how many locations?",
+      "options": {
+        "a.": "100",
+        "b.": "150",
+        "c.": "250",
+        "d.": "500"
+      },
+      "answer": {
+        "c.": "The 26 NOS provides C2 and computer defense for more than 250 locations."
+      }
+    },
+    "107": {
+      "question": "The 68 NWS employs intel professionals using which weapon system?",
+      "options": {
+        "a.": "CVA/H",
+        "b.": "CSCS",
+        "c.": "C3MS",
+        "d.": "Cyberspace Defense Analysis (CDA)"
+      },
+      "answer": {
+        "d.": "The 68 NWS employs intel professionals who use the Cyberspace Defense Analysis (CDA) weapon system."
+      }
+    },
+    "108": {
+      "question": "The 690 COG employs which weapon system to assure global cyber supremacy?",
+      "options": {
+        "a.": "CVA/H weapon system",
+        "b.": "CDA weapon system",
+        "c.": "Cyberspace Security and Control System (CSCS)",
+        "d.": "C3MS weapon system"
+      },
+      "answer": {
+        "c.": "The 690 COG employs the Cyberspace Security and Control System (CSCS) weapon system to assure global cyber supremacy."
+      }
+    },
+    "109": {
+      "question": "The 7th Intelligence Squadron conducts what type of operations?",
+      "options": {
+        "a.": "DODIN operations and network defense",
+        "b.": "Red-team operations, DCO, or cyber intel operations ISO NSA missions",
+        "c.": "Offensive cyber operations for CCMD support",
+        "d.": "Training and testing of new cyber capabilities"
+      },
+      "answer": {
+        "b.": "The 7th Intelligence Squadron conducts red-team operations, DCO, or cyber intel operations ISO NSA missions."
+      }
+    },
+    "110": {
+      "question": "Where is the 7th Intelligence Squadron located?",
+      "options": {
+        "a.": "JBSA-Lackland, Texas",
+        "b.": "Hurlburt Field, Florida",
+        "c.": "Fort Meade, MD",
+        "d.": "Scott AFB, Illinois"
+      },
+      "answer": {
+        "c.": "The 7th Intelligence Squadron is located at Fort Meade, MD."
+      }
+    },
+    "111": {
+      "question": "The United States Code (USC) is broken down in which order?",
+      "options": {
+        "a.": "Parts, titles, chapters, subchapters, sections",
+        "b.": "Titles, parts, chapters, subchapters, sections",
+        "c.": "Chapters, titles, subchapters, parts, sections",
+        "d.": "Sections, chapters, subchapters, parts, titles"
+      },
+      "answer": {
+        "b.": "The USC is broken down from titles into parts, then chapters, subchapters, and finally sections."
+      }
+    },
+    "112": {
+      "question": "Title 10 of the USC covers what subject matter?",
+      "options": {
+        "a.": "Commerce and Trade",
+        "b.": "Copyright protections",
+        "c.": "Armed Forces and UCMJ",
+        "d.": "National Guard operations"
+      },
+      "answer": {
+        "c.": "Title 10 covers Armed Forces, including the roles, missions, organization of each service, and contains the UCMJ."
+      }
+    },
+    "113": {
+      "question": "Title 15 of the USC covers NIST under which subject area?",
+      "options": {
+        "a.": "Armed Forces",
+        "b.": "Commerce and Trade",
+        "c.": "War and National Defense",
+        "d.": "Crimes and Criminal Procedure"
+      },
+      "answer": {
+        "b.": "Title 15 covers Commerce and Trade, which includes NIST and its cybersecurity programs."
+      }
+    },
+    "114": {
+      "question": "Title 17 of the USC provides protection for what?",
+      "options": {
+        "a.": "Criminal activity in cyberspace",
+        "b.": "National security intelligence activities",
+        "c.": "Original works of authorship (Copyright)",
+        "d.": "Military and civil defense communications"
+      },
+      "answer": {
+        "c.": "Title 17 covers Copyright, protecting original works of authorship in any medium from unlawful reproduction."
+      }
+    },
+    "115": {
+      "question": "Title 18, Section 1030 of the USC addresses what?",
+      "options": {
+        "a.": "Wire Fraud",
+        "b.": "Wiretapping violations",
+        "c.": "Computer Fraud and unauthorized access to protected computers",
+        "d.": "Communications line destruction"
+      },
+      "answer": {
+        "c.": "Computer Fraud §1030 addresses unauthorized access to any protected computer to obtain something of value, cause damage, or loss."
+      }
+    },
+    "116": {
+      "question": "Under Wire Fraud §1343, a member who causes a presidentially declared disaster can be imprisoned for up to how many years?",
+      "options": {
+        "a.": "10 years",
+        "b.": "20 years",
+        "c.": "30 years",
+        "d.": "Life imprisonment"
+      },
+      "answer": {
+        "c.": "If the member causes a presidentially declared major disaster or the fraud affects a financial institution, the person can be imprisoned for not more than 30 years."
+      }
+    },
+    "117": {
+      "question": "The Federal Wiretap Act (§2510-2522) prohibits what?",
+      "options": {
+        "a.": "Unauthorized access to stored communications",
+        "b.": "A third party to a communication from wiretapping, monitoring, or intercepting that communication in transit",
+        "c.": "Service providers from disclosing customer records",
+        "d.": "Use of pen register devices without authorization"
+      },
+      "answer": {
+        "b.": "The Federal Wiretap Act prohibits a third party to a communication from wiretapping, monitoring, or intercepting that communication in transit."
+      }
+    },
+    "118": {
+      "question": "The Stored Communications Act (§2701-2712) has how many main substantive components?",
+      "options": {
+        "a.": "Two",
+        "b.": "Three",
+        "c.": "Four",
+        "d.": "Five"
+      },
+      "answer": {
+        "b.": "The Stored Communications Act has three main substantive components covering privacy rights of network users."
+      }
+    },
+    "119": {
+      "question": "A Pen Register records what information?",
+      "options": {
+        "a.": "Incoming calls to a particular number",
+        "b.": "All numbers called from a particular phone line",
+        "c.": "Content of electronic communications",
+        "d.": "Metadata of stored email messages"
+      },
+      "answer": {
+        "b.": "A Pen Register (Dialed Number Recorder) records all numbers called from a particular phone line, including monitoring internet communications."
+      }
+    },
+    "120": {
+      "question": "Title 32 of the USC covers what subject matter?",
+      "options": {
+        "a.": "Armed Forces and UCMJ",
+        "b.": "Crimes and Criminal Procedure",
+        "c.": "National Guard organization and operations",
+        "d.": "Copyright protections"
+      },
+      "answer": {
+        "c.": "Title 32 covers the National Guard, including organization, personnel, training, and homeland defense activities."
+      }
+    },
+    "121": {
+      "question": "Under Title 32, the governor serves in what role?",
+      "options": {
+        "a.": "Adjutant General",
+        "b.": "State's senior military commander",
+        "c.": "Commander in Chief",
+        "d.": "National Guard Bureau Chief"
+      },
+      "answer": {
+        "c.": "Under Title 32, the governor is the commander in chief."
+      }
+    },
+    "122": {
+      "question": "Title 50 of the USC specifically assigns the NSA the responsibility to conduct what?",
+      "options": {
+        "a.": "HUMINT collection",
+        "b.": "SIGINT operations",
+        "c.": "Counterintelligence activities",
+        "d.": "Cyber defense operations"
+      },
+      "answer": {
+        "b.": "Title 50 specifically assigns the NSA the responsibility to conduct SIGINT."
+      }
+    },
+    "123": {
+      "question": "The UCMJ is located under which Title, Subtitle, Part, and Chapter?",
+      "options": {
+        "a.": "Title 32, Subtitle A, Part I, Chapter 10",
+        "b.": "Title 10, Subtitle A, Part II, Chapter 47",
+        "c.": "Title 18, Subtitle B, Part III, Chapter 50",
+        "d.": "Title 50, Subtitle C, Part IV, Chapter 20"
+      },
+      "answer": {
+        "b.": "The UCMJ is located under Title 10, Subtitle A, Part II, Chapter 47 of the USC."
+      }
+    },
+    "124": {
+      "question": "UCMJ Article 123 covers what offense?",
+      "options": {
+        "a.": "Espionage",
+        "b.": "Aiding the enemy",
+        "c.": "Offenses concerning Government computers",
+        "d.": "Insubordinate conduct"
+      },
+      "answer": {
+        "c.": "Article 123 covers offenses concerning Government computers."
+      }
+    },
+    "125": {
+      "question": "An Executive Order carries what weight?",
+      "options": {
+        "a.": "Advisory guidance only",
+        "b.": "Full force of law",
+        "c.": "Congressional recommendation",
+        "d.": "SECDEF-level policy guidance"
+      },
+      "answer": {
+        "b.": "Executive Orders carry full force of law."
+      }
+    },
+    "126": {
+      "question": "EO 13800 focuses on what subject?",
+      "options": {
+        "a.": "Cyber sanctions against foreign adversaries",
+        "b.": "Strengthening the Cybersecurity of Federal Networks and Critical Infrastructure",
+        "c.": "Establishing the Cyber Mission Force",
+        "d.": "Regulating contractor access to classified systems"
+      },
+      "answer": {
+        "b.": "EO 13800, Strengthening the Cybersecurity of Federal Networks and Critical Infrastructure, focuses on IT modernization to secure critical infrastructure."
+      }
+    },
+    "127": {
+      "question": "Copyrights generally last how long?",
+      "options": {
+        "a.": "25 years from publication",
+        "b.": "50 years after author's death",
+        "c.": "Life of the author plus 70 years after death",
+        "d.": "95 years from the year of publication"
+      },
+      "answer": {
+        "c.": "Copyrights generally last the life of the author plus 70 years after death."
+      }
+    },
+    "128": {
+      "question": "Patents are generally good for how many years?",
+      "options": {
+        "a.": "10 years from filing",
+        "b.": "15 years from granting",
+        "c.": "20 years from the date the application was filed",
+        "d.": "25 years from invention date"
+      },
+      "answer": {
+        "c.": "Patents are generally good for 20 years from the date the application was filed."
+      }
+    },
+    "129": {
+      "question": "Rules of Engagement (ROEs) are directives issued by whom?",
+      "options": {
+        "a.": "The President only",
+        "b.": "Competent military authorities",
+        "c.": "The CJCS exclusively",
+        "d.": "SECDEF and the President jointly"
+      },
+      "answer": {
+        "b.": "ROEs are directives issued by competent military authorities."
+      }
+    },
+    "130": {
+      "question": "Ethical hacking is also known as what hat color?",
+      "options": {
+        "a.": "Black hat",
+        "b.": "Grey hat",
+        "c.": "White hat",
+        "d.": "Red hat"
+      },
+      "answer": {
+        "c.": "Ethical hacking is white hat hacking — attacking a system to gain information the same way a real hacker would, independently from the organization hiring them."
+      }
+    },
+    "131": {
+      "question": "Grey hat hackers typically do what?",
+      "options": {
+        "a.": "Conduct purely malicious attacks for profit",
+        "b.": "Break into systems without permission but don't cause harm and notify the company",
+        "c.": "Work exclusively for government agencies",
+        "d.": "Only test systems they are authorized to test"
+      },
+      "answer": {
+        "b.": "Grey hat hackers do unethical things for ethical reasons — breaking into a system without permission but not causing harm and letting the company know."
+      }
+    },
+    "132": {
+      "question": "Authorized use of government computer systems must do what?",
+      "options": {
+        "a.": "Be approved by the Wing Cybersecurity Office",
+        "b.": "Not interfere with official duties, be reasonable in duration, serve legitimate government interest, and not reflect adversely on the DOD",
+        "c.": "Only include work-related activities",
+        "d.": "Be documented and logged for audit purposes"
+      },
+      "answer": {
+        "b.": "Authorized use does not interfere with official duties, is of reasonable duration or frequency, serves a legitimate government interest, and does not reflect adversely on the DOD."
+      }
+    },
+    "133": {
+      "question": "Personal Identifying Information (PII) is governed by which act?",
+      "options": {
+        "a.": "HIPAA 1996",
+        "b.": "Privacy Act of 1974 and AFI 33-332",
+        "c.": "Stored Communications Act",
+        "d.": "The Patriot Act"
+      },
+      "answer": {
+        "b.": "PII is governed by the Privacy Act of 1974 and AFI 33-332, Privacy Act Program."
+      }
+    },
+    "134": {
+      "question": "HIPAA stands for what?",
+      "options": {
+        "a.": "Homeland Infrastructure Protection and Accountability Act",
+        "b.": "Health Information Privacy and Access Act",
+        "c.": "Health Insurance Portability and Accountability Act",
+        "d.": "Healthcare Information Protection and Assurance Act"
+      },
+      "answer": {
+        "c.": "HIPAA stands for Health Insurance Portability and Accountability Act of 1996."
+      }
+    },
+    "135": {
+      "question": "Privileged communications that may not be used in court include those with whom?",
+      "options": {
+        "a.": "Commanding officers and first sergeants",
+        "b.": "Attorneys, chaplains, and mental health professionals",
+        "c.": "Unit security managers and IAOs",
+        "d.": "SSOs and classified document custodians"
+      },
+      "answer": {
+        "b.": "Privileged communications with attorneys, chaplains, and mental health professionals may not be used in court or divulged to law enforcement."
+      }
+    },
+    "136": {
+      "question": "The United Nations is described as what?",
+      "options": {
+        "a.": "A treaty organization for military alliances",
+        "b.": "The authority which governs international treaties and laws",
+        "c.": "A voluntary association of democratic nations",
+        "d.": "An advisory body for international disputes"
+      },
+      "answer": {
+        "b.": "The UN is the authority which governs international treaties and laws."
+      }
+    },
+    "137": {
+      "question": "The Convention on Cybercrime (Budapest Convention) was the first international agreement aimed at what?",
+      "options": {
+        "a.": "Establishing cyber warfare norms between nations",
+        "b.": "Reducing computer-related crime by harmonizing national laws and improving international cooperation",
+        "c.": "Creating a global cyber defense alliance",
+        "d.": "Prohibiting state-sponsored cyber attacks"
+      },
+      "answer": {
+        "b.": "The Budapest Convention was the first international agreement aimed at reducing computer-related crime by harmonizing national laws, improving investigative techniques, and increasing international cooperation."
+      }
+    },
+    "138": {
+      "question": "The Budapest Convention was hosted by which organization and where?",
+      "options": {
+        "a.": "The United Nations in New York",
+        "b.": "NATO in Brussels, Belgium",
+        "c.": "Council of Europe in Budapest, Hungary",
+        "d.": "The G-20 in Antalya, Turkey"
+      },
+      "answer": {
+        "c.": "The Convention on Cybercrime was conducted in Budapest, Hungary and hosted by the Council of Europe."
+      }
+    },
+    "139": {
+      "question": "The Budapest Convention was ratified in what year?",
+      "options": {
+        "a.": "2001",
+        "b.": "2004",
+        "c.": "2006",
+        "d.": "2009"
+      },
+      "answer": {
+        "c.": "The Budapest Convention was ratified in 2006 and entered into force in 2007."
+      }
+    },
+    "140": {
+      "question": "The 2015 G-20 Summit established a norm that no country should do what?",
+      "options": {
+        "a.": "Conduct any form of cyber espionage",
+        "b.": "Attack critical infrastructure of other nations",
+        "c.": "Conduct or support cyber-enabled theft of intellectual property",
+        "d.": "Disrupt international financial systems via cyber"
+      },
+      "answer": {
+        "c.": "At the 2015 G-20 Summit, it was established that no country should conduct or support cyber-enabled theft of intellectual property."
+      }
+    },
+    "141": {
+      "question": "The Palermo Convention obligates state parties to do what?",
+      "options": {
+        "a.": "Harmonize cyber laws across nations",
+        "b.": "Enact domestic criminal offenses targeting organized criminal groups and adopt extradition frameworks",
+        "c.": "Share cyber threat intelligence with allied nations",
+        "d.": "Prohibit state-sponsored hacking operations"
+      },
+      "answer": {
+        "b.": "The Palermo Convention obligates state parties to enact domestic criminal offenses targeting organized criminal groups and adopt new frameworks for extradition, mutual legal assistance, and law enforcement cooperation."
+      }
+    },
+    "142": {
+      "question": "What is the DODIN described as in relation to other DOD networks?",
+      "options": {
+        "a.": "A backup network for critical operations",
+        "b.": "The large, overarching, central network that all other DOD networks traverse",
+        "c.": "A classified-only network for warfighters",
+        "d.": "A separate network isolated from civilian internet"
+      },
+      "answer": {
+        "b.": "The DODIN is the large, overarching, central network that all other DOD networks traverse."
+      }
+    },
+    "143": {
+      "question": "The DODIN provides interfaces to which external users and systems?",
+      "options": {
+        "a.": "Only US government agencies",
+        "b.": "Coalition, allied, and non-DOD users and systems",
+        "c.": "Commercial vendors and contractors only",
+        "d.": "Intelligence community agencies exclusively"
+      },
+      "answer": {
+        "b.": "The DODIN provides interfaces to coalition, allied, and non-DOD users and systems."
+      }
+    },
+    "144": {
+      "question": "The NMS was last published in what year?",
+      "options": {
+        "a.": "2018",
+        "b.": "2020",
+        "c.": "2021",
+        "d.": "2022"
+      },
+      "answer": {
+        "d.": "The National Military Strategy was last published in 2022."
+      }
+    },
+    "145": {
+      "question": "Mutual Support is when units render support to each other based on what factors?",
+      "options": {
+        "a.": "Written orders from a CCDR",
+        "b.": "Assigned tasks, position relative to each other and the enemy, and inherent capabilities",
+        "c.": "Pre-established support agreements",
+        "d.": "OPCON authority from a higher command"
+      },
+      "answer": {
+        "b.": "Mutual Support is when units render each other support against an enemy because of their assigned tasks, their position relative to each other and the enemy, and their inherent capabilities."
+      }
+    },
+    "146": {
+      "question": "The 1B431 (Apprentice) operates at what level within units?",
+      "options": {
+        "a.": "Strategic level",
+        "b.": "Operational level",
+        "c.": "Tactical level",
+        "d.": "Wing level"
+      },
+      "answer": {
+        "c.": "The 1B431 Apprentice works at tactical level units as an incident response operator, interactive operator, or entry level."
+      }
+    },
+    "147": {
+      "question": "Contractors' contracts must be supervised by whom?",
+      "options": {
+        "a.": "A senior contractor employee",
+        "b.": "A federal employee, uniformed or civil service",
+        "c.": "The COR and the contracting officer jointly",
+        "d.": "The wing commander directly"
+      },
+      "answer": {
+        "b.": "Contracts for services to the DOD must be supervised by a federal employee, uniformed or civil service."
+      }
+    },
+    "148": {
+      "question": "The 35th Intelligence Squadron conducts what type of operations?",
+      "options": {
+        "a.": "Red-team and OCO operations",
+        "b.": "ISR operations and analysis from and for cyberspace, leveraging crypto capabilities",
+        "c.": "DODIN operations and network management",
+        "d.": "Training and testing of cyber weapon systems"
+      },
+      "answer": {
+        "b.": "The 35th Intelligence Squadron conducts ISR operations and analysis from and for cyberspace, leveraging crypto capabilities to enable USAF and joint operations."
+      }
+    },
+    "149": {
+      "question": "The 90 COS mission is to accelerate global vigilance, reach, and power by doing what?",
+      "options": {
+        "a.": "Conducting offensive cyber attacks on adversary networks",
+        "b.": "Rapidly developing joint cyber capabilities",
+        "c.": "Operating the AFNET and defending it from intrusions",
+        "d.": "Training and certifying 1B4 operators"
+      },
+      "answer": {
+        "b.": "The 90 COS mission is to accelerate global vigilance, reach, and power by rapidly developing joint cyber capabilities."
+      }
+    },
+    "150": {
+      "question": "The 33 NWS monitors, secures, and protects which networks?",
+      "options": {
+        "a.": "DODIN core networks only",
+        "b.": "SIPR networks exclusively",
+        "c.": "AF and CENTCOM global networks",
+        "d.": "Allied and coalition networks"
+      },
+      "answer": {
+        "c.": "The 33 NWS monitors, secures, and protects AF and CENTCOM global networks."
+      }
+    },
+    "151": {
+      "question": "Trade secrets protect what type of business information?",
+      "options": {
+        "a.": "Brand names and logos",
+        "b.": "A business's method for creating products or services",
+        "c.": "Physical inventions and devices",
+        "d.": "Published works of authorship"
+      },
+      "answer": {
+        "b.": "Trade secrets protect a business's method for creating products or services, such as a formula, pattern, compilation, or process."
+      }
+    },
+    "152": {
+      "question": "The Cognitive Dimension is influenced by which factors?",
+      "options": {
+        "a.": "Network bandwidth and processing speed",
+        "b.": "Physical infrastructure and command systems",
+        "c.": "Beliefs, norms, vulnerabilities, motivations, emotions, experiences, morals, education, and identities",
+        "d.": "Intelligence reports and threat assessments"
+      },
+      "answer": {
+        "c.": "The Cognitive Dimension is influenced by beliefs, norms, vulnerabilities, motivations, emotions, experiences, morals, education, mental health, identities, and ideologies."
+      }
+    },
+    "153": {
+      "question": "Decision superiority entails achieving what two things?",
+      "options": {
+        "a.": "Faster processing speed and better encryption",
+        "b.": "Gaining and maintaining information superiority as well as controlling the information environment",
+        "c.": "Destroying adversary C2 and disrupting their communications",
+        "d.": "Better intelligence and faster response times"
+      },
+      "answer": {
+        "b.": "Decision superiority entails gaining and maintaining information superiority as well as controlling the information environment."
+      }
+    },
+    "154": {
+      "question": "The 26 COG mission is to integrate cyberspace defensive capabilities to enable what?",
+      "options": {
+        "a.": "OCO and offensive operations globally",
+        "b.": "Freedom of action and mission assurance for AF and CCMD operations",
+        "c.": "Intelligence collection and analysis for the IC",
+        "d.": "DODIN connectivity across all operating locations"
+      },
+      "answer": {
+        "b.": "The 26 COG integrates cyberspace defensive capabilities and flexible response options, enabling freedom of action and mission assurance for AF and CCMD operations."
+      }
+    },
+    "155": {
+      "question": "The 561 NOS is responsible for managing core services for more than how many AF installations?",
+      "options": {
+        "a.": "50",
+        "b.": "75",
+        "c.": "100",
+        "d.": "200"
+      },
+      "answer": {
+        "c.": "The 561 NOS manages core services for more than 100 AF installations, including messaging, network monitoring, directory services, and vulnerability management."
+      }
+    },
+    "156": {
+      "question": "The CMF was described as USCYBERCOM's what?",
+      "options": {
+        "a.": "Strategic planning arm",
+        "b.": "Action arm in and through cyberspace",
+        "c.": "Intelligence collection element",
+        "d.": "Training and certification authority"
+      },
+      "answer": {
+        "b.": "The CMF was created to be USCYBERCOM's action arm in and through cyberspace."
+      }
+    },
+    "157": {
+      "question": "IOs are described as what type of function?",
+      "options": {
+        "a.": "A lethal fires function",
+        "b.": "An integrating function",
+        "c.": "A collection function",
+        "d.": "A strategic planning function"
+      },
+      "answer": {
+        "b.": "IOs are an integrating function — they incorporate capabilities to plan, execute, and assess information used by adversary decision makers."
+      }
+    },
+    "158": {
+      "question": "The 692nd Intelligence, Surveillance, and Reconnaissance Group is also known as what?",
+      "options": {
+        "a.": "70 ISRW",
+        "b.": "659 ISRG",
+        "c.": "7th IS is assigned to 70 ISRW / 659 ISRG",
+        "d.": "35th IS"
+      },
+      "answer": {
+        "c.": "The 7th Intelligence Squadron is assigned to 70 ISRW / 659 ISRG."
+      }
+    },
+    "159": {
+      "question": "Which UCMJ article covers espionage?",
+      "options": {
+        "a.": "Article 91",
+        "b.": "Article 92",
+        "c.": "Article 103a",
+        "d.": "Article 134"
+      },
+      "answer": {
+        "c.": "Article 103a covers espionage."
+      }
+    },
+    "160": {
+      "question": "The 83 NOS directly supports how many installations?",
+      "options": {
+        "a.": "Installations in a specific theater",
+        "b.": "Installations across the globe",
+        "c.": "CONUS installations only",
+        "d.": "OCONUS installations only"
+      },
+      "answer": {
+        "b.": "The 83 NOS directly supports installations across the globe by providing cyberspace effects for the AF."
+      }
+    },
+    "161": {
+      "question": "What is the key role described for the 1B4 career field in national defense?",
+      "options": {
+        "a.": "Managing network infrastructure",
+        "b.": "Providing logistics support for cyber operations",
+        "c.": "National defense in cyberspace",
+        "d.": "Training and certifying personnel"
+      },
+      "answer": {
+        "c.": "The 1B4 career field has a key role in national defense in cyberspace."
+      }
+    },
+    "162": {
+      "question": "Which UCMJ article covers aiding the enemy?",
+      "options": {
+        "a.": "Article 92",
+        "b.": "Article 103a",
+        "c.": "Article 103b",
+        "d.": "Article 123"
+      },
+      "answer": {
+        "c.": "Article 103b covers aiding the enemy."
+      }
+    },
+    "163": {
+      "question": "The NDS was last issued in what month and year?",
+      "options": {
+        "a.": "January 2020",
+        "b.": "June 2021",
+        "c.": "October 2022",
+        "d.": "December 2023"
+      },
+      "answer": {
+        "c.": "The NDS was last issued in October 2022."
+      }
+    },
+    "164": {
+      "question": "The 691 COS is located where and employs which weapon system?",
+      "options": {
+        "a.": "Pearl Harbor, HI; CVA/H",
+        "b.": "Ramstein AB, Germany; CSCS",
+        "c.": "JBSA-Lackland; CDA",
+        "d.": "Peterson AFB, CO; C3MS"
+      },
+      "answer": {
+        "b.": "The 691 COS is located at Ramstein AB, Germany and employs the CSCS weapon system to assure global cyberspace supremacy."
+      }
+    },
+    "165": {
+      "question": "The CMF was building up in what year before reaching IOC?",
+      "options": {
+        "a.": "2012",
+        "b.": "2013",
+        "c.": "2014",
+        "d.": "2015"
+      },
+      "answer": {
+        "b.": "The CMF was building up in 2013 before becoming IOC in October 2016."
+      }
+    },
+    "166": {
+      "question": "How many components does the CMF's three subordinate commands consist of?",
+      "options": {
+        "a.": "CNMF, CPF, and CCMF",
+        "b.": "NMT, NST, and CPT",
+        "c.": "CMT, CST, and CPT",
+        "d.": "JFHQ-C, JFHQ-DODIN, and CNMF-HQ"
+      },
+      "answer": {
+        "a.": "The CMF consists of three subordinate commands: CNMF, CPF, and CCMF."
+      }
+    },
+    "167": {
+      "question": "Cyber OPE activities may include which of the following?",
+      "options": {
+        "a.": "Conducting live attacks on adversary networks",
+        "b.": "Testing tools locally, pre-staging tools, and creating/modifying accounts",
+        "c.": "Filing legal requests under international law",
+        "d.": "Writing cyber doctrine and policy documents"
+      },
+      "answer": {
+        "b.": "Cyber OPE activities could include testing tools locally, pre-staging tools, creating/modifying accounts, and setting up beacons."
+      }
+    },
+    "168": {
+      "question": "The 26 NOS executes 24/7 sustainment of services across which components?",
+      "options": {
+        "a.": "Active Duty only",
+        "b.": "Active Duty and Reserves only",
+        "c.": "All AD, AFR, and ANG NIPR/SIPR services",
+        "d.": "CONUS installations only"
+      },
+      "answer": {
+        "c.": "The 26 NOS executes 24/7 sustainment of all Active Duty, AFR, and ANG NIPR/SIPR services."
+      }
+    },
+    "169": {
+      "question": "The 837 COS mission is described as what?",
+      "options": {
+        "a.": "Protect critical AF and DOD infrastructure",
+        "b.": "Employ CPTs in defense of critical mission areas",
+        "c.": "Maintain combat superiority by dominating in cyberspace",
+        "d.": "Assure AF and DOD mission performance via CVAs"
+      },
+      "answer": {
+        "c.": "The 837 COS mission is to maintain combat superiority by dominating in cyberspace."
+      }
+    },
+    "170": {
+      "question": "The 688 CW delivers which capabilities across the AFIN?",
+      "options": {
+        "a.": "OCO weapon systems and capabilities",
+        "b.": "Actionable intel, TTPs, deployable warfighter comms, engineering capabilities, DCO, and network security ops",
+        "c.": "Intelligence collection and SIGINT processing",
+        "d.": "Nuclear command and control systems"
+      },
+      "answer": {
+        "b.": "The 688 CW delivers actionable intel and TTPs, deployable warfighter comms, engineering and installation capabilities, defensive cyber operations, and network security operations across the AFIN."
+      }
+    },
+    "171": {
+      "question": "16th AF provides mission integration of Information Warfare at which levels?",
+      "options": {
+        "a.": "Strategic and operational levels",
+        "b.": "Operational and tactical levels",
+        "c.": "Tactical and theater levels",
+        "d.": "All levels from strategic to tactical"
+      },
+      "answer": {
+        "b.": "16th AF provides mission integration of Information Warfare (IW) at operational and tactical levels."
+      }
+    },
+    "172": {
+      "question": "The 67 CW serves as whose execution arm?",
+      "options": {
+        "a.": "USCYBERCOM's",
+        "b.": "JFHQ-C's",
+        "c.": "AFCYBER's",
+        "d.": "ACC's"
+      },
+      "answer": {
+        "c.": "The 67 CW serves as AFCYBER's execution arm for generating, projecting, and sustaining combat power."
+      }
+    },
+    "173": {
+      "question": "The 67 CW conducts which operations in service of AF, combatant commands, and national agencies?",
+      "options": {
+        "a.": "DODIN operations only",
+        "b.": "DCO only",
+        "c.": "Network operations, defense, attack, and exploitation",
+        "d.": "Intelligence collection and reporting"
+      },
+      "answer": {
+        "c.": "The 67 CW conducts network operations, defense, attack, and exploitation in service of the AF, combatant commands, and national agencies."
+      }
+    },
+    "174": {
+      "question": "The 318 COG mission is to innovate, partner, and deliver combat capability through what means?",
+      "options": {
+        "a.": "Conducting offensive cyber operations",
+        "b.": "Development, testing, training, and exercising of material and non-material solutions",
+        "c.": "Operating and defending the AFIN",
+        "d.": "Providing CCMD cyber support"
+      },
+      "answer": {
+        "b.": "The 318 COG delivers combat capability in, through, and from cyberspace through the development, testing, training, and exercising of material and non-material solutions."
+      }
+    },
+    "175": {
+      "question": "The 690 COS at Pearl Harbor-Hickam HI employs which weapon system?",
+      "options": {
+        "a.": "CVA/H",
+        "b.": "CDA",
+        "c.": "CSCS",
+        "d.": "C3MS"
+      },
+      "answer": {
+        "c.": "The 690 COS employs the CSCS weapon system to assure global cyberspace supremacy."
+      }
+    },
+    "176": {
+      "question": "Majority of 1B4 missions fall under which wings?",
+      "options": {
+        "a.": "26 COG and 690 COG",
+        "b.": "67 CW and 688 CW",
+        "c.": "318 COG and 567 COG",
+        "d.": "867 COG and 67 COG"
+      },
+      "answer": {
+        "b.": "The majority of 1B4 missions fall under the 67 CW and 688 CW."
+      }
+    },
+    "177": {
+      "question": "What does the term 'Campaigning' mean in the context of the NMS?",
+      "options": {
+        "a.": "Political lobbying for defense budgets",
+        "b.": "How the DOD sequences day-to-day defense initiatives to deter conflict and accomplish strategic objectives",
+        "c.": "Kinetic military operations in active war zones",
+        "d.": "Training exercises and readiness evaluations"
+      },
+      "answer": {
+        "b.": "Campaigning is how the DOD sequences day-to-day defense initiatives and develops advantageous conditions to deter conflict, accomplish strategic OBJs, and prevail against adversaries across the spectrum of conflict."
+      }
+    },
+    "178": {
+      "question": "What is 'Building Warfighting Advantage' in the context of the NMS?",
+      "options": {
+        "a.": "Purchasing new weapon systems",
+        "b.": "Deliberate investment to develop leaders, concepts, and capabilities through materiel and non-materiel solutions",
+        "c.": "Recruiting and training more military personnel",
+        "d.": "Conducting joint exercises with allied nations"
+      },
+      "answer": {
+        "b.": "Building Warfighting Advantage requires deliberate investment to develop leaders, concepts, and capabilities through materiel and non-materiel solutions in order to achieve strategic OBJs in the future."
+      }
+    },
+    "179": {
+      "question": "The 92 COS mission is to assure AF and DOD mission performance by employing what?",
+      "options": {
+        "a.": "OCO capabilities against adversary targets",
+        "b.": "CPTs and performing cyberspace vulnerability assessments (CVAs) and COMSEC assessments",
+        "c.": "The CSCS weapon system to defend AFNET",
+        "d.": "Intelligence collection and fusion capabilities"
+      },
+      "answer": {
+        "b.": "The 92 COS assures AF and DOD mission performance by employing CPTs and performing cyberspace vulnerability assessments (CVAs) and COMSEC assessments."
+      }
+    },
+    "180": {
+      "question": "OCO is authorized like operations in what other domains?",
+      "options": {
+        "a.": "Space domains only",
+        "b.": "Intelligence community domains",
+        "c.": "The physical domains",
+        "d.": "The information domain exclusively"
+      },
+      "answer": {
+        "c.": "OCO is authorized like operations in the physical domains."
+      }
+    },
+    "181": {
+      "question": "The 834 COS mission is to employ and exploit the unique advantages of CPTs in defense of what?",
+      "options": {
+        "a.": "DODIN core infrastructure",
+        "b.": "AF and DOD critical mission areas",
+        "c.": "USEUCOM geographic AOR",
+        "d.": "National critical infrastructure"
+      },
+      "answer": {
+        "b.": "The 834 COS employs and exploits the unique advantages of CPTs in the defense of AF and DOD critical mission areas."
+      }
+    },
+    "182": {
+      "question": "The 352 COS mission is described as what?",
+      "options": {
+        "a.": "Conduct computer network exploitation as NSA delegated authority",
+        "b.": "Generate, conduct, and sustain OCO",
+        "c.": "Conduct OCO ISO Combatant Commands",
+        "d.": "Generate mission-ready offensive cyber forces"
+      },
+      "answer": {
+        "b.": "The 352 COS mission is to generate, conduct, and sustain OCO."
+      }
+    },
+    "183": {
+      "question": "The CMT mission is to conduct planned operations in support of what?",
+      "options": {
+        "a.": "NSA intelligence requirements",
+        "b.": "CCMD CONPLANs, crisis action plans, or CCMD validated requirements for cyberspace effects",
+        "c.": "JFHQ-DODIN network defense missions",
+        "d.": "CNMF DCO operations"
+      },
+      "answer": {
+        "b.": "Each CMT's mission is to conduct planned ops ISO CCMD CONPLANs, crisis action plans, or other CCMD validated requirements for cyberspace effects."
+      }
+    },
+    "184": {
+      "question": "National Support Teams (NSTs) provide what type of support to National Mission Teams?",
+      "options": {
+        "a.": "Administrative and logistical support",
+        "b.": "Specialized technical, analytic, and planning support",
+        "c.": "Intelligence collection and SIGINT support",
+        "d.": "Training and certification support"
+      },
+      "answer": {
+        "b.": "NSTs provide specialized technical, analytic, and planning support to national mission teams."
+      }
+    },
+    "185": {
+      "question": "The 67 COG also conducts which special missions at SECDEF direction?",
+      "options": {
+        "a.": "DODIN operations and network management",
+        "b.": "Special network warfare missions",
+        "c.": "Intelligence collection for the IC",
+        "d.": "Training and certification of cyber operators"
+      },
+      "answer": {
+        "b.": "The 67 COG conducts SECDEF-directed special network warfare missions."
+      }
+    },
+    "186": {
+      "question": "JFHQ-DODIN provides unity of command to do what?",
+      "options": {
+        "a.": "Conduct OCO against adversary networks",
+        "b.": "Secure, operate, and defend the DODIN",
+        "c.": "Support CCMD cyber requirements",
+        "d.": "Defend the nation from major cyber attacks"
+      },
+      "answer": {
+        "b.": "JFHQ-DODIN provides unity of command and unity of effort to secure, operate, and defend the DODIN."
+      }
+    },
+    "187": {
+      "question": "CPTs operate which weapon system?",
+      "options": {
+        "a.": "CSCS weapon system",
+        "b.": "CDA weapon system",
+        "c.": "CVA/H weapon system",
+        "d.": "C3MS weapon system"
+      },
+      "answer": {
+        "c.": "CPTs operate the CVA/H weapon system to hunt down and eliminate adversarial threats."
+      }
+    },
+    "188": {
+      "question": "The 305 COS mission is described simply as what?",
+      "options": {
+        "a.": "Generate mission-ready offensive cyber forces",
+        "b.": "Conduct OCO ISO Combatant Commands",
+        "c.": "Execute computer network exploitation as NSA delegated authority",
+        "d.": "Generate, conduct, and sustain OCO"
+      },
+      "answer": {
+        "b.": "The 305 COS mission is to conduct OCO ISO Combatant Commands."
+      }
+    },
+    "189": {
+      "question": "The 375 COS mission is to conduct what types of operations?",
+      "options": {
+        "a.": "DCO and network defense operations",
+        "b.": "Offensive cyber and ISR ops ISO combatant command objectives",
+        "c.": "DODIN operations and sustainment",
+        "d.": "Training and development of cyber personnel"
+      },
+      "answer": {
+        "b.": "The 375 COS mission is to conduct offensive cyber and ISR ops ISO combatant command objectives."
+      }
+    },
+    "190": {
+      "question": "The 690 COG's mission is to operate, sustain, and defend what?",
+      "options": {
+        "a.": "DODIN core infrastructure globally",
+        "b.": "AFIN (Air Force Information Network)",
+        "c.": "USEUCOM theater networks",
+        "d.": "Coalition and allied networks"
+      },
+      "answer": {
+        "b.": "The 690 COG's mission is to operate, sustain, and defend the AFIN."
+      }
+    },
+    "191": {
+      "question": "In the context of OPSEC, what is the Critical Information List (CIL)?",
+      "options": {
+        "a.": "A list of adversary cyber capabilities",
+        "b.": "A classified list of all DOD networks",
+        "c.": "Helps ensure AF personnel know non-releasable info",
+        "d.": "A database of known cyber vulnerabilities"
+      },
+      "answer": {
+        "c.": "The Critical Information List (CIL) is the first step in OPSEC and helps ensure AF personnel are aware of non-releasable information."
+      }
+    },
+    "192": {
+      "question": "OPCON can be delegated from authority at what level?",
+      "options": {
+        "a.": "Only from COCOM level",
+        "b.": "From a lesser authority than COCOM",
+        "c.": "Only from SECDEF or higher",
+        "d.": "Only from the President"
+      },
+      "answer": {
+        "b.": "OPCON can be delegated from a lesser authority than COCOM."
+      }
+    },
+    "193": {
+      "question": "TACON may be delegated to and exercised by commanders at what echelon?",
+      "options": {
+        "a.": "Only at CCMD level",
+        "b.": "Only at MAJCOM level and above",
+        "c.": "At or below the level of CCMD",
+        "d.": "Only by the President or SECDEF"
+      },
+      "answer": {
+        "c.": "TACON may be delegated to and exercised by commanders at any echelon at or below the level of CCMD."
+      }
+    },
+    "194": {
+      "question": "The three OPSEC risk assessment components include identifying vulnerabilities, estimating impact, and doing what?",
+      "options": {
+        "a.": "Notifying higher headquarters of identified risks",
+        "b.": "Selecting specific OPSEC countermeasures for execution",
+        "c.": "Updating the Critical Information List",
+        "d.": "Conducting threat analysis of adversary capabilities"
+      },
+      "answer": {
+        "b.": "The third component of risk assessment is the commander and staff selecting specific OPSEC countermeasures for execution based upon risk assessment."
+      }
+    },
+    "195": {
+      "question": "All AFIN/DODIN users implicitly consent to what?",
+      "options": {
+        "a.": "Random device inspections",
+        "b.": "Monitoring of all network activities",
+        "c.": "Background checks and security clearance reviews",
+        "d.": "Having personal files accessed by administrators"
+      },
+      "answer": {
+        "b.": "All users of AFIN/DODIN consent to monitoring, meaning there is no privacy on military networks."
+      }
+    },
+    "196": {
+      "question": "The 1N4X1A Fusion Analyst primarily does what alongside 1B4s?",
+      "options": {
+        "a.": "Conducts physical security assessments",
+        "b.": "Analyzes, disseminates, and exploits intel from target network communications with an intel focus",
+        "c.": "Manages DODIN network infrastructure",
+        "d.": "Plans and executes OCO operations"
+      },
+      "answer": {
+        "b.": "The Fusion Analyst analyzes, disseminates, and exploits intel derived from target network communications, operating alongside bravos with an intel focus."
+      }
+    },
+    "197": {
+      "question": "The Senior Executive Service (SES) is equivalent to which military ranks?",
+      "options": {
+        "a.": "E-7 through E-9",
+        "b.": "W-4 through W-5",
+        "c.": "O-7 through O-10",
+        "d.": "O-5 through O-6"
+      },
+      "answer": {
+        "c.": "The SES (GS/SES levels 5-1 counting down) is equivalent to O-7 through O-10."
+      }
+    },
+    "198": {
+      "question": "The 835 COS mission is described as what?",
+      "options": {
+        "a.": "Maintain combat superiority by dominating in cyberspace",
+        "b.": "Employ CPTs in defense of critical mission areas",
+        "c.": "Protect critical AF and DOD infrastructure and mission systems",
+        "d.": "Assure AF and DOD mission performance via CVAs"
+      },
+      "answer": {
+        "c.": "The 835 COS mission is to protect critical AF and DOD infrastructure and mission systems."
+      }
+    },
+    "199": {
+      "question": "The 1B4X1 is responsible for providing C2 of cyberspace ops to establish what?",
+      "options": {
+        "a.": "Network connectivity across the DODIN",
+        "b.": "Situational awareness of both friendly and adversary operations",
+        "c.": "Classification guidance for cyber operations",
+        "d.": "Budget and resource plans for cyber units"
+      },
+      "answer": {
+        "b.": "The 1B4X1 provides C2 of cyberspace ops ISO DOD, interagency, and coalition forces to establish SA of both friendly and adversary operations."
+      }
+    },
+    "200": {
+      "question": "The 341 COS mission at Fort Meade is to train and deliver operationally focused Airmen to which organization?",
+      "options": {
+        "a.": "JFHQ-DODIN",
+        "b.": "CNMF in defense of the nation",
+        "c.": "USCYBERCOM directly",
+        "d.": "16th Air Force"
+      },
+      "answer": {
+        "b.": "The 341 COS mission is to train and deliver operationally focused Airmen to the CNMF in defense of the nation."
+      }
+    },
+    "201": {
+      "question": "The 91 COS mission includes which of the following activities against adversary information systems?",
+      "options": {
+        "a.": "Survey, secure, protect, and recover",
+        "b.": "Degrades, disrupts, denies, deceives, and exploits adversary information systems",
+        "c.": "Hunt, detect, analyze, and report on DODIN threats",
+        "d.": "Provide COMSEC assessments and vulnerability scans"
+      },
+      "answer": {
+        "b.": "The 91 COS conducts OCO tasked by US CYBERCOM and degrades, disrupts, denies, deceives, and exploits adversary information systems, while also presenting trained forces to US CYBERCOM as part of the CMF."
+      }
+    },
+    "202": {
+      "question": "The 315 COS mission is best summarized as what?",
+      "options": {
+        "a.": "Train and deliver operationally focused Airmen to the CNMF",
+        "b.": "Protect critical AF and DOD infrastructure and mission systems",
+        "c.": "Find the enemy, exploit weakness, attack",
+        "d.": "Conduct ISR operations and analysis from and for cyberspace"
+      },
+      "answer": {
+        "c.": "The 315 COS mission is to find the enemy, exploit weakness, and attack. It is an OCO unit within the 867 COG located at Fort Meade, MD."
+      }
+    },
+    "203": {
+      "question": "The 833 COS and 836 COS missions are both described as what?",
+      "options": {
+        "a.": "Conduct OCO ISO Combatant Commands",
+        "b.": "Generate, conduct, and sustain OCO",
+        "c.": "Present, plan, and execute cyberspace operations to defend national information networks against cyber threats",
+        "d.": "Maintain combat superiority by dominating in cyberspace"
+      },
+      "answer": {
+        "c.": "Both the 833 COS and 836 COS missions are to present, plan, and execute cyberspace operations in order to defend national information networks against cyber threats. They are National CPTs providing DCO capabilities to the CNMF."
+      }
+    },
+    "204": {
+      "question": "The 26 NOS is located at which installation?",
+      "options": {
+        "a.": "JBSA-Lackland, Texas",
+        "b.": "Peterson AFB, Colorado",
+        "c.": "Maxwell AFB, Georgia",
+        "d.": "Langley-Eustis, Virginia"
+      },
+      "answer": {
+        "c.": "The 26 NOS is located at Maxwell AFB, Georgia. It operates the AF portion of the GIG and provides computer network defense for the AFNET."
+      }
+    },
+    "205": {
+      "question": "The 83 NOS is located at which installation?",
+      "options": {
+        "a.": "Peterson AFB, Colorado",
+        "b.": "JBSA-Lackland, Texas",
+        "c.": "Ramstein AB, Germany",
+        "d.": "Langley-Eustis, Virginia"
+      },
+      "answer": {
+        "d.": "The 83 NOS is located at Langley-Eustis, Virginia. It provides centralized cyberspace defense and mission assurance using the CSCS weapon system."
+      }
+    },
+    "206": {
+      "question": "The 561 NOS is located at which installation?",
+      "options": {
+        "a.": "JBSA-Lackland, Texas",
+        "b.": "Peterson AFB, Colorado",
+        "c.": "Fort Meade, Maryland",
+        "d.": "Maxwell AFB, Georgia"
+      },
+      "answer": {
+        "b.": "The 561 NOS is located at Peterson AFB, Colorado. It has responsibility for managing core services for more than 100 AF installations."
+      }
+    },
+    "207": {
+      "question": "Which services does the 83 NOS provide across the AFNET?",
+      "options": {
+        "a.": "OCO planning and execution only",
+        "b.": "Directory and authentication services, monitoring, server storage, backup management, boundary protection, client security, and vulnerability management",
+        "c.": "Cyber range operations and M&S capabilities",
+        "d.": "ISR collection and analysis"
+      },
+      "answer": {
+        "b.": "The 83 NOS provides cyberspace effects through directory and authentication services, monitoring, server storage and backup management, infrastructure, boundary protection, client security, and vulnerability management."
+      }
+    },
+    "208": {
+      "question": "Title 18, Section 1362 (Communications Lines) is used to prosecute those who do what?",
+      "options": {
+        "a.": "Conduct unauthorized access to protected computers",
+        "b.": "Wiretap phone conversations without authorization",
+        "c.": "Launch DDoS attacks against the military or otherwise disrupt military computer network communications",
+        "d.": "Steal intellectual property via electronic means"
+      },
+      "answer": {
+        "c.": "Section 1362 deals with destroying or interfering with communications lines, stations, or systems owned, operated, or controlled by the US for military or civil defense functions, and is used to prosecute those launching DDoS attacks against the military."
+      }
+    },
+    "209": {
+      "question": "A Trap and Trace device does what?",
+      "options": {
+        "a.": "Records all numbers called from a particular phone line",
+        "b.": "Captures incoming phone calls to a particular number",
+        "c.": "Monitors real-time traffic on a network",
+        "d.": "Records both incoming and outgoing call content"
+      },
+      "answer": {
+        "b.": "A Trap and Trace device captures incoming phone calls to a particular number, similar to how a pen register captures outgoing calls. Unlike a pen register (DNR), it focuses on the incoming side."
+      }
+    },
+    "210": {
+      "question": "Under Title 18, a pen/trap device captures which information about internet communications?",
+      "options": {
+        "a.": "Full content of all messages",
+        "b.": "Email subject lines only",
+        "c.": "Headers (source/destination or to/from) but NOT the contents of the communication",
+        "d.": "Encryption keys used in communications"
+      },
+      "answer": {
+        "c.": "Because Internet Headers contain source/destination or to/from information, a device that reads the header (minus the subject line in email headers) is both a pen register and trap/trace device. Any government agency must not capture the contents of wire or electronic comms, just the headers."
+      }
+    },
+    "211": {
+      "question": "Title 50 USC Section 403-3d (Intelligence Reform and Terrorism Act of 2004) requires which position within the ODNI?",
+      "options": {
+        "a.": "Inspector General for Intelligence Activities",
+        "b.": "A civil liberties protection officer",
+        "c.": "A cyber threat liaison officer",
+        "d.": "A counterintelligence director"
+      },
+      "answer": {
+        "b.": "The Intelligence Reform and Terrorism Act of 2004 requires there to be a civil liberties protection officer within the ODNI, who reports directly to the ODNI and is responsible for ensuring privacy and civil liberties protections are incorporated into ODNI policies."
+      }
+    },
+    "212": {
+      "question": "Executive Order 12333 governs what?",
+      "options": {
+        "a.": "Cybersecurity of Federal Networks and Critical Infrastructure",
+        "b.": "What the Intelligence Community is allowed and not allowed to do",
+        "c.": "Establishment of the Cyber Mission Force",
+        "d.": "Classification of sensitive compartmented information"
+      },
+      "answer": {
+        "b.": "EO 12333 (US Intelligence Activities) defines what the IC is allowed and not allowed to do. There must be a need, a purpose, collection techniques, attorney general approval, and assistance from law enforcement and other civil authorities."
+      }
+    },
+    "213": {
+      "question": "Title 15 of the USC, Chapter 100 covers what subject?",
+      "options": {
+        "a.": "Trademarks",
+        "b.": "National Institute of Standards and Technology",
+        "c.": "Cyber Security Research and Development",
+        "d.": "Technology Innovation"
+      },
+      "answer": {
+        "c.": "Chapter 100 of Title 15 covers Cyber Security Research and Development. Other cyber-relevant chapters in Title 15 include Chapter 7 (NIST), Chapter 22 (Trademarks), Chapter 23 (Dissemination of Technical Information), and Chapter 63 (Technology Innovation)."
+      }
+    },
+    "214": {
+      "question": "Title 17 of the USC, Chapter 3 covers what subject?",
+      "options": {
+        "a.": "Copyright ownership and transfer",
+        "b.": "Duration of copyright",
+        "c.": "Copyright infringement and remedies",
+        "d.": "Digital audio recording devices and media"
+      },
+      "answer": {
+        "b.": "Chapter 3 of Title 17 covers Duration of copyright. Other relevant chapters include Chapter 2 (Copyright ownership and transfer), Chapter 5 (Infringement and remedies), Chapter 7 (Copyright Office), and Chapter 10 (Digital audio recording)."
+      }
+    },
+    "215": {
+      "question": "What is the GS pay grade equivalent to military rank O-6?",
+      "options": {
+        "a.": "GS-13",
+        "b.": "GS-14",
+        "c.": "GS-15",
+        "d.": "SES level 5"
+      },
+      "answer": {
+        "c.": "GS-15 is equivalent to O-6. GS-14 is equivalent to O-5, GS-13 is equivalent to O-4, and SES/GS levels 5-1 (counting down) are equivalent to O-7 through O-10."
+      }
+    },
+    "216": {
+      "question": "GS-8 is equivalent to which military rank range?",
+      "options": {
+        "a.": "E-5 through E-6",
+        "b.": "E-6 through E-9",
+        "c.": "W-1 through W-5",
+        "d.": "O-1"
+      },
+      "answer": {
+        "c.": "GS-8 is equivalent to W-1 through W-5 (Warrant Officers). GS-7 is equivalent to E-6 through E-9, and GS-6 is equivalent to E-5 through E-6."
+      }
+    },
+    "217": {
+      "question": "The 1B411 (Helper) skill level is awarded at what point?",
+      "options": {
+        "a.": "Upon completion of tech school (IST)",
+        "b.": "After completing CDCs and STS task sign-offs",
+        "c.": "Upon retraining acceptance and approval",
+        "d.": "After completing Initial Qualification Training (IQT)"
+      },
+      "answer": {
+        "c.": "The 1B411 Helper skill level is awarded upon retraining acceptance and approval — it is the first skill level received when entering the 1B4 career field through retraining."
+      }
+    },
+    "218": {
+      "question": "The 1B471 (Craftsman) skill level applies to which ranks?",
+      "options": {
+        "a.": "MSgt minimum, or TSgt with line number",
+        "b.": "SrA with line number or SSgt through MSgt",
+        "c.": "SMSgt minimum, or MSgt with line number",
+        "d.": "Any rank after completing CDCs"
+      },
+      "answer": {
+        "b.": "The 1B471 Craftsman skill level is awarded to SrA with a line number or SSgt through MSgt, after completing CDCs (there are none) and core STS tasks are signed off."
+      }
+    },
+    "219": {
+      "question": "Prefix 'T' on an AFSC indicates what?",
+      "options": {
+        "a.": "Information Operations expertise",
+        "b.": "Formal training instructor duties",
+        "c.": "Tactical-level assignment",
+        "d.": "Technical intelligence specialization"
+      },
+      "answer": {
+        "b.": "Prefix T indicates formal training instructor duties. Units associated with this prefix include the 333 TRS and the 39th Information Operations Squadron (39 IOS)."
+      }
+    },
+    "220": {
+      "question": "Direct Support requires a force to do what?",
+      "options": {
+        "a.": "Support the force as a whole rather than a subdivision",
+        "b.": "Support another specific force and answer directly to that force's requests for assistance",
+        "c.": "Render support against an enemy based on position and inherent capabilities",
+        "d.": "Act against targets near the supported force requiring detailed integration"
+      },
+      "answer": {
+        "b.": "Direct Support requires a force to support another specific force and authorizes it to answer directly to the supported force's requests for assistance."
+      }
+    },
+    "221": {
+      "question": "Close Support is defined as action against targets or objectives that are what?",
+      "options": {
+        "a.": "Located deep in enemy territory requiring strategic coordination",
+        "b.": "Sufficiently near the supported force to require detailed integration or coordination with the fire, movement, or other actions of the supported force",
+        "c.": "Assigned to the force as a whole rather than a particular subdivision",
+        "d.": "Within the supported force's direct line of sight"
+      },
+      "answer": {
+        "b.": "Close Support is that action of the supporting force against targets or objectives that are sufficiently near the supported force as to require detailed integration or coordination of the supporting action with the fire, movement, or other actions of the supported force."
+      }
+    },
+    "222": {
+      "question": "DODIN CPTs conduct their mission on what systems and are directed by whom?",
+      "options": {
+        "a.": "Enemy networks; directed by CNMF-HQ",
+        "b.": "DODIN systems and networks ISO DISA and DODIN customers; directed by JFHQ-DODIN",
+        "c.": "MAJCOM networks; directed by the MAJCOM they are aligned under",
+        "d.": "Critical civilian infrastructure; directed by DHS"
+      },
+      "answer": {
+        "b.": "DODIN CPTs conduct their mission on DODIN systems and networks in support of DISA and customers of the DODIN. They are directed by JFHQ-DODIN."
+      }
+    },
+    "223": {
+      "question": "The 39 IOS mission is to conduct qualification and advanced training to provide what?",
+      "options": {
+        "a.": "Mission-ready offensive cyber forces for USCYBERCOM",
+        "b.": "Mission-ready information operations planners and cyber warfare operators for all AF MAJCOMs",
+        "c.": "Cyber range environments and LVC models for CMF readiness",
+        "d.": "Operational testing of cyber warfare capabilities"
+      },
+      "answer": {
+        "b.": "The 39 IOS mission is to conduct qualification and advanced training to provide mission-ready information operations planners and cyber warfare operators for all AF MAJCOMs. It hosts IQT for the majority of 1B4 students as follow-on training from tech school."
+      }
+    },
+    "224": {
+      "question": "The 90 COS mission includes expeditiously doing what?",
+      "options": {
+        "a.": "Generating mission-ready offensive cyber forces for USCYBERCOM",
+        "b.": "Integrating, innovating, and developing cyberspace capabilities to achieve priority military objectives in and through air, space, and cyberspace",
+        "c.": "Operating and maintaining ACC's cyber range and M&S capabilities",
+        "d.": "Conducting operational tests under realistic combat conditions"
+      },
+      "answer": {
+        "b.": "The 90 COS mission is to accelerate global vigilance, reach, and power by rapidly developing joint cyber capabilities. It expeditiously integrates, innovates, and develops cyberspace capabilities to achieve priority military objectives in and through air, space, and cyberspace."
+      }
+    },
+    "225": {
+      "question": "The 567 COG mission includes operating to do what to adversary cyberspace capabilities?",
+      "options": {
+        "a.": "Exploit and exfiltrate data from adversary systems",
+        "b.": "Remove adversary cyberspace capabilities",
+        "c.": "Conduct ISR against adversary networks",
+        "d.": "Establish persistent access in adversary networks"
+      },
+      "answer": {
+        "b.": "The 567 COG operates to remove adversary cyberspace capabilities while defending the supported commanders' key cyberspace assets and preparing local defenders to sustain advanced defense TTPs."
+      }
+    },
+    "226": {
+      "question": "The 1N4X2 Cryptologic Analyst and Reporter career field primarily does what?",
+      "options": {
+        "a.": "Analyzes intel to evaluate threats to US and allied forces",
+        "b.": "Analyzes and exploits intel information, develops targets, and provides situational awareness for operations personnel",
+        "c.": "Analyzes, disseminates, and exploits intel derived from target network communications",
+        "d.": "Operates cyber and intel platforms and weapon systems"
+      },
+      "answer": {
+        "b.": "The 1N4X2 Cryptologic Analyst and Reporter analyzes and exploits intelligence information, develops targets, and provides situational awareness for operations personnel, working alongside 1B4s with a focus on intelligence gathering."
+      }
+    },
+    "227": {
+      "question": "The 14NX Intel Officer career field performs what primary function?",
+      "options": {
+        "a.": "Commands crews to accomplish OCO and DCO missions",
+        "b.": "Operates, secures, and extends cyberspace infrastructure",
+        "c.": "Performing and managing intel functions and activities, and providing threat analysis of potential adversaries and friendly assets",
+        "d.": "Leads DODIN operations missions"
+      },
+      "answer": {
+        "c.": "The 14NX Intel Officer is responsible for performing and managing intelligence functions and activities, providing threat analysis of potential adversaries and friendly assets."
+      }
+    },
+    "228": {
+      "question": "Which of the following is considered 'Prohibited Use' of a government computer system?",
+      "options": {
+        "a.": "Brief personal use that does not interfere with official duties",
+        "b.": "Use that serves a legitimate government interest",
+        "c.": "Use that adversely reflects on DOD or interferes with employee/office productivity",
+        "d.": "Use of reasonable duration that does not reflect adversely on the DOD"
+      },
+      "answer": {
+        "c.": "Prohibited use is when computer use adversely reflects on the DOD, where use interferes with employee or office productivity, or where use is to conduct outside commercial activity."
+      }
+    },
+    "229": {
+      "question": "Trademarks protect what type of intellectual property?",
+      "options": {
+        "a.": "Original works of authorship in any medium",
+        "b.": "Inventions and processes from being made or sold by others",
+        "c.": "A word, name, symbol, or device used in trade to indicate source of goods and distinguish them from others",
+        "d.": "A business's method or formula for creating products or services"
+      },
+      "answer": {
+        "c.": "A trademark is a word, name, symbol, or device that is used in trade with goods to indicate the source of the goods and to distinguish them from the goods of others. A service mark is the same thing but identifies the source of a service rather than a good."
+      }
+    },
+    "230": {
+      "question": "Which section of the Stored Communications Act (SCA) primarily regulates voluntary disclosure of customer communications?",
+      "options": {
+        "a.": "Section 2701",
+        "b.": "Section 2702",
+        "c.": "Section 2703",
+        "d.": "Section 2712"
+      },
+      "answer": {
+        "b.": "Section 2702 of the Stored Communications Act regulates voluntary disclosure by network service providers of customer communications and records, both to the government and non-government entities."
+      }
+    },
+    "231": {
+      "question": "Which UCMJ article covers insubordinate conduct toward warrant officers, NCOs, or petty officers?",
+      "options": {
+        "a.": "Article 92",
+        "b.": "Article 91",
+        "c.": "Article 103a",
+        "d.": "Article 134"
+      },
+      "answer": {
+        "b.": "Article 91 covers insubordinate conduct toward warrant officers, NCOs, or petty officers."
+      }
+    },
+    "232": {
+      "question": "Which UCMJ article covers failure to obey an order or regulation?",
+      "options": {
+        "a.": "Article 91",
+        "b.": "Article 103b",
+        "c.": "Article 92",
+        "d.": "Article 134"
+      },
+      "answer": {
+        "c.": "Article 92 covers failure to obey an order or regulation."
+      }
+    },
+    "233": {
+      "question": "Under Title 32, who serves as the state's senior military commander?",
+      "options": {
+        "a.": "The Governor",
+        "b.": "The Adjutant General",
+        "c.": "The National Guard Bureau Chief",
+        "d.": "The President"
+      },
+      "answer": {
+        "b.": "Under Title 32, the Adjutant General serves as the state's senior military commander. The Governor serves as Commander in Chief."
+      }
+    },
+    "234": {
+      "question": "Under which circumstance can a governor activate the National Guard under State Active Duty?",
+      "options": {
+        "a.": "Only with presidential authorization",
+        "b.": "Only when Congress declares war",
+        "c.": "In response to natural or man-made disasters or Homeland Defense missions, based on state statute and funded by state funds",
+        "d.": "Only under SECDEF authorization and using federal funds"
+      },
+      "answer": {
+        "c.": "Under State Active Duty, the governor can activate the National Guard in response to natural or man-made disasters or Homeland Defense missions. This is based on state statute and policy and is funded by state funds."
+      }
+    },
+    "235": {
+      "question": "Title 32 Full-Time National Guard Duty can only be authorized by whom and under what funding?",
+      "options": {
+        "a.": "Governor only; state funded",
+        "b.": "The President or SECDEF with governor consent; federally funded",
+        "c.": "Congress and the President jointly; congressional funded",
+        "d.": "SECDEF only; DOD funded"
+      },
+      "answer": {
+        "b.": "Title 32 Full-Time National Guard Duty can only be done by the president or SECDEF with approval and consent of the state governor. It is federally funded, but command and control remain with the governor through the Adjutant General."
+      }
+    },
+    "236": {
+      "question": "The 33 NWS mission is best described as what?",
+      "options": {
+        "a.": "Operate the AF portion of the GIG",
+        "b.": "Detect, prevent, and assess risk of data content loss in AFNETs",
+        "c.": "Find and defeat the enemy by executing all aspects of AF network defense as part of AFNOC",
+        "d.": "Operate, sustain, and defend the AFIN using CSCS"
+      },
+      "answer": {
+        "c.": "The 33 NWS mission is to find and defeat the enemy. It executes all aspects of AF network defense as an element of the distributed AFNET operations center (AFNOC), monitors and secures AF and CENTCOM global networks, and responds to hostile network threats and attacks."
+      }
+    },
+    "237": {
+      "question": "The NSS is described as 'policy rather than strategy.' What does this mean?",
+      "options": {
+        "a.": "It has no legal force and is purely advisory",
+        "b.": "Its implementation relies on guidance provided in supporting documents like the NDS derived from its contents",
+        "c.": "It is drafted by Congress rather than the executive branch",
+        "d.": "It focuses exclusively on domestic cybersecurity policy"
+      },
+      "answer": {
+        "b.": "The NSS is described as policy rather than strategy because its implementation relies on guidance provided in supporting documents derived from its contents, such as the National Defense Strategy (NDS)."
+      }
+    },
+    "238": {
+      "question": "Which of the following is NOT an exception listed under the Federal Wiretap Act?",
+      "options": {
+        "a.": "Service provider exception",
+        "b.": "Consent exception",
+        "c.": "National security exception",
+        "d.": "Trespasser exception"
+      },
+      "answer": {
+        "c.": "The listed exceptions to the Federal Wiretap Act include the service provider exception, consent, FISA, communication readily accessible to the public, trespasser exception, and inadvertently obtained criminal evidence. A standalone 'national security exception' is not among the listed exceptions."
+      }
+    },
+    "239": {
+      "question": "The 318 COG consists of how many squadrons and which ones?",
+      "options": {
+        "a.": "Five squadrons: 91, 305, 352, 375, and 390 COS",
+        "b.": "Four squadrons: 39 IOS, 90 COS, 318 RANS, and 346 TS",
+        "c.": "Four squadrons: 92, 834, 835, and 837 COS",
+        "d.": "Four squadrons: 315, 341, 833, and 836 COS"
+      },
+      "answer": {
+        "b.": "The 318 COG consists of four squadrons: the 39th Information Operations Squadron (39 IOS), 90th Cyberspace Operations Squadron (90 COS), 318th Range Squadron (318 RANS), and 346th Test Squadron (346 TS)."
+      }
+    },
+    "240": {
+      "question": "Which of the following security tools are classified as sniffers?",
+      "options": {
+        "a.": "NMAP, Nessus, and Metasploit",
+        "b.": "Wireshark, TCPDump, T-Shark, and CloudShark",
+        "c.": "EnCase, FTK, and Autopsy",
+        "d.": "Burp Suite, OWASP ZAP, and Nikto"
+      },
+      "answer": {
+        "b.": "Sniffers monitor real-time traffic on a network. Examples include Wireshark, TCPDump, T-Shark, and CloudShark. They can be used to find unauthorized activity but must be authorized for use."
+      }
+    },
+    "241": {
+      "question": "Anonymous or pseudonymous works have a copyright lasting how long?",
+      "options": {
+        "a.": "Life of the author plus 70 years",
+        "b.": "50 years from publication",
+        "c.": "95 years from the year of publication or 120 years from creation, whichever expires first",
+        "d.": "75 years from the year of publication"
+      },
+      "answer": {
+        "c.": "Anonymous and pseudonymous work copyrights last 95 years from the year of publication, or 120 years from the year it was created, whichever expires first."
+      }
+    },
+    "242": {
+      "question": "The Stored Communications Act Section 2701 prohibits what?",
+      "options": {
+        "a.": "Voluntary disclosure of customer communications by service providers",
+        "b.": "Law enforcement from compelling disclosure of stored communications without following proper procedures",
+        "c.": "Unlawful access to certain stored communications; those who obtain, alter, or prevent authorized access are subject to criminal penalties",
+        "d.": "Use of pen register and trap/trace devices without court orders"
+      },
+      "answer": {
+        "c.": "Section 2701 of the Stored Communications Act prohibits unlawful access to certain stored communications. Anyone who obtains, alters, or prevents authorized access to those communications is subject to criminal penalties."
+      }
+    },
+    "243": {
+      "question": "The 318 RANS enhances military utility of cyberspace by delivering what?",
+      "options": {
+        "a.": "Offensive cyber capabilities for combatant command support",
+        "b.": "Realistic cyber range environments and Live, Virtual & Constructive (LVC) models",
+        "c.": "Joint cyber capabilities through rapid development and innovation",
+        "d.": "Operational tests under realistic combat conditions"
+      },
+      "answer": {
+        "b.": "The 318 RANS enhances the military utility of cyberspace by delivering realistic cyber range environments and Live, Virtual & Constructive (LVC) models to ensure multi-domain readiness and lethality of Cyber Mission Forces, AF Cyberspace Forces, and Combat Air Forces."
+      }
+    },
+    "244": {
+      "question": "The Superintendent (1B4X1) manages C2 of cyberspace operations to develop situational awareness of what?",
+      "options": {
+        "a.": "Enemy cyber terrain and attack vectors only",
+        "b.": "Friendly and adversary operations",
+        "c.": "DODIN infrastructure vulnerabilities",
+        "d.": "Budget and resource allocation across cyber units"
+      },
+      "answer": {
+        "b.": "The Superintendent manages C2 of cyberspace operations to develop situational awareness of both friendly and adversary operations."
+      }
+    },
+    "245": {
+      "question": "Forensics tools in a cyber context are primarily used for what?",
+      "options": {
+        "a.": "Monitoring real-time network traffic",
+        "b.": "Active scanning and enumeration of targets",
+        "c.": "Deep dive analysis after incidents, reverse engineering, investigations, and finding deleted information",
+        "d.": "Intercepting and decrypting communications"
+      },
+      "answer": {
+        "c.": "Forensics tools are used for deep-dive analysis after incidents or for reverse engineering, investigations, and can find deleted information. Examples of use cases include determining the extent of battle damage sustained during cyberspace attacks."
+      }
+    }
+  }
+}
