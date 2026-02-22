@@ -112,6 +112,11 @@ div[data-testid="stCheckbox"] label p { font-size: 0.9rem !important; color: #aa
 .block-container { padding-top: 2rem !important; max-width: 680px !important; }
 details { background: #1e1e1e !important; border: 1px solid #333 !important; border-radius: 8px !important; }
 summary { color: #ccc !important; }
+.mastered-banner {
+    background: #1a2233; border: 1px solid #2e4a7a; border-left: 4px solid #4a7acd;
+    border-radius: 7px; padding: 0.75rem 1rem; font-size: 0.88rem;
+    color: #7aaee8; margin-bottom: 1rem;
+}
 </style>
 """
 st.markdown(CSS, unsafe_allow_html=True)
@@ -135,9 +140,22 @@ def get_rank(pct):
     else:           return "Needs improvement"
 
 def reset_quiz():
+    """Reset only the current quiz run, preserving mastered questions."""
+    mastered = st.session_state.get("mastered_keys", set())
+    for key in list(st.session_state.keys()):
+        del st.session_state[key]
+    st.session_state.mastered_keys = mastered
+
+def full_reset():
+    """Reset everything including mastered questions."""
     for key in list(st.session_state.keys()):
         del st.session_state[key]
 
+
+# ── INIT MASTERED SET ─────────────────────────────────────────────────────────
+# Persists across quiz runs within the same app session.
+if "mastered_keys" not in st.session_state:
+    st.session_state.mastered_keys = set()
 
 # Load questions (cached after first fetch)
 try:
@@ -157,9 +175,34 @@ if not st.session_state.quiz_active:
     st.markdown("## Quiz Setup")
 
     total_available = len(ALL_QUESTIONS)
+    mastered_count  = len(st.session_state.mastered_keys)
+    available_count = total_available - mastered_count
+
+    # If all questions are mastered, reset the mastered pool automatically
+    pool_reset = False
+    if available_count == 0:
+        st.session_state.mastered_keys = set()
+        mastered_count  = 0
+        available_count = total_available
+        pool_reset = True
+
+    if pool_reset:
+        st.info("All questions have been mastered! The full question pool has been reset.")
+
+    # Show mastered progress
+    if mastered_count > 0:
+        st.markdown(
+            f'<div class="mastered-banner">'
+            f'<strong>{mastered_count}</strong> question{"s" if mastered_count != 1 else ""} mastered so far &mdash; '
+            f'<strong>{available_count}</strong> remaining in pool.</div>',
+            unsafe_allow_html=True,
+        )
+
     col1, col2 = st.columns(2)
     with col1:
-        num_questions = st.slider("Number of questions", 5, min(100, total_available), 10, 5)
+        num_questions = st.slider(
+            "Number of questions", 5, min(100, available_count), min(10, available_count), 5
+        )
     with col2:
         randomize = st.checkbox("Randomize order", value=True)
 
@@ -171,29 +214,37 @@ if not st.session_state.quiz_active:
         timer_minutes = st.slider("Duration (minutes)", 1, 60, 10, disabled=not use_timer)
 
     instant_feedback = st.checkbox("Show correct answer after each question", value=True)
-    st.markdown(f"*{total_available} questions available*")
+    st.markdown(f"*{available_count} questions available (excluding mastered)*")
 
-    if st.button("Start Quiz"):
-        keys = list(ALL_QUESTIONS.keys())
-        if randomize:
-            random.shuffle(keys)
-        chosen = keys[:num_questions]
-        st.session_state.questions        = {k: ALL_QUESTIONS[k] for k in chosen}
-        st.session_state.q_keys           = chosen
-        st.session_state.quiz_active      = True
-        st.session_state.current_q        = 0
-        st.session_state.selected_answers = {}
-        st.session_state.answered         = {}
-        st.session_state.score            = 0
-        st.session_state.start_time       = time.time()
-        st.session_state.q_start_time     = time.time()
-        st.session_state.elapsed_times    = []
-        st.session_state.time_up          = False
-        st.session_state.use_timer        = use_timer
-        st.session_state.timer_seconds    = timer_minutes * 60
-        st.session_state.instant_feedback = instant_feedback
-        st.session_state.total            = num_questions
-        st.rerun()
+    col_start, col_full_reset = st.columns([3, 1])
+    with col_start:
+        if st.button("Start Quiz"):
+            # Build pool from non-mastered questions
+            available_keys = [k for k in ALL_QUESTIONS.keys() if k not in st.session_state.mastered_keys]
+            if randomize:
+                random.shuffle(available_keys)
+            chosen = available_keys[:num_questions]
+            st.session_state.questions        = {k: ALL_QUESTIONS[k] for k in chosen}
+            st.session_state.q_keys           = chosen
+            st.session_state.quiz_active      = True
+            st.session_state.current_q        = 0
+            st.session_state.selected_answers = {}
+            st.session_state.answered         = {}
+            st.session_state.score            = 0
+            st.session_state.start_time       = time.time()
+            st.session_state.q_start_time     = time.time()
+            st.session_state.elapsed_times    = []
+            st.session_state.time_up          = False
+            st.session_state.use_timer        = use_timer
+            st.session_state.timer_seconds    = timer_minutes * 60
+            st.session_state.instant_feedback = instant_feedback
+            st.session_state.total            = num_questions
+            st.rerun()
+    with col_full_reset:
+        if mastered_count > 0:
+            if st.button("Reset Mastered"):
+                full_reset()
+                st.rerun()
 
 
 # ── QUIZ SCREEN ───────────────────────────────────────────────────────────────
@@ -223,11 +274,33 @@ elif st.session_state.quiz_active:
             if st.session_state.elapsed_times else 0
         )
 
+        # ── UPDATE MASTERED SET ──────────────────────────────────────────────
+        # Add questions answered correctly in this run to the mastered pool.
+        newly_mastered = [
+            k for k in q_keys
+            if st.session_state.answered.get(k) is True
+        ]
+        st.session_state.mastered_keys.update(newly_mastered)
+
+        # If mastering all remaining caused pool exhaustion, auto-reset pool
+        if len(st.session_state.mastered_keys) >= len(ALL_QUESTIONS):
+            st.session_state.mastered_keys = set()
+            st.info("🎉 You've mastered every question! The full pool has been reset for next time.")
+
         if st.session_state.get("time_up"):
             st.warning("Time expired.")
 
         st.markdown(f'<div class="score-big">{score} / {total}</div>', unsafe_allow_html=True)
         st.markdown(f'<div class="score-sub">{pct:.0f}% &mdash; {get_rank(pct)}</div>', unsafe_allow_html=True)
+
+        if newly_mastered:
+            st.markdown(
+                f'<div class="mastered-banner">'
+                f'<strong>{len(newly_mastered)}</strong> question{"s" if len(newly_mastered) != 1 else ""} added to mastered &mdash; '
+                f'<strong>{len(st.session_state.mastered_keys)}</strong> mastered total out of {len(ALL_QUESTIONS)}.</div>',
+                unsafe_allow_html=True,
+            )
+
         st.markdown(f'''
         <div class="stat-row">
             <div class="stat-box"><div class="stat-val">{score}</div><div class="stat-lbl">Correct</div></div>
@@ -250,9 +323,13 @@ elif st.session_state.quiz_active:
 
         c1, c2 = st.columns(2)
         with c1:
-            if st.button("Restart Quiz"): reset_quiz(); st.rerun()
+            if st.button("Next Quiz"):
+                reset_quiz()
+                st.rerun()
         with c2:
-            if st.button("New Settings"): reset_quiz(); st.rerun()
+            if st.button("New Settings"):
+                reset_quiz()
+                st.rerun()
 
     # ── ACTIVE QUESTION ───────────────────────────────────────────────────────
     else:
