@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="UTF-8" />
@@ -7,22 +7,19 @@
       name="viewport"
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
-    <title>Stlite app</title>
+    <title>Stlite App</title>
     <link
       rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/@stlite/browser@0.90.3/build/stlite.css"
+      href="https://cdn.jsdelivr.net/npm/@stlite/browser@0.85.1/build/stlite.css"
     />
+    <script
+      type="module"
+      src="https://cdn.jsdelivr.net/npm/@stlite/browser@0.85.1/build/stlite.js"
+    ></script>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module">
-import { mount } from "https://cdn.jsdelivr.net/npm/@stlite/browser@0.90.3/build/stlite.js"
-mount(
-  {
-    requirements: [],
-    entrypoint: "streamlit_app.py",
-    files: {
-"streamlit_app.py": `import streamlit as st
+    <streamlit-app>
+import streamlit as st
 import json
 import random
 import time
@@ -451,7 +448,7 @@ elif st.session_state.quiz_active:
         st.markdown(f'<div class="score-big">{score} / {total}</div>', unsafe_allow_html=True)
         st.markdown(f'<div class="score-sub">{pct:.0f}% &mdash; {rank}</div>', unsafe_allow_html=True)
 
-        st.markdown(f'''
+        st.markdown(f"""
         <div class="stat-row">
             <div class="stat-box">
                 <div class="stat-val">{score}</div>
@@ -470,7 +467,7 @@ elif st.session_state.quiz_active:
                 <div class="stat-lbl">Avg / question</div>
             </div>
         </div>
-        ''', unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 
         missed = [k for k in q_keys if k in st.session_state.answered and not st.session_state.answered[k]]
         if missed:
@@ -609,14 +606,7 @@ elif st.session_state.quiz_active:
         # Auto-refresh for live timer
         if st.session_state.use_timer and not already_answered:
             time.sleep(0.5)
-            st.rerun()`,
-
-},
-  },
-  document.getElementById("root")
-)
-
-    </script>
+            st.rerun()
+    </streamlit-app>
   </body>
-  <!-- Generated from Stlite Sharing (https://edit.share.stlite.net/), and the source version is 97eddb4e33bacc6c4c5ea4b6eda31d5cda8af078 -->
 </html>
