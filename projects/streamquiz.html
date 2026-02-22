@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <title>Stlite app</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@stlite/browser@0.90.3/build/stlite.css"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module">
+import { mount } from "https://cdn.jsdelivr.net/npm/@stlite/browser@0.90.3/build/stlite.js"
+mount(
+  {
+    requirements: [],
+    entrypoint: "streamlit_app.py",
+    files: {
+"streamlit_app.py": `import streamlit as st
+import json
+import random
+import time
+import os
+from pathlib import Path
+
+st.set_page_config(
+    page_title="Quiz",
+    layout="centered",
+    initial_sidebar_state="collapsed",
+)
+
+st.markdown("""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+html, body, [class*="css"] {
+    font-family: 'Inter', sans-serif !important;
+    background-color: #141414 !important;
+    color: #e8e8e8 !important;
+}
+.stApp { background-color: #141414 !important; }
+
+/* ── Question card ── */
+.question-card {
+    background: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 1.75rem 1.75rem 1.25rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.question-meta {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.6rem;
+}
+.question-text {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #f0f0f0;
+    line-height: 1.65;
+    margin: 0;
+}
+
+/* ── Answer options — radio container styled as card ── */
+div[data-testid="stRadio"] {
+    background: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 1.1rem 1.25rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    display: block !important;
+}
+div[data-testid="stRadio"] > div,
+div[data-testid="stRadio"] > div[role="radiogroup"] {
+    gap: 0.4rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+}
+div[data-testid="stRadio"] > div > label,
+div[data-testid="stRadio"] > div[role="radiogroup"] > label {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+div[data-testid="stRadio"] label {
+    display: flex !important;
+    align-items: center !important;
+    padding: 0.6rem 0.9rem !important;
+    border: 1px solid #2e2e2e !important;
+    border-radius: 7px !important;
+    margin: 0 !important;
+    cursor: pointer !important;
+    background: #252525 !important;
+    transition: background 0.12s, border-color 0.12s !important;
+    line-height: 1.5 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+div[data-testid="stRadio"] label:hover {
+    background: #2a2f3d !important;
+    border-color: #4a6fa5 !important;
+}
+div[data-testid="stRadio"] label p {
+    margin: 0 !important;
+    font-size: 0.95rem !important;
+    color: #e0e0e0 !important;
+    font-family: 'Inter', sans-serif !important;
+    text-align: left !important;
+}
+div[data-testid="stRadio"] > label {
+    display: none !important;
+}
+
+/* Force ALL ancestor wrappers of the radio to full width */
+div[data-testid="column"] div[data-testid="stRadio"],
+div[data-testid="stVerticalBlock"] div[data-testid="stRadio"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+}
+
+/* Make the text span inside labels stretch */
+div[data-testid="stRadio"] label > div:last-child {
+    flex: 1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+/* Streamlit sets width="fit-content" as an inline attribute on the element container —
+   target it directly to override */
+div[data-testid="stElementContainer"][width="fit-content"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+}
+
+/* ── Progress ── */
+.progress-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.4rem;
+}
+.progress-label {
+    font-size: 2rem;
+    color: #666;
+    font-weight: 500;
+}
+.timer-text {
+    color: #e0e0e0;
+}
+.timer-warn { color: #e05555 !important; }
+
+/* ── Feedback ── */
+.feedback-correct {
+    background: #1a2e22;
+    border: 1px solid #2e5c3a;
+    border-left: 4px solid #3d9e58;
+    border-radius: 7px;
+    padding: 0.8rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #5ec47a;
+    margin-bottom: 1rem;
+}
+.feedback-wrong {
+    background: #2e1a1a;
+    border: 1px solid #5c2e2e;
+    border-left: 4px solid #a03030;
+    border-radius: 7px;
+    padding: 0.8rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #e06060;
+    margin-bottom: 1rem;
+}
+.feedback-explanation {
+    margin-top: 0.35rem;
+    font-size: 0.84rem;
+    font-weight: 400;
+    color: #aaa;
+    line-height: 1.5;
+}
+
+/* ── Results ── */
+.score-big {
+    font-size: 3.5rem;
+    font-weight: 700;
+    text-align: center;
+    color: #f0f0f0;
+    line-height: 1.1;
+}
+.score-sub {
+    text-align: center;
+    font-size: 1rem;
+    color: #888;
+    margin-bottom: 1.5rem;
+    margin-top: 0.3rem;
+}
+.stat-row {
+    display: flex;
+    gap: 0.75rem;
+    margin: 1rem 0;
+}
+.stat-box {
+    flex: 1;
+    background: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 0.9rem 0.5rem;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+.stat-val {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #f0f0f0;
+}
+.stat-lbl {
+    font-size: 0.7rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.2rem;
+}
+
+/* ── Buttons (general) ── */
+.stButton > button {
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 500 !important;
+    border-radius: 7px !important;
+    font-size: 0.9rem !important;
+    width: 100% !important;
+    padding: 0.6rem 1.1rem !important;
+    transition: all 0.15s ease !important;
+    background-color: #252525 !important;
+    border: 1px solid #3a3a3a !important;
+    color: #e0e0e0 !important;
+}
+.stButton > button:hover {
+    background-color: #2e2e2e !important;
+    border-color: #555 !important;
+}
+
+/* ── Exit button — slim, muted, aligns with label text ── */
+div[data-testid="column"]:last-child .stButton > button {
+    font-size: 0.72rem !important;
+    padding: 0.18rem 0.5rem !important;
+    line-height: 1.2 !important;
+    min-height: unset !important;
+    height: auto !important;
+    color: #555 !important;
+    background: transparent !important;
+    border-color: #2a2a2a !important;
+    width: 100% !important;
+}
+div[data-testid="column"]:last-child .stButton > button:hover {
+    color: #999 !important;
+    border-color: #444 !important;
+    background: #1a1a1a !important;
+}
+
+/* ── Setup page inputs ── */
+label[data-testid="stWidgetLabel"] p,
+div[data-testid="stSlider"] label p,
+div[data-testid="stCheckbox"] label p {
+    font-size: 0.9rem !important;
+    color: #aaa !important;
+}
+input[type="text"], input[type="number"] {
+    background-color: #1e1e1e !important;
+    color: #e0e0e0 !important;
+    border: 1px solid #333 !important;
+}
+.stTextInput input {
+    background-color: #1e1e1e !important;
+    color: #e0e0e0 !important;
+}
+
+/* ── Hide Streamlit chrome ── */
+#MainMenu, footer, header { visibility: hidden; }
+.block-container {
+    padding-top: 2rem !important;
+    max-width: 680px !important;
+}
+
+/* Expander dark */
+details {
+    background: #1e1e1e !important;
+    border: 1px solid #333 !important;
+    border-radius: 8px !important;
+}
+summary {
+    color: #ccc !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+# ── Helpers ───────────────────────────────────────────────────────────────────
+
+def load_questions(json_path: str) -> dict:
+    with open(json_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    return data["questions"]
+
+def format_time(seconds: int) -> str:
+    m, s = divmod(max(0, seconds), 60)
+    return f"{m:02d}:{s:02d}"
+
+def get_rank(pct: float) -> str:
+    if pct >= 90:
+        return "Excellent"
+    elif pct >= 80:
+        return "Good"
+    elif pct >= 70:
+        return "Satisfactory"
+    elif pct >= 60:
+        return "Marginal"
+    else:
+        return "Needs improvement"
+
+def reset_quiz():
+    for key in list(st.session_state.keys()):
+        del st.session_state[key]
+
+
+# ── Locate default quiz.json ──────────────────────────────────────────────────
+
+SCRIPT_DIR = Path(__file__).parent
+DEFAULT_JSON = "quiz.json"
+for candidate in [SCRIPT_DIR / "quiz.json", Path("quiz.json")]:
+    if candidate.exists():
+        DEFAULT_JSON = str(candidate)
+        break
+
+if "quiz_active" not in st.session_state:
+    st.session_state.quiz_active = False
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# CONFIG SCREEN
+# ══════════════════════════════════════════════════════════════════════════════
+
+if not st.session_state.quiz_active:
+
+    st.markdown("## Quiz Setup")
+
+    json_path = st.text_input("Question bank (JSON file)", value=DEFAULT_JSON)
+
+    col1, col2 = st.columns(2)
+    with col1:
+        num_questions = st.slider("Number of questions", 5, 100, 10, 5) #start, end, default, inc
+    with col2:
+        randomize = st.checkbox("Randomize order", value=True)
+
+    st.markdown("---")
+    col3, col4 = st.columns(2)
+    with col3:
+        use_timer = st.checkbox("Enable timer", value=False)
+    with col4:
+        timer_minutes = st.slider("Duration (minutes)", 1, 60, 10, disabled=not use_timer)
+
+    instant_feedback = st.checkbox("Show correct answer after each question", value=True)
+
+    st.markdown("")
+    if st.button("Start Quiz"):
+        if not os.path.exists(json_path):
+            st.error(f"File not found: {json_path}")
+        else:
+            try:
+                all_q = load_questions(json_path)
+                keys = list(all_q.keys())
+                if randomize:
+                    random.shuffle(keys)
+                chosen = keys[:min(num_questions, len(keys))]
+                st.session_state.questions        = {k: all_q[k] for k in chosen}
+                st.session_state.q_keys           = chosen
+                st.session_state.quiz_active      = True
+                st.session_state.current_q        = 0
+                st.session_state.selected_answers = {}
+                st.session_state.answered         = {}
+                st.session_state.score            = 0
+                st.session_state.start_time       = time.time()
+                st.session_state.q_start_time     = time.time()
+                st.session_state.elapsed_times    = []
+                st.session_state.time_up          = False
+                st.session_state.use_timer        = use_timer
+                st.session_state.timer_seconds    = timer_minutes * 60
+                st.session_state.instant_feedback = instant_feedback
+                st.session_state.total            = len(chosen)
+                st.rerun()
+            except Exception as e:
+                st.error(f"Failed to load questions: {e}")
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# QUIZ SCREEN
+# ══════════════════════════════════════════════════════════════════════════════
+
+elif st.session_state.quiz_active:
+
+    questions = st.session_state.questions
+    q_keys    = st.session_state.q_keys
+    total     = st.session_state.total
+    idx       = st.session_state.current_q
+
+    # Timer check
+    elapsed = int(time.time() - st.session_state.start_time)
+    if st.session_state.use_timer:
+        remaining = st.session_state.timer_seconds - elapsed
+        if remaining <= 0 and not st.session_state.time_up:
+            st.session_state.time_up = True
+            st.session_state.current_q = total
+            st.rerun()
+
+    # ── RESULTS ──────────────────────────────────────────────────────────────
+    if idx >= total:
+
+        score   = st.session_state.score
+        pct     = (score / total) * 100 if total else 0
+        rank    = get_rank(pct)
+        elapsed = int(time.time() - st.session_state.start_time)
+        avg_t   = (
+            sum(st.session_state.elapsed_times) / len(st.session_state.elapsed_times)
+            if st.session_state.elapsed_times else 0
+        )
+
+        if st.session_state.get("time_up"):
+            st.warning("Time expired.")
+
+        st.markdown(f'<div class="score-big">{score} / {total}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="score-sub">{pct:.0f}% &mdash; {rank}</div>', unsafe_allow_html=True)
+
+        st.markdown(f'''
+        <div class="stat-row">
+            <div class="stat-box">
+                <div class="stat-val">{score}</div>
+                <div class="stat-lbl">Correct</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-val">{total - score}</div>
+                <div class="stat-lbl">Incorrect</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-val">{format_time(elapsed)}</div>
+                <div class="stat-lbl">Total time</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-val">{avg_t:.1f}s</div>
+                <div class="stat-lbl">Avg / question</div>
+            </div>
+        </div>
+        ''', unsafe_allow_html=True)
+
+        missed = [k for k in q_keys if k in st.session_state.answered and not st.session_state.answered[k]]
+        if missed:
+            with st.expander(f"Review missed questions ({len(missed)})"):
+                for k in missed:
+                    q            = questions[k]
+                    correct_key  = list(q["answer"].keys())[0]
+                    correct_text = list(q["answer"].values())[0]
+                    your_raw     = st.session_state.selected_answers.get(k, "Not answered")
+                    st.markdown(f"**{q['question']}**")
+                    st.markdown(f"<span style='color:#c0392b'>Your answer: {your_raw}</span>", unsafe_allow_html=True)
+                    st.markdown(f"<span style='color:#2e7d4f'>Correct: {correct_key} {correct_text}</span>", unsafe_allow_html=True)
+                    st.markdown("---")
+
+        st.markdown("")
+        c1, c2 = st.columns(2)
+        with c1:
+            if st.button("Restart Quiz"):
+                reset_quiz()
+                st.rerun()
+        with c2:
+            if st.button("New Settings"):
+                reset_quiz()
+                st.rerun()
+
+    # ── ACTIVE QUESTION ───────────────────────────────────────────────────────
+    else:
+        q_key            = q_keys[idx]
+        q_data           = questions[q_key]
+        opts             = q_data["options"]
+        correct_key      = list(q_data["answer"].keys())[0]
+        already_answered = q_key in st.session_state.answered
+
+        # Build timer string if needed
+        timer_str = ""
+        if st.session_state.use_timer:
+            remaining = st.session_state.timer_seconds - elapsed
+            warn_cls  = "timer-warn" if remaining < 60 else "timer-text"
+            timer_str = f'<span class="{warn_cls}">{format_time(remaining)}</span>'
+
+        # ── Progress label + Exit button on same row ──
+        prog_col, exit_col = st.columns([8, 1])
+        with prog_col:
+            timer_suffix = f"&nbsp;&nbsp;{timer_str}" if timer_str else ""
+            st.markdown(
+                f'<div class="progress-label">'
+                f'Question {idx + 1} of {total} &nbsp;&middot;&nbsp; {st.session_state.score} correct{timer_suffix}'
+                f'</div>',
+                unsafe_allow_html=True,
+            )
+        with exit_col:
+            if st.button("Exit", key="exit_btn", use_container_width=True):
+                st.session_state.current_q = total
+                st.rerun()
+
+        # ── Progress bar full-width below ──
+        st.progress(idx / total)
+        st.markdown("<div style='height:0.75rem'></div>", unsafe_allow_html=True)
+
+        # Question card
+        st.markdown(
+            f'<div class="question-card">'
+            f'<div class="question-meta">Question {idx + 1}</div>'
+            f'<div class="question-text">{q_data["question"]}</div>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+
+        option_labels = [f"{k}  {v}" for k, v in opts.items()]
+
+        # Restore saved selection
+        default_idx = None
+        if q_key in st.session_state.selected_answers:
+            saved = st.session_state.selected_answers[q_key]
+            for i, lbl in enumerate(option_labels):
+                if lbl == saved:
+                    default_idx = i
+                    break
+
+        # Answers (radio)
+        selected = st.radio(
+            "Select an answer:",
+            option_labels,
+            index=default_idx,
+            key=f"radio_{q_key}",
+            disabled=already_answered,
+        )
+
+        # Next / Finish button — full width, below answers
+        btn_label = "Finish" if (already_answered and idx == total - 1) else "Next"
+        if st.button(btn_label, use_container_width=True):
+            if not already_answered:
+                radio_val = st.session_state.get(f"radio_{q_key}")
+                if radio_val:
+                    chosen_key = None
+                    for ok, ov in opts.items():
+                        if f"{ok}  {ov}" == radio_val:
+                            chosen_key = ok
+                            break
+                    if chosen_key:
+                        st.session_state.selected_answers[q_key] = radio_val
+                        is_correct = chosen_key == correct_key
+                        st.session_state.answered[q_key] = is_correct
+                        if is_correct:
+                            st.session_state.score += 1
+                        st.session_state.elapsed_times.append(
+                            time.time() - st.session_state.q_start_time
+                        )
+                        if not st.session_state.instant_feedback:
+                            st.session_state.current_q   += 1
+                            st.session_state.q_start_time = time.time()
+                        st.rerun()
+            else:
+                st.session_state.current_q   += 1
+                st.session_state.q_start_time = time.time()
+                st.rerun()
+
+        # Feedback
+        if already_answered and st.session_state.instant_feedback:
+            is_correct = st.session_state.answered[q_key]
+            expl       = list(q_data["answer"].values())[0]
+            if is_correct:
+                st.markdown(
+                    f'<div class="feedback-correct">Correct'
+                    f'<div class="feedback-explanation">{expl}</div></div>',
+                    unsafe_allow_html=True,
+                )
+            else:
+                correct_display = f"{correct_key}  {opts.get(correct_key, '')}"
+                st.markdown(
+                    f'<div class="feedback-wrong">Incorrect &mdash; correct answer: {correct_display}'
+                    f'<div class="feedback-explanation">{expl}</div></div>',
+                    unsafe_allow_html=True,
+                )
+
+        # Auto-refresh for live timer
+        if st.session_state.use_timer and not already_answered:
+            time.sleep(0.5)
+            st.rerun()`,
+
+},
+  },
+  document.getElementById("root")
+)
+
+    </script>
+  </body>
+  <!-- Generated from Stlite Sharing (https://edit.share.stlite.net/), and the source version is 97eddb4e33bacc6c4c5ea4b6eda31d5cda8af078 -->
+</html>
