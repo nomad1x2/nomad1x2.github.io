@@ -32,7 +32,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-st.markdown("""
+st.markdown('''
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
@@ -310,7 +310,7 @@ summary {
     color: #ccc !important;
 }
 </style>
-""", unsafe_allow_html=True)
+''', unsafe_allow_html=True)
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -448,7 +448,7 @@ elif st.session_state.quiz_active:
         st.markdown(f'<div class="score-big">{score} / {total}</div>', unsafe_allow_html=True)
         st.markdown(f'<div class="score-sub">{pct:.0f}% &mdash; {rank}</div>', unsafe_allow_html=True)
 
-        st.markdown(f"""
+        st.markdown(f'''
         <div class="stat-row">
             <div class="stat-box">
                 <div class="stat-val">{score}</div>
@@ -467,7 +467,7 @@ elif st.session_state.quiz_active:
                 <div class="stat-lbl">Avg / question</div>
             </div>
         </div>
-        """, unsafe_allow_html=True)
+        ''', unsafe_allow_html=True)
 
         missed = [k for k in q_keys if k in st.session_state.answered and not st.session_state.answered[k]]
         if missed:
