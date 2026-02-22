@@ -32,6 +32,12 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
+# NOTE: </style> and </script> tags inside triple-quoted strings break the HTML
+# parser when embedded in <streamlit-app>. Split them so the parser never sees
+# the literal closing tag.
+STYLE_CLOSE  = "</" + "style>"
+SCRIPT_CLOSE = "</" + "script>"
+
 st.markdown('''
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -43,7 +49,7 @@ html, body, [class*="css"] {
 }
 .stApp { background-color: #141414 !important; }
 
-/* ── Question card ── */
+/* Question card */
 .question-card {
     background: #1e1e1e;
     border: 1px solid #333;
@@ -68,7 +74,7 @@ html, body, [class*="css"] {
     margin: 0;
 }
 
-/* ── Answer options — radio container styled as card ── */
+/* Answer options radio container */
 div[data-testid="stRadio"] {
     background: #1e1e1e;
     border: 1px solid #333;
@@ -127,7 +133,6 @@ div[data-testid="stRadio"] > label {
     display: none !important;
 }
 
-/* Force ALL ancestor wrappers of the radio to full width */
 div[data-testid="column"] div[data-testid="stRadio"],
 div[data-testid="stVerticalBlock"] div[data-testid="stRadio"] {
     width: 100% !important;
@@ -135,22 +140,19 @@ div[data-testid="stVerticalBlock"] div[data-testid="stRadio"] {
     min-width: 0 !important;
 }
 
-/* Make the text span inside labels stretch */
 div[data-testid="stRadio"] label > div:last-child {
     flex: 1 !important;
     width: 100% !important;
     min-width: 0 !important;
 }
 
-/* Streamlit sets width="fit-content" as an inline attribute on the element container —
-   target it directly to override */
 div[data-testid="stElementContainer"][width="fit-content"] {
     width: 100% !important;
     max-width: 100% !important;
     min-width: 0 !important;
 }
 
-/* ── Progress ── */
+/* Progress */
 .progress-row {
     display: flex;
     justify-content: space-between;
@@ -162,12 +164,10 @@ div[data-testid="stElementContainer"][width="fit-content"] {
     color: #666;
     font-weight: 500;
 }
-.timer-text {
-    color: #e0e0e0;
-}
+.timer-text { color: #e0e0e0; }
 .timer-warn { color: #e05555 !important; }
 
-/* ── Feedback ── */
+/* Feedback */
 .feedback-correct {
     background: #1a2e22;
     border: 1px solid #2e5c3a;
@@ -198,7 +198,7 @@ div[data-testid="stElementContainer"][width="fit-content"] {
     line-height: 1.5;
 }
 
-/* ── Results ── */
+/* Results */
 .score-big {
     font-size: 3.5rem;
     font-weight: 700;
@@ -240,7 +240,7 @@ div[data-testid="stElementContainer"][width="fit-content"] {
     margin-top: 0.2rem;
 }
 
-/* ── Buttons (general) ── */
+/* Buttons */
 .stButton > button {
     font-family: 'Inter', sans-serif !important;
     font-weight: 500 !important;
@@ -258,7 +258,7 @@ div[data-testid="stElementContainer"][width="fit-content"] {
     border-color: #555 !important;
 }
 
-/* ── Exit button — slim, muted, aligns with label text ── */
+/* Exit button */
 div[data-testid="column"]:last-child .stButton > button {
     font-size: 0.72rem !important;
     padding: 0.18rem 0.5rem !important;
@@ -276,7 +276,7 @@ div[data-testid="column"]:last-child .stButton > button:hover {
     background: #1a1a1a !important;
 }
 
-/* ── Setup page inputs ── */
+/* Setup page inputs */
 label[data-testid="stWidgetLabel"] p,
 div[data-testid="stSlider"] label p,
 div[data-testid="stCheckbox"] label p {
@@ -293,7 +293,7 @@ input[type="text"], input[type="number"] {
     color: #e0e0e0 !important;
 }
 
-/* ── Hide Streamlit chrome ── */
+/* Hide Streamlit chrome */
 #MainMenu, footer, header { visibility: hidden; }
 .block-container {
     padding-top: 2rem !important;
@@ -306,11 +306,8 @@ details {
     border: 1px solid #333 !important;
     border-radius: 8px !important;
 }
-summary {
-    color: #ccc !important;
-}
-</style>
-''', unsafe_allow_html=True)
+summary { color: #ccc !important; }
+''' + STYLE_CLOSE, unsafe_allow_html=True)
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -366,7 +363,7 @@ if not st.session_state.quiz_active:
 
     col1, col2 = st.columns(2)
     with col1:
-        num_questions = st.slider("Number of questions", 5, 100, 10, 5) #start, end, default, inc
+        num_questions = st.slider("Number of questions", 5, 100, 10, 5)
     with col2:
         randomize = st.checkbox("Randomize order", value=True)
 
@@ -508,7 +505,7 @@ elif st.session_state.quiz_active:
             warn_cls  = "timer-warn" if remaining < 60 else "timer-text"
             timer_str = f'<span class="{warn_cls}">{format_time(remaining)}</span>'
 
-        # ── Progress label + Exit button on same row ──
+        # Progress label + Exit button on same row
         prog_col, exit_col = st.columns([8, 1])
         with prog_col:
             timer_suffix = f"&nbsp;&nbsp;{timer_str}" if timer_str else ""
@@ -523,7 +520,7 @@ elif st.session_state.quiz_active:
                 st.session_state.current_q = total
                 st.rerun()
 
-        # ── Progress bar full-width below ──
+        # Progress bar full-width below
         st.progress(idx / total)
         st.markdown("<div style='height:0.75rem'></div>", unsafe_allow_html=True)
 
@@ -556,7 +553,7 @@ elif st.session_state.quiz_active:
             disabled=already_answered,
         )
 
-        # Next / Finish button — full width, below answers
+        # Next / Finish button
         btn_label = "Finish" if (already_answered and idx == total - 1) else "Next"
         if st.button(btn_label, use_container_width=True):
             if not already_answered:
