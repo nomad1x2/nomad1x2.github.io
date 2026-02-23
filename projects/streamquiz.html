@@ -151,6 +151,33 @@ def full_reset():
     for key in list(st.session_state.keys()):
         del st.session_state[key]
 
+def shuffle_question_options(q_data):
+    """Return a copy of q_data with shuffled answer options."""
+    import copy
+    q = copy.deepcopy(q_data)
+    
+    opts = q["options"]
+    correct_key = list(q["answer"].keys())[0]
+    correct_text = list(q["answer"].values())[0]
+    
+    # Get the option keys (a., b., c., d.) and values
+    keys = list(opts.keys())
+    values = list(opts.values())
+    
+    # Shuffle the values
+    random.shuffle(values)
+    
+    # Rebuild options with shuffled values
+    new_opts = {k: v for k, v in zip(keys, values)}
+    
+    # Find which key now holds the correct answer text
+    correct_option_text = opts[correct_key]  # the actual answer text
+    new_correct_key = next(k for k, v in new_opts.items() if v == correct_option_text)
+    
+    q["options"] = new_opts
+    q["answer"] = {new_correct_key: correct_text}
+    
+    return q
 
 # ── INIT MASTERED SET ─────────────────────────────────────────────────────────
 # Persists across quiz runs within the same app session.
@@ -224,7 +251,7 @@ if not st.session_state.quiz_active:
             if randomize:
                 random.shuffle(available_keys)
             chosen = available_keys[:num_questions]
-            st.session_state.questions        = {k: ALL_QUESTIONS[k] for k in chosen}
+            st.session_state.questions        = {k: shuffle_question_options(ALL_QUESTIONS[k]) for k in chosen}
             st.session_state.q_keys           = chosen
             st.session_state.quiz_active      = True
             st.session_state.current_q        = 0
