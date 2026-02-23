@@ -19,6 +19,9 @@ import pyodide_http
 pyodide_http.patch_all()
 import urllib.request
 
+import os
+random.seed(int.from_bytes(os.urandom(8), 'big'))
+
 QUIZ_URL = "https://nomad1x2.github.io/projects/quiz.json"
 
 CSS = """
