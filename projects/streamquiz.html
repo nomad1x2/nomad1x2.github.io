@@ -15,14 +15,100 @@ import streamlit as st
 import json
 import random
 import time
-import pyodide_http
-pyodide_http.patch_all()
+import hashlib
+import base64
 import urllib.request
 
-import os
-random.seed(int.from_bytes(os.urandom(8), 'big'))
+try:
+    import pyodide_http
+    pyodide_http.patch_all()
+except ImportError:
+    pass
 
-QUIZ_URL = "https://nomad1x2.github.io/projects/quiz.json"
+from cryptography.fernet import Fernet
+
+
+# ── CONSTANTS ─────────────────────────────────────────────────────────────────
+
+QUIZ_URL = "https://nomad1x2.github.io/projects/quiz_encrypted.json"
+
+
+# ── HELPERS ───────────────────────────────────────────────────────────────────
+
+def derive_key(passphrase: str) -> bytes:
+    digest = hashlib.sha256(passphrase.encode()).digest()
+    return base64.urlsafe_b64encode(digest)
+
+
+@st.cache_data
+def load_questions(passphrase: str) -> dict:
+    """Fetch and decrypt questions from remote JSON. Cached per passphrase."""
+    fernet = Fernet(derive_key(passphrase))
+
+    def decrypt(token: str) -> str:
+        return fernet.decrypt(token.encode()).decode()
+
+    with urllib.request.urlopen(QUIZ_URL) as resp:
+        data = json.loads(resp.read().decode("utf-8"))
+
+    questions = data["questions"]
+    for q_data in questions.values():
+        q_data["question"] = decrypt(q_data["question"])
+        q_data["options"]  = {k: decrypt(v) for k, v in q_data["options"].items()}
+        q_data["answer"]   = {k: decrypt(v) for k, v in q_data["answer"].items()}
+
+    return questions
+
+
+def shuffle_question_options(q_data: dict) -> dict:
+    """Return a deep copy of q_data with answer options shuffled."""
+    import copy
+    q = copy.deepcopy(q_data)
+
+    keys   = list(q["options"].keys())
+    values = list(q["options"].values())
+    correct_text = q["options"][list(q["answer"].keys())[0]]
+
+    random.shuffle(values)
+    q["options"] = dict(zip(keys, values))
+    new_correct_key = next(k for k, v in q["options"].items() if v == correct_text)
+    q["answer"] = {new_correct_key: list(q["answer"].values())[0]}
+
+    return q
+
+
+def format_time(seconds: int) -> str:
+    m, s = divmod(max(0, seconds), 60)
+    return f"{m:02d}:{s:02d}"
+
+
+def get_rank(pct: float) -> str:
+    if pct >= 90:   return "Excellent"
+    elif pct >= 80: return "Good"
+    elif pct >= 70: return "Satisfactory"
+    elif pct >= 60: return "Marginal"
+    else:           return "Needs improvement"
+
+
+def reset_quiz():
+    """Reset the current quiz run while preserving mastered questions."""
+    mastered = st.session_state.get("mastered_keys", set())
+    all_q    = st.session_state.get("ALL_QUESTIONS", {})
+    unlocked = st.session_state.get("decryption_ok", False)
+    for key in list(st.session_state.keys()):
+        del st.session_state[key]
+    st.session_state.mastered_keys  = mastered
+    st.session_state.ALL_QUESTIONS  = all_q
+    st.session_state.decryption_ok  = unlocked
+
+
+def full_reset():
+    """Reset everything including mastered questions."""
+    for key in list(st.session_state.keys()):
+        del st.session_state[key]
+
+
+# ── STYLING ───────────────────────────────────────────────────────────────────
 
 CSS = """
 <style>
@@ -62,10 +148,7 @@ div[data-testid="stRadio"] label {
     width: 100% !important; box-sizing: border-box !important;
 }
 div[data-testid="stRadio"] label:hover { background: #2a2f3d !important; border-color: #4a6fa5 !important; }
-div[data-testid="stRadio"] label p {
-    margin: 0 !important; font-size: 0.95rem !important;
-    color: #e0e0e0 !important; font-family: 'Inter', sans-serif !important;
-}
+div[data-testid="stRadio"] label p { margin: 0 !important; font-size: 0.95rem !important; color: #e0e0e0 !important; }
 div[data-testid="stRadio"] > label { display: none !important; }
 div[data-testid="stRadio"] label > div:last-child { flex: 1 !important; }
 div[data-testid="stElementContainer"][width="fit-content"] { width: 100% !important; max-width: 100% !important; }
@@ -122,104 +205,57 @@ summary { color: #ccc !important; }
 }
 </style>
 """
+
 st.markdown(CSS, unsafe_allow_html=True)
 
 
-@st.cache_data
-def load_questions():
-    with urllib.request.urlopen(QUIZ_URL) as response:
-        data = json.loads(response.read().decode("utf-8"))
-    return data["questions"]
+# ── SESSION STATE DEFAULTS ────────────────────────────────────────────────────
 
-def format_time(seconds):
-    m, s = divmod(max(0, seconds), 60)
-    return f"{m:02d}:{s:02d}"
+if "mastered_keys"  not in st.session_state: st.session_state.mastered_keys  = set()
+if "decryption_ok"  not in st.session_state: st.session_state.decryption_ok  = False
+if "quiz_active"    not in st.session_state: st.session_state.quiz_active    = False
+if "ALL_QUESTIONS"  not in st.session_state: st.session_state.ALL_QUESTIONS  = {}
 
-def get_rank(pct):
-    if pct >= 90:   return "Excellent"
-    elif pct >= 80: return "Good"
-    elif pct >= 70: return "Satisfactory"
-    elif pct >= 60: return "Marginal"
-    else:           return "Needs improvement"
 
-def reset_quiz():
-    """Reset only the current quiz run, preserving mastered questions."""
-    mastered = st.session_state.get("mastered_keys", set())
-    for key in list(st.session_state.keys()):
-        del st.session_state[key]
-    st.session_state.mastered_keys = mastered
+# ── UNLOCK SCREEN ─────────────────────────────────────────────────────────────
 
-def full_reset():
-    """Reset everything including mastered questions."""
-    for key in list(st.session_state.keys()):
-        del st.session_state[key]
+if not st.session_state.decryption_ok:
+    st.markdown("## Enter Quiz Key")
+    passphrase_input = st.text_input("Enter secret key", type="password")
 
-def shuffle_question_options(q_data):
-    """Return a copy of q_data with shuffled answer options."""
-    import copy
-    q = copy.deepcopy(q_data)
-    
-    opts = q["options"]
-    correct_key = list(q["answer"].keys())[0]
-    correct_text = list(q["answer"].values())[0]
-    
-    # Get the option keys (a., b., c., d.) and values
-    keys = list(opts.keys())
-    values = list(opts.values())
-    
-    # Shuffle the values
-    random.shuffle(values)
-    
-    # Rebuild options with shuffled values
-    new_opts = {k: v for k, v in zip(keys, values)}
-    
-    # Find which key now holds the correct answer text
-    correct_option_text = opts[correct_key]  # the actual answer text
-    new_correct_key = next(k for k, v in new_opts.items() if v == correct_option_text)
-    
-    q["options"] = new_opts
-    q["answer"] = {new_correct_key: correct_text}
-    
-    return q
+    if st.button("Unlock Quiz"):
+        try:
+            questions = load_questions(passphrase_input)
+            st.session_state.ALL_QUESTIONS = questions
+            st.session_state.decryption_ok = True
+            st.success("Quiz unlocked successfully.")
+            st.rerun()
+        except Exception:
+            st.error("Invalid key. Unable to decrypt quiz.")
 
-# ── INIT MASTERED SET ─────────────────────────────────────────────────────────
-# Persists across quiz runs within the same app session.
-if "mastered_keys" not in st.session_state:
-    st.session_state.mastered_keys = set()
-
-# Load questions (cached after first fetch)
-try:
-    ALL_QUESTIONS = load_questions()
-except Exception as e:
-    st.error(f"Could not load quiz questions from {QUIZ_URL}\n\nError: {e}")
     st.stop()
 
-if "quiz_active" not in st.session_state:
-    st.session_state.quiz_active = False
+
+# ── Always retrieve ALL_QUESTIONS from session state ──────────────────────────
+ALL_QUESTIONS = st.session_state.ALL_QUESTIONS
 
 
 # ── CONFIG SCREEN ─────────────────────────────────────────────────────────────
 
 if not st.session_state.quiz_active:
-
     st.markdown("## Quiz Setup")
 
     total_available = len(ALL_QUESTIONS)
     mastered_count  = len(st.session_state.mastered_keys)
     available_count = total_available - mastered_count
 
-    # If all questions are mastered, reset the mastered pool automatically
-    pool_reset = False
+    # Auto-reset pool if every question has been mastered
     if available_count == 0:
         st.session_state.mastered_keys = set()
         mastered_count  = 0
         available_count = total_available
-        pool_reset = True
-
-    if pool_reset:
         st.info("All questions have been mastered! The full question pool has been reset.")
 
-    # Show mastered progress
     if mastered_count > 0:
         st.markdown(
             f'<div class="mastered-banner">'
@@ -230,9 +266,7 @@ if not st.session_state.quiz_active:
 
     col1, col2 = st.columns(2)
     with col1:
-        num_questions = st.slider(
-            "Number of questions", 5, min(100, available_count), min(10, available_count), 5
-        )
+        num_questions = st.slider("Number of questions", 5, min(100, available_count), min(10, available_count), 5)
     with col2:
         randomize = st.checkbox("Randomize order", value=True)
 
@@ -246,14 +280,14 @@ if not st.session_state.quiz_active:
     instant_feedback = st.checkbox("Show correct answer after each question", value=True)
     st.markdown(f"*{available_count} questions available (excluding mastered)*")
 
-    col_start, col_full_reset = st.columns([3, 1])
+    col_start, col_reset = st.columns([3, 1])
     with col_start:
         if st.button("Start Quiz"):
-            # Build pool from non-mastered questions
-            available_keys = [k for k in ALL_QUESTIONS.keys() if k not in st.session_state.mastered_keys]
+            available_keys = [k for k in ALL_QUESTIONS if k not in st.session_state.mastered_keys]
             if randomize:
                 random.shuffle(available_keys)
             chosen = available_keys[:num_questions]
+
             st.session_state.questions        = {k: shuffle_question_options(ALL_QUESTIONS[k]) for k in chosen}
             st.session_state.q_keys           = chosen
             st.session_state.quiz_active      = True
@@ -270,7 +304,8 @@ if not st.session_state.quiz_active:
             st.session_state.instant_feedback = instant_feedback
             st.session_state.total            = num_questions
             st.rerun()
-    with col_full_reset:
+
+    with col_reset:
         if mastered_count > 0:
             if st.button("Reset Mastered"):
                 full_reset()
@@ -280,39 +315,35 @@ if not st.session_state.quiz_active:
 # ── QUIZ SCREEN ───────────────────────────────────────────────────────────────
 
 elif st.session_state.quiz_active:
-
     questions = st.session_state.questions
     q_keys    = st.session_state.q_keys
     total     = st.session_state.total
     idx       = st.session_state.current_q
 
     elapsed = int(time.time() - st.session_state.start_time)
+
     if st.session_state.use_timer:
         remaining = st.session_state.timer_seconds - elapsed
         if remaining <= 0 and not st.session_state.time_up:
-            st.session_state.time_up = True
-            st.session_state.current_q = total
+            st.session_state.time_up    = True
+            st.session_state.current_q  = total
             st.rerun()
 
     # ── RESULTS ──────────────────────────────────────────────────────────────
     if idx >= total:
         score   = st.session_state.score
-        pct     = (score / total) * 100 if total else 0
+        pct     = (score / total * 100) if total else 0
         elapsed = int(time.time() - st.session_state.start_time)
         avg_t   = (
             sum(st.session_state.elapsed_times) / len(st.session_state.elapsed_times)
             if st.session_state.elapsed_times else 0
         )
 
-        # ── UPDATE MASTERED SET ──────────────────────────────────────────────
-        # Add questions answered correctly in this run to the mastered pool.
-        newly_mastered = [
-            k for k in q_keys
-            if st.session_state.answered.get(k) is True
-        ]
+        # Update mastered set
+        newly_mastered = [k for k in q_keys if st.session_state.answered.get(k) is True]
         st.session_state.mastered_keys.update(newly_mastered)
 
-        # If mastering all remaining caused pool exhaustion, auto-reset pool
+        # Auto-reset mastered pool if fully exhausted
         if len(st.session_state.mastered_keys) >= len(ALL_QUESTIONS):
             st.session_state.mastered_keys = set()
             st.info("🎉 You've mastered every question! The full pool has been reset for next time.")
@@ -384,7 +415,8 @@ elif st.session_state.quiz_active:
             )
         with exit_col:
             if st.button("Exit", key="exit_btn", use_container_width=True):
-                st.session_state.current_q = total; st.rerun()
+                st.session_state.current_q = total
+                st.rerun()
 
         st.progress(idx / total)
         st.markdown("<div style='height:0.75rem'></div>", unsafe_allow_html=True)
@@ -395,11 +427,13 @@ elif st.session_state.quiz_active:
         )
 
         option_labels = [f"{k}  {v}" for k, v in opts.items()]
-        default_idx = None
+        default_idx   = None
         if q_key in st.session_state.selected_answers:
             saved = st.session_state.selected_answers[q_key]
             for i, lbl in enumerate(option_labels):
-                if lbl == saved: default_idx = i; break
+                if lbl == saved:
+                    default_idx = i
+                    break
 
         st.radio("Select an answer:", option_labels, index=default_idx,
                  key=f"radio_{q_key}", disabled=already_answered)
@@ -418,11 +452,11 @@ elif st.session_state.quiz_active:
                             st.session_state.score += 1
                         st.session_state.elapsed_times.append(time.time() - st.session_state.q_start_time)
                         if not st.session_state.instant_feedback:
-                            st.session_state.current_q += 1
-                            st.session_state.q_start_time = time.time()
+                            st.session_state.current_q    += 1
+                            st.session_state.q_start_time  = time.time()
                         st.rerun()
             else:
-                st.session_state.current_q += 1
+                st.session_state.current_q   += 1
                 st.session_state.q_start_time = time.time()
                 st.rerun()
 
@@ -431,7 +465,8 @@ elif st.session_state.quiz_active:
             expl       = list(q_data["answer"].values())[0]
             if is_correct:
                 st.markdown(
-                    f'<div class="feedback-correct">Correct<div class="feedback-explanation">{expl}</div></div>',
+                    f'<div class="feedback-correct">Correct'
+                    f'<div class="feedback-explanation">{expl}</div></div>',
                     unsafe_allow_html=True,
                 )
             else:
