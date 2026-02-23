@@ -16,6 +16,8 @@ import json
 import random
 import time
 import hashlib
+import hmac
+import struct
 import base64
 import urllib.request
 
@@ -25,8 +27,6 @@ try:
 except ImportError:
     pass
 
-from cryptography.fernet import Fernet
-
 
 # ── CONSTANTS ─────────────────────────────────────────────────────────────────
 
@@ -35,27 +35,59 @@ QUIZ_URL = "https://nomad1x2.github.io/projects/quiz_encrypted.json"
 
 # ── HELPERS ───────────────────────────────────────────────────────────────────
 
-def derive_key(passphrase: str) -> bytes:
-    digest = hashlib.sha256(passphrase.encode()).digest()
-    return base64.urlsafe_b64encode(digest)
+def _derive_keys(passphrase: str):
+    """Derive encryption and signing keys from passphrase (stdlib only)."""
+    master  = hashlib.sha256(passphrase.encode()).digest()
+    enc_key = hashlib.sha256(master + b"enc").digest()
+    mac_key = hashlib.sha256(master + b"mac").digest()
+    return enc_key, mac_key
+
+
+def decrypt_text(token: str, passphrase: str) -> str:
+    """
+    Decrypt a token produced by encrypt_json.py.
+    Format: base64( IV[16] + ciphertext + HMAC-SHA256[32] )
+    """
+    enc_key, mac_key = _derive_keys(passphrase)
+    raw = base64.urlsafe_b64decode(token.encode())
+
+    iv         = raw[:16]
+    mac        = raw[-32:]
+    ciphertext = raw[16:-32]
+
+    # Verify HMAC before decrypting
+    expected_mac = hmac.new(mac_key, iv + ciphertext, hashlib.sha256).digest()
+    if not hmac.compare_digest(expected_mac, mac):
+        raise ValueError("MAC verification failed — wrong passphrase or corrupted data.")
+
+    # Decrypt via CTR keystream
+    plaintext = bytearray()
+    block_index = 0
+    offset = 0
+    keystream = b""
+    for byte in ciphertext:
+        if offset >= len(keystream):
+            counter_bytes = struct.pack(">Q", block_index)
+            keystream = hashlib.sha256(enc_key + iv + counter_bytes).digest()
+            block_index += 1
+            offset = 0
+        plaintext.append(byte ^ keystream[offset])
+        offset += 1
+
+    return plaintext.decode("utf-8")
 
 
 @st.cache_data
 def load_questions(passphrase: str) -> dict:
     """Fetch and decrypt questions from remote JSON. Cached per passphrase."""
-    fernet = Fernet(derive_key(passphrase))
-
-    def decrypt(token: str) -> str:
-        return fernet.decrypt(token.encode()).decode()
-
     with urllib.request.urlopen(QUIZ_URL) as resp:
         data = json.loads(resp.read().decode("utf-8"))
 
     questions = data["questions"]
     for q_data in questions.values():
-        q_data["question"] = decrypt(q_data["question"])
-        q_data["options"]  = {k: decrypt(v) for k, v in q_data["options"].items()}
-        q_data["answer"]   = {k: decrypt(v) for k, v in q_data["answer"].items()}
+        q_data["question"] = decrypt_text(q_data["question"], passphrase)
+        q_data["options"]  = {k: decrypt_text(v, passphrase) for k, v in q_data["options"].items()}
+        q_data["answer"]   = {k: decrypt_text(v, passphrase) for k, v in q_data["answer"].items()}
 
     return questions
 
