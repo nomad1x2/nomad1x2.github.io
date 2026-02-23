@@ -1513,15 +1513,15 @@
       }
     },
     "127": {
-      "question": "Copyrights generally last how long?",
+      "question": "Normal Copyrights generally last how long?",
       "options": {
         "a.": "25 years from publication",
         "b.": "50 years after author's death",
         "c.": "Life of the author plus 70 years after death",
-        "d.": "95 years from the year of publication"
+        "d.": "75 years from the year of publication"
       },
       "answer": {
-        "c.": "Copyrights generally last the life of the author plus 70 years after death."
+        "c.": "Normal Copyrights generally last the life of the author plus 70 years after death. Anonymous/pseudonymous work copyrights last 95 years from the year it was published, or 120 years from the year it was created, whichever expires first."
       }
     },
     "128": {
@@ -1588,12 +1588,12 @@
       "question": "Personal Identifying Information (PII) is governed by which act?",
       "options": {
         "a.": "HIPAA 1996",
-        "b.": "Privacy Act of 1974 and AFI 33-332",
+        "b.": "Privacy Act of 1974",
         "c.": "Stored Communications Act",
         "d.": "The Patriot Act"
       },
       "answer": {
-        "b.": "PII is governed by the Privacy Act of 1974 and AFI 33-332, Privacy Act Program."
+        "b.": "PII is governed by the Privacy Act of 1974. It is also regulated by AFI 33-332, Privacy Act Program."
       }
     },
     "134": {
@@ -1885,12 +1885,12 @@
       }
     },
     "158": {
-      "question": "The 692nd Intelligence, Surveillance, and Reconnaissance Group is also known as what?",
+      "question": "The 7th Intelligence Squadron is located at Ft Meade, MD and is assigned to which organizations?",
       "options": {
-        "a.": "70 ISRW",
-        "b.": "659 ISRG",
-        "c.": "7th IS is assigned to 70 ISRW / 659 ISRG",
-        "d.": "35th IS"
+        "a.": "70 ISRW only",
+        "b.": "659 ISRG only",
+        "c.": "70 ISRW / 659 ISRG",
+        "d.": "35th IS / 691 COS"
       },
       "answer": {
         "c.": "The 7th Intelligence Squadron is assigned to 70 ISRW / 659 ISRG."
@@ -2941,5 +2941,4 @@
       }
     }
   }
-
 }
