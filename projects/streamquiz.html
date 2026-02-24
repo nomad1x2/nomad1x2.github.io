@@ -11,8 +11,7 @@
     <div id="root"></div>
 
     <script id="app-source" type="text/plain">
-#v4
-#v4
+#v5
 import streamlit as st
 import json
 import random
@@ -133,6 +132,7 @@ def reset_quiz():
     preserved = {
         "decryption_ok": st.session_state.get("decryption_ok", False),
         "passphrase":    st.session_state.get("passphrase", ""),
+        "last_selected_unit": st.session_state.get("last_selected_unit", "All"), 
     }
     for unit in UNIT_OPTIONS:
         mk = get_mastered_key(unit)
@@ -287,10 +287,11 @@ if not st.session_state.quiz_active:
     selected_unit = st.radio(
         "Select unit",
         UNIT_OPTIONS,
-        index=0,
+        index=UNIT_OPTIONS.index(st.session_state.get("last_selected_unit", "All")),
         horizontal=True,
         key="unit_selector",
     )
+    st.session_state.last_selected_unit = selected_unit
 
     # Load questions for the selected unit (cached after first fetch per unit)
     _url      = UNIT_URLS[selected_unit]
