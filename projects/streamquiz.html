@@ -274,10 +274,7 @@ ALL_QUESTIONS = st.session_state.ALL_QUESTIONS
 
 
 # ── CONFIG SCREEN ─────────────────────────────────────────────────────────────
-if st.button("Clear Cache"):
-    st.cache_data.clear()
-    st.rerun()
-      
+
 if not st.session_state.quiz_active:
     st.markdown("## Quiz Setup")
 
