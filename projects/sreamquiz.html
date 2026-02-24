@@ -1,0 +1,582 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Quiz</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stlite/browser@0.85.1/build/stlite.css" />
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script id="app-source" type="text/plain">
+#v4
+#v4
+import streamlit as st
+import json
+import random
+import time
+import hashlib
+import hmac
+import struct
+import base64
+import urllib.request
+
+try:
+    import pyodide_http
+    pyodide_http.patch_all()
+except ImportError:
+    pass
+
+
+# ── CONSTANTS ─────────────────────────────────────────────────────────────────
+
+UNIT_OPTIONS = ["All", "Unit 1", "Unit 2", "Unit 3"]
+
+UNIT_URLS = {
+    "All":    "https://nomad1x2.github.io/projects/all_encrypted.json",
+    "Unit 1": "https://nomad1x2.github.io/projects/unit1_encrypted.json",
+    "Unit 2": "https://nomad1x2.github.io/projects/unit2_encrypted.json",
+    "Unit 3": "https://nomad1x2.github.io/projects/unit3_encrypted.json",
+}
+
+
+# ── HELPERS ───────────────────────────────────────────────────────────────────
+
+def _derive_keys(passphrase: str):
+    master  = hashlib.sha256(passphrase.encode()).digest()
+    enc_key = hashlib.sha256(master + b"enc").digest()
+    mac_key = hashlib.sha256(master + b"mac").digest()
+    return enc_key, mac_key
+
+
+def decrypt_text(token: str, passphrase: str) -> str:
+    enc_key, mac_key = _derive_keys(passphrase)
+    raw = base64.urlsafe_b64decode(token.encode())
+    iv         = raw[:16]
+    mac        = raw[-32:]
+    ciphertext = raw[16:-32]
+    expected_mac = hmac.new(mac_key, iv + ciphertext, hashlib.sha256).digest()
+    if not hmac.compare_digest(expected_mac, mac):
+        raise ValueError("MAC verification failed — wrong passphrase or corrupted data.")
+    plaintext = bytearray()
+    block_index = 0
+    offset = 0
+    keystream = b""
+    for byte in ciphertext:
+        if offset >= len(keystream):
+            counter_bytes = struct.pack(">Q", block_index)
+            keystream = hashlib.sha256(enc_key + iv + counter_bytes).digest()
+            block_index += 1
+            offset = 0
+        plaintext.append(byte ^ keystream[offset])
+        offset += 1
+    return plaintext.decode("utf-8")
+
+
+def get_last_modified(url: str) -> str:
+    try:
+        req = urllib.request.Request(url, method="HEAD")
+        with urllib.request.urlopen(req) as resp:
+            return resp.headers.get("Last-Modified", "unknown")
+    except Exception:
+        return "unknown"
+
+
+@st.cache_data
+def load_questions(passphrase: str, url: str, last_modified: str) -> dict:
+    """Fetch and decrypt questions for a given URL. Cached per (passphrase, url, last_modified)."""
+    with urllib.request.urlopen(url) as resp:
+        data = json.loads(resp.read().decode("utf-8"))
+    questions = data["questions"]
+    for q_data in questions.values():
+        q_data["question"] = decrypt_text(q_data["question"], passphrase)
+        q_data["options"]  = {k: decrypt_text(v, passphrase) for k, v in q_data["options"].items()}
+        q_data["answer"]   = {k: decrypt_text(v, passphrase) for k, v in q_data["answer"].items()}
+    return questions
+
+
+def get_mastered_key(unit: str) -> str:
+    """Session-state key for the mastered set of a given unit scope."""
+    return f"mastered_keys_{unit}"
+
+
+def shuffle_question_options(q_data: dict) -> dict:
+    import copy
+    q = copy.deepcopy(q_data)
+    keys   = list(q["options"].keys())
+    values = list(q["options"].values())
+    correct_text = q["options"][list(q["answer"].keys())[0]]
+    random.shuffle(values)
+    q["options"] = dict(zip(keys, values))
+    new_correct_key = next(k for k, v in q["options"].items() if v == correct_text)
+    q["answer"] = {new_correct_key: list(q["answer"].values())[0]}
+    return q
+
+
+def format_time(seconds: int) -> str:
+    m, s = divmod(max(0, seconds), 60)
+    return f"{m:02d}:{s:02d}"
+
+
+def get_rank(pct: float) -> str:
+    if pct >= 90:   return "Excellent"
+    elif pct >= 80: return "Good"
+    elif pct >= 70: return "Satisfactory"
+    elif pct >= 60: return "Marginal"
+    else:           return "Needs improvement"
+
+
+def reset_quiz():
+    """Reset the current quiz run while preserving mastered sets, passphrase, and decryption status."""
+    preserved = {
+        "decryption_ok": st.session_state.get("decryption_ok", False),
+        "passphrase":    st.session_state.get("passphrase", ""),
+    }
+    for unit in UNIT_OPTIONS:
+        mk = get_mastered_key(unit)
+        preserved[mk] = st.session_state.get(mk, set())
+    for key in list(st.session_state.keys()):
+        del st.session_state[key]
+    for k, v in preserved.items():
+        st.session_state[k] = v
+
+
+def full_reset():
+    for key in list(st.session_state.keys()):
+        del st.session_state[key]
+
+
+# ── STYLING ───────────────────────────────────────────────────────────────────
+
+CSS = """
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+html, body, [class*="css"] {
+    font-family: 'Inter', sans-serif !important;
+    background-color: #141414 !important;
+    color: #e8e8e8 !important;
+}
+.stApp { background-color: #141414 !important; }
+.question-card {
+    background: #1e1e1e; border: 1px solid #333; border-radius: 10px;
+    padding: 1.75rem 1.75rem 1.25rem; margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.question-meta {
+    font-size: 0.75rem; font-weight: 600; color: #666;
+    text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.6rem;
+}
+.question-text { font-size: 1.05rem; font-weight: 600; color: #f0f0f0; line-height: 1.65; margin: 0; }
+div[data-testid="stRadio"] {
+    background: #1e1e1e; border: 1px solid #333; border-radius: 10px;
+    padding: 1.1rem 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; display: block !important;
+}
+div[data-testid="stRadio"] > div,
+div[data-testid="stRadio"] > div[role="radiogroup"] {
+    gap: 0.4rem !important; display: flex !important; flex-direction: column !important; width: 100% !important;
+}
+div[data-testid="stRadio"] > div > label,
+div[data-testid="stRadio"] > div[role="radiogroup"] > label { width: 100% !important; box-sizing: border-box !important; }
+div[data-testid="stRadio"] label {
+    display: flex !important; align-items: center !important; padding: 0.6rem 0.9rem !important;
+    border: 1px solid #2e2e2e !important; border-radius: 7px !important; margin: 0 !important;
+    cursor: pointer !important; background: #252525 !important;
+    transition: background 0.12s, border-color 0.12s !important; line-height: 1.5 !important;
+    width: 100% !important; box-sizing: border-box !important;
+}
+div[data-testid="stRadio"] label:hover { background: #2a2f3d !important; border-color: #4a6fa5 !important; }
+div[data-testid="stRadio"] label p { margin: 0 !important; font-size: 0.95rem !important; color: #e0e0e0 !important; }
+div[data-testid="stRadio"] > label { display: none !important; }
+div[data-testid="stRadio"] label > div:last-child { flex: 1 !important; }
+div[data-testid="stElementContainer"][width="fit-content"] { width: 100% !important; max-width: 100% !important; }
+.progress-label { font-size: 2rem; color: #666; font-weight: 500; }
+.timer-text { color: #e0e0e0; }
+.timer-warn { color: #e05555 !important; }
+.feedback-correct {
+    background: #1a2e22; border: 1px solid #2e5c3a; border-left: 4px solid #3d9e58;
+    border-radius: 7px; padding: 0.8rem 1rem; font-size: 0.9rem;
+    font-weight: 600; color: #5ec47a; margin-bottom: 1rem;
+}
+.feedback-wrong {
+    background: #2e1a1a; border: 1px solid #5c2e2e; border-left: 4px solid #a03030;
+    border-radius: 7px; padding: 0.8rem 1rem; font-size: 0.9rem;
+    font-weight: 600; color: #e06060; margin-bottom: 1rem;
+}
+.feedback-explanation { margin-top: 0.35rem; font-size: 0.84rem; font-weight: 400; color: #aaa; line-height: 1.5; }
+.score-big { font-size: 3.5rem; font-weight: 700; text-align: center; color: #f0f0f0; line-height: 1.1; }
+.score-sub { text-align: center; font-size: 1rem; color: #888; margin-bottom: 1.5rem; margin-top: 0.3rem; }
+.stat-row { display: flex; gap: 0.75rem; margin: 1rem 0; }
+.stat-box {
+    flex: 1; background: #1e1e1e; border: 1px solid #333; border-radius: 8px;
+    padding: 0.9rem 0.5rem; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+.stat-val { font-size: 1.5rem; font-weight: 700; color: #f0f0f0; }
+.stat-lbl { font-size: 0.7rem; color: #666; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.2rem; }
+.stButton > button {
+    font-family: 'Inter', sans-serif !important; font-weight: 500 !important;
+    border-radius: 7px !important; font-size: 0.9rem !important; width: 100% !important;
+    padding: 0.6rem 1.1rem !important; background-color: #252525 !important;
+    border: 1px solid #3a3a3a !important; color: #e0e0e0 !important; transition: all 0.15s ease !important;
+}
+.stButton > button:hover { background-color: #2e2e2e !important; border-color: #555 !important; }
+div[data-testid="column"]:last-child .stButton > button {
+    font-size: 0.72rem !important; padding: 0.18rem 0.5rem !important;
+    line-height: 1.2 !important; min-height: unset !important; height: auto !important;
+    color: #555 !important; background: transparent !important; border-color: #2a2a2a !important;
+}
+div[data-testid="column"]:last-child .stButton > button:hover {
+    color: #999 !important; border-color: #444 !important; background: #1a1a1a !important;
+}
+label[data-testid="stWidgetLabel"] p,
+div[data-testid="stSlider"] label p,
+div[data-testid="stCheckbox"] label p { font-size: 0.9rem !important; color: #aaa !important; }
+.stTextInput input { background-color: #1e1e1e !important; color: #e0e0e0 !important; border: 1px solid #333 !important; }
+#MainMenu, footer, header { visibility: hidden; }
+.block-container { padding-top: 2rem !important; max-width: 680px !important; }
+details { background: #1e1e1e !important; border: 1px solid #333 !important; border-radius: 8px !important; }
+summary { color: #ccc !important; }
+.mastered-banner {
+    background: #1a2233; border: 1px solid #2e4a7a; border-left: 4px solid #4a7acd;
+    border-radius: 7px; padding: 0.75rem 1rem; font-size: 0.88rem;
+    color: #7aaee8; margin-bottom: 1rem;
+}
+</style>
+"""
+
+st.markdown(CSS, unsafe_allow_html=True)
+
+
+# ── SESSION STATE DEFAULTS ────────────────────────────────────────────────────
+
+if "decryption_ok" not in st.session_state: st.session_state.decryption_ok = False
+if "quiz_active"   not in st.session_state: st.session_state.quiz_active   = False
+if "passphrase"    not in st.session_state: st.session_state.passphrase    = ""
+
+
+# ── UNLOCK SCREEN ─────────────────────────────────────────────────────────────
+
+if not st.session_state.decryption_ok:
+    st.markdown("## Enter Quiz Key")
+    passphrase_input = st.text_input("Enter secret key", type="password")
+
+    if st.button("Unlock Quiz"):
+        try:
+            # Validate key against the "All" URL; raises ValueError on bad key
+            test_url = UNIT_URLS["All"]
+            lm = get_last_modified(test_url)
+            load_questions(passphrase_input, test_url, lm)
+            st.session_state.passphrase    = passphrase_input
+            st.session_state.decryption_ok = True
+            st.success("Quiz unlocked successfully.")
+            st.rerun()
+        except Exception:
+            st.error("Invalid key. Unable to decrypt quiz.")
+
+    st.stop()
+
+
+# ── CONFIG SCREEN ─────────────────────────────────────────────────────────────
+
+if not st.session_state.quiz_active:
+    st.markdown("## Quiz Setup")
+
+    # ── Unit selector ─────────────────────────────────────────────────────────
+    selected_unit = st.radio(
+        "Select unit",
+        UNIT_OPTIONS,
+        index=0,
+        horizontal=True,
+        key="unit_selector",
+    )
+
+    # Load questions for the selected unit (cached after first fetch per unit)
+    _url      = UNIT_URLS[selected_unit]
+    _lm       = get_last_modified(_url)
+    unit_pool = load_questions(st.session_state.passphrase, _url, _lm)
+
+    # Per-unit mastered set — completely isolated from other units
+    mastered_key = get_mastered_key(selected_unit)
+    if mastered_key not in st.session_state:
+        st.session_state[mastered_key] = set()
+    mastered_set = st.session_state[mastered_key]
+
+    total_available = len(unit_pool)
+    mastered_count  = len(mastered_set)
+    available_count = total_available - mastered_count
+
+    # Auto-reset pool if every question in this unit has been mastered
+    if total_available > 0 and available_count == 0:
+        st.session_state[mastered_key] = set()
+        mastered_set    = set()
+        mastered_count  = 0
+        available_count = total_available
+        st.info(f"All questions in {selected_unit} have been mastered! The pool has been reset.")
+
+    if mastered_count > 0:
+        st.markdown(
+            f'<div class="mastered-banner">'
+            f'<strong>{mastered_count}</strong> question{"s" if mastered_count != 1 else ""} mastered '
+            f'({selected_unit}) &mdash; '
+            f'<strong>{available_count}</strong> remaining in pool.</div>',
+            unsafe_allow_html=True,
+        )
+
+    # ── Slider: clamp so it never breaks with very small pools ────────────────
+    slider_max     = max(1, available_count)
+    slider_step    = 5 if available_count >= 10 else 1
+    slider_default = min(10, slider_max)
+
+    col1, col2 = st.columns(2)
+    with col1:
+        num_questions = st.slider(
+            "Number of questions",
+            min_value=1,
+            max_value=slider_max,
+            value=slider_default,
+            step=slider_step,
+        )
+    with col2:
+        randomize = st.checkbox("Randomize order", value=True)
+
+    st.markdown("---")
+    col3, col4 = st.columns(2)
+    with col3:
+        use_timer = st.checkbox("Enable timer", value=False)
+    with col4:
+        timer_minutes = st.slider("Duration (minutes)", 1, 60, 10, disabled=not use_timer)
+
+    instant_feedback = st.checkbox("Show correct answer after each question", value=True)
+    st.markdown(f"*{available_count} questions available (excluding mastered) in **{selected_unit}***")
+
+    col_start, col_reset = st.columns([3, 1])
+    with col_start:
+        if st.button("Start Quiz"):
+            available_keys = [k for k in unit_pool if k not in mastered_set]
+            if randomize:
+                random.shuffle(available_keys)
+            chosen = available_keys[:num_questions]
+
+            st.session_state.questions        = {k: shuffle_question_options(unit_pool[k]) for k in chosen}
+            st.session_state.q_keys           = chosen
+            st.session_state.quiz_active      = True
+            st.session_state.current_q        = 0
+            st.session_state.selected_answers = {}
+            st.session_state.answered         = {}
+            st.session_state.score            = 0
+            st.session_state.start_time       = time.time()
+            st.session_state.q_start_time     = time.time()
+            st.session_state.elapsed_times    = []
+            st.session_state.time_up          = False
+            st.session_state.use_timer        = use_timer
+            st.session_state.timer_seconds    = timer_minutes * 60
+            st.session_state.instant_feedback = instant_feedback
+            st.session_state.total            = num_questions
+            st.session_state.active_unit      = selected_unit
+            st.rerun()
+
+    with col_reset:
+        if mastered_count > 0:
+            if st.button("Reset Mastered"):
+                st.session_state[mastered_key] = set()
+                st.rerun()
+
+
+# ── QUIZ SCREEN ───────────────────────────────────────────────────────────────
+
+elif st.session_state.quiz_active:
+    questions    = st.session_state.questions
+    q_keys       = st.session_state.q_keys
+    total        = st.session_state.total
+    idx          = st.session_state.current_q
+    active_unit  = st.session_state.get("active_unit", "All")
+    mastered_key = get_mastered_key(active_unit)
+    if mastered_key not in st.session_state:
+        st.session_state[mastered_key] = set()
+
+    # Unit pool needed for result-screen counts (cached, no extra network hit)
+    _url      = UNIT_URLS[active_unit]
+    _lm       = get_last_modified(_url)
+    unit_pool = load_questions(st.session_state.passphrase, _url, _lm)
+
+    elapsed = int(time.time() - st.session_state.start_time)
+
+    if st.session_state.use_timer:
+        remaining = st.session_state.timer_seconds - elapsed
+        if remaining <= 0 and not st.session_state.time_up:
+            st.session_state.time_up   = True
+            st.session_state.current_q = total
+            st.rerun()
+
+    # ── RESULTS ──────────────────────────────────────────────────────────────
+    if idx >= total:
+        score   = st.session_state.score
+        pct     = (score / total * 100) if total else 0
+        elapsed = int(time.time() - st.session_state.start_time)
+        avg_t   = (
+            sum(st.session_state.elapsed_times) / len(st.session_state.elapsed_times)
+            if st.session_state.elapsed_times else 0
+        )
+
+        # Update mastered set scoped to the active unit only
+        newly_mastered = [k for k in q_keys if st.session_state.answered.get(k) is True]
+        st.session_state[mastered_key].update(newly_mastered)
+
+        # Auto-reset if this unit's pool is now fully mastered
+        if len(st.session_state[mastered_key]) >= len(unit_pool):
+            st.session_state[mastered_key] = set()
+            st.info(f"You've mastered every question in {active_unit}! The pool has been reset.")
+
+        if st.session_state.get("time_up"):
+            st.warning("Time expired.")
+
+        st.markdown(f'<div class="score-big">{score} / {total}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="score-sub">{pct:.0f}% &mdash; {get_rank(pct)}</div>', unsafe_allow_html=True)
+
+        mastered_total = len(st.session_state[mastered_key])
+        if newly_mastered:
+            st.markdown(
+                f'<div class="mastered-banner">'
+                f'<strong>{len(newly_mastered)}</strong> question{"s" if len(newly_mastered) != 1 else ""} added to mastered '
+                f'({active_unit}) &mdash; '
+                f'<strong>{mastered_total}</strong> mastered total out of {len(unit_pool)}.</div>',
+                unsafe_allow_html=True,
+            )
+
+        st.markdown(f'''
+        <div class="stat-row">
+            <div class="stat-box"><div class="stat-val">{score}</div><div class="stat-lbl">Correct</div></div>
+            <div class="stat-box"><div class="stat-val">{total - score}</div><div class="stat-lbl">Incorrect</div></div>
+            <div class="stat-box"><div class="stat-val">{format_time(elapsed)}</div><div class="stat-lbl">Total time</div></div>
+            <div class="stat-box"><div class="stat-val">{avg_t:.1f}s</div><div class="stat-lbl">Avg / question</div></div>
+        </div>''', unsafe_allow_html=True)
+
+        missed = [k for k in q_keys if k in st.session_state.answered and not st.session_state.answered[k]]
+        if missed:
+            with st.expander(f"Review missed questions ({len(missed)})"):
+                for k in missed:
+                    q           = questions[k]
+                    correct_key = list(q["answer"].keys())[0]
+                    your_raw    = st.session_state.selected_answers.get(k, "Not answered")
+                    st.markdown(f"**{q['question']}**")
+                    st.markdown(f"<span style='color:#c0392b'>Your answer: {your_raw}</span>", unsafe_allow_html=True)
+                    st.markdown(f"<span style='color:#2e7d4f'>Correct: {correct_key} {list(q['answer'].values())[0]}</span>", unsafe_allow_html=True)
+                    st.markdown("---")
+
+        c1, c2 = st.columns(2)
+        with c1:
+            if st.button("Next Quiz"):
+                reset_quiz()
+                st.rerun()
+        with c2:
+            if st.button("New Settings"):
+                reset_quiz()
+                st.rerun()
+
+    # ── ACTIVE QUESTION ───────────────────────────────────────────────────────
+    else:
+        q_key            = q_keys[idx]
+        q_data           = questions[q_key]
+        opts             = q_data["options"]
+        correct_key      = list(q_data["answer"].keys())[0]
+        already_answered = q_key in st.session_state.answered
+
+        timer_str = ""
+        if st.session_state.use_timer:
+            remaining = st.session_state.timer_seconds - elapsed
+            warn_cls  = "timer-warn" if remaining < 60 else "timer-text"
+            timer_str = f'<span class="{warn_cls}">{format_time(remaining)}</span>'
+
+        prog_col, exit_col = st.columns([8, 1])
+        with prog_col:
+            suffix = f"&nbsp;&nbsp;{timer_str}" if timer_str else ""
+            st.markdown(
+                f'<div class="progress-label">Question {idx+1} of {total} &nbsp;&middot;&nbsp; {st.session_state.score} correct{suffix}</div>',
+                unsafe_allow_html=True,
+            )
+        with exit_col:
+            if st.button("Exit", key="exit_btn", use_container_width=True):
+                st.session_state.current_q = total
+                st.rerun()
+
+        st.progress(idx / total)
+        st.markdown("<div style='height:0.75rem'></div>", unsafe_allow_html=True)
+        st.markdown(
+            f'<div class="question-card"><div class="question-meta">Question {idx+1}</div>'
+            f'<div class="question-text">{q_data["question"]}</div></div>',
+            unsafe_allow_html=True,
+        )
+
+        option_labels = [f"{k}  {v}" for k, v in opts.items()]
+        default_idx   = None
+        if q_key in st.session_state.selected_answers:
+            saved = st.session_state.selected_answers[q_key]
+            for i, lbl in enumerate(option_labels):
+                if lbl == saved:
+                    default_idx = i
+                    break
+
+        st.radio("Select an answer:", option_labels, index=default_idx,
+                 key=f"radio_{q_key}", disabled=already_answered)
+
+        btn_label = "Finish" if (already_answered and idx == total - 1) else "Next"
+        if st.button(btn_label, use_container_width=True):
+            if not already_answered:
+                radio_val = st.session_state.get(f"radio_{q_key}")
+                if radio_val:
+                    chosen_key = next((ok for ok, ov in opts.items() if f"{ok}  {ov}" == radio_val), None)
+                    if chosen_key:
+                        st.session_state.selected_answers[q_key] = radio_val
+                        is_correct = chosen_key == correct_key
+                        st.session_state.answered[q_key] = is_correct
+                        if is_correct:
+                            st.session_state.score += 1
+                        st.session_state.elapsed_times.append(time.time() - st.session_state.q_start_time)
+                        if not st.session_state.instant_feedback:
+                            st.session_state.current_q    += 1
+                            st.session_state.q_start_time  = time.time()
+                        st.rerun()
+            else:
+                st.session_state.current_q   += 1
+                st.session_state.q_start_time = time.time()
+                st.rerun()
+
+        if already_answered and st.session_state.instant_feedback:
+            is_correct = st.session_state.answered[q_key]
+            expl       = list(q_data["answer"].values())[0]
+            if is_correct:
+                st.markdown(
+                    f'<div class="feedback-correct">Correct'
+                    f'<div class="feedback-explanation">{expl}</div></div>',
+                    unsafe_allow_html=True,
+                )
+            else:
+                st.markdown(
+                    f'<div class="feedback-wrong">Incorrect &mdash; correct answer: {correct_key}  {opts.get(correct_key, "")}'
+                    f'<div class="feedback-explanation">{expl}</div></div>',
+                    unsafe_allow_html=True,
+                )
+
+        if st.session_state.use_timer and not already_answered:
+            time.sleep(0.5)
+            st.rerun()
+    </script>
+
+    <script type="module">
+      import { mount } from "https://cdn.jsdelivr.net/npm/@stlite/browser@0.85.1/build/stlite.js";
+
+      mount(
+        {
+          entrypoint: "streamlit_app.py",
+          files: {
+            "streamlit_app.py": document.getElementById("app-source").textContent,
+          },
+          requirements: ["pyodide-http"],
+        },
+        document.getElementById("root")
+      );
+    </script>
+  </body>
+</html>
