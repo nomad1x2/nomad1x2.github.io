@@ -77,10 +77,18 @@ def decrypt_text(token: str, passphrase: str) -> str:
 
     return plaintext.decode("utf-8")
 
-
+def get_last_modified() -> str:
+    """Fetch just the headers to get the file's last modified timestamp."""
+    try:
+        req = urllib.request.Request(QUIZ_URL, method="HEAD")
+        with urllib.request.urlopen(req) as resp:
+            return resp.headers.get("Last-Modified", "unknown")
+    except Exception:
+        return "unknown"
+        
 @st.cache_data
-def load_questions(passphrase: str) -> dict:
-    """Fetch and decrypt questions from remote JSON. Cached per passphrase."""
+def load_questions(passphrase: str, last_modified: str) -> dict:
+    """Fetch and decrypt questions. Re-fetches whenever last_modified changes."""
     with urllib.request.urlopen(QUIZ_URL) as resp:
         data = json.loads(resp.read().decode("utf-8"))
 
@@ -258,7 +266,8 @@ if not st.session_state.decryption_ok:
 
     if st.button("Unlock Quiz"):
         try:
-            questions = load_questions(passphrase_input)
+            last_modified = get_last_modified()
+            questions = load_questions(passphrase_input, last_modified)
             st.session_state.ALL_QUESTIONS = questions
             st.session_state.decryption_ok = True
             st.success("Quiz unlocked successfully.")
