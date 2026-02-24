@@ -11,7 +11,8 @@
     <div id="root"></div>
 
     <script id="app-source" type="text/plain">
-#v5
+#v6
+#v4
 import streamlit as st
 import json
 import random
@@ -132,7 +133,7 @@ def reset_quiz():
     preserved = {
         "decryption_ok": st.session_state.get("decryption_ok", False),
         "passphrase":    st.session_state.get("passphrase", ""),
-        "last_selected_unit": st.session_state.get("last_selected_unit", "All"), 
+        "unit_selector": st.session_state.get("active_unit", st.session_state.get("unit_selector", "All")),
     }
     for unit in UNIT_OPTIONS:
         mk = get_mastered_key(unit)
@@ -284,10 +285,12 @@ if not st.session_state.quiz_active:
     st.markdown("## Quiz Setup")
 
     # ── Unit selector ─────────────────────────────────────────────────────────
+    if "unit_selector" not in st.session_state:
+        st.session_state.unit_selector = st.session_state.get("last_selected_unit", "All")
+
     selected_unit = st.radio(
         "Select unit",
         UNIT_OPTIONS,
-        index=UNIT_OPTIONS.index(st.session_state.get("last_selected_unit", "All")),
         horizontal=True,
         key="unit_selector",
     )
