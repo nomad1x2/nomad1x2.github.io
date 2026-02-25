@@ -11,8 +11,7 @@
     <div id="root"></div>
 
     <script id="app-source" type="text/plain">
-#v6
-#v4
+#v7
 import streamlit as st
 import json
 import random
@@ -424,14 +423,17 @@ elif st.session_state.quiz_active:
             if st.session_state.elapsed_times else 0
         )
 
-        # Update mastered set scoped to the active unit only
-        newly_mastered = [k for k in q_keys if st.session_state.answered.get(k) is True]
-        st.session_state[mastered_key].update(newly_mastered)
+        if not st.session_state.get("results_processed"):
+            newly_mastered = [k for k in q_keys if st.session_state.answered.get(k) is True]
+            st.session_state[mastered_key].update(newly_mastered)
+            if len(st.session_state[mastered_key]) >= len(unit_pool):
+                st.session_state[mastered_key] = set()
+                st.info(f"You've mastered every question in {active_unit}! The pool has been reset.")
+            st.session_state.newly_mastered_count = len(newly_mastered)
+            st.session_state.results_processed = True
 
-        # Auto-reset if this unit's pool is now fully mastered
-        if len(st.session_state[mastered_key]) >= len(unit_pool):
-            st.session_state[mastered_key] = set()
-            st.info(f"You've mastered every question in {active_unit}! The pool has been reset.")
+        newly_mastered_count = st.session_state.get("newly_mastered_count", 0)
+        mastered_total = len(st.session_state[mastered_key])
 
         if st.session_state.get("time_up"):
             st.warning("Time expired.")
@@ -440,10 +442,10 @@ elif st.session_state.quiz_active:
         st.markdown(f'<div class="score-sub">{pct:.0f}% &mdash; {get_rank(pct)}</div>', unsafe_allow_html=True)
 
         mastered_total = len(st.session_state[mastered_key])
-        if newly_mastered:
+        if newly_mastered_count > 0:
             st.markdown(
                 f'<div class="mastered-banner">'
-                f'<strong>{len(newly_mastered)}</strong> question{"s" if len(newly_mastered) != 1 else ""} added to mastered '
+                f'<strong>{newly_mastered_count}</strong> question{"s" if newly_mastered_count != 1 else ""} added to mastered '
                 f'({active_unit}) &mdash; '
                 f'<strong>{mastered_total}</strong> mastered total out of {len(unit_pool)}.</div>',
                 unsafe_allow_html=True,
