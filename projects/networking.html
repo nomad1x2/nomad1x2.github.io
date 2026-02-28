@@ -166,7 +166,7 @@ def gen_decimal_to_binary():
     }
 
 def gen_decimal_to_hex():
-    n      = random.randint(1, 255)
+    n      = random.randint(1, 10000000)
     answer = decimal_to_hex_str(n)
     rows, temp = [], n
     while temp > 0:
@@ -185,7 +185,7 @@ def gen_decimal_to_hex():
 
     wrongs = set()
     while len(wrongs) < 3:
-        w = decimal_to_hex_str(random.randint(1, 255))
+        w = decimal_to_hex_str(random.randint(1, 10000000))
         if w != answer: wrongs.add(w)
     opts = [answer] + list(wrongs)
     random.shuffle(opts)
