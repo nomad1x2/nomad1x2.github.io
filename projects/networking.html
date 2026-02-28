@@ -1,0 +1,1025 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Quiz</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stlite/browser@0.85.1/build/stlite.css" />
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script id="app-source" type="text/plain">
+#v1
+import streamlit as st
+import random
+import time
+import ipaddress
+
+
+# ── CONSTANTS ─────────────────────────────────────────────────────────────────
+
+UNIT_OPTIONS = [
+    "All",
+    "Decimal to Binary",
+    "Decimal to Hex",
+    "Hex to Decimal",
+    "Binary to Dotted Decimal",
+    "Subnetting",
+    "Subnet: IP Class",
+    "Subnet: Network & Network ID & Broadcast",
+    "Subnet: Host Range",
+    "Subnet: Number of Subnets",
+    "Subnet: Number of Hosts",
+]
+LEFT_UNITS  = ["All", "Decimal to Binary", "Decimal to Hex", "Hex to Decimal", "Binary to Dotted Decimal", "Subnetting"]
+RIGHT_UNITS = ["Subnet: IP Class", "Subnet: Network & Network ID & Broadcast", "Subnet: Host Range", "Subnet: Number of Subnets", "Subnet: Number of Hosts"]
+
+HEX_DIGITS   = "0123456789ABCDEF"
+SUPERSCRIPTS = str.maketrans("0123456789", "⁰¹²³⁴⁵⁶⁷⁸⁹")
+
+def sup(n):
+    return str(n).translate(SUPERSCRIPTS)
+
+
+# ── CONVERSION HELPERS ────────────────────────────────────────────────────────
+
+def decimal_to_binary_str(n):
+    return f"{n:08b}"
+
+def decimal_to_hex_str(n):
+    if n == 0:
+        return "0"
+    result = ""
+    while n > 0:
+        result = HEX_DIGITS[n % 16] + result
+        n //= 16
+    return result
+
+def int_to_dotted(n):
+    return str(ipaddress.IPv4Address(n))
+
+def format_time(seconds: int) -> str:
+    m, s = divmod(max(0, seconds), 60)
+    return f"{m:02d}:{s:02d}"
+
+def get_rank(pct: float) -> str:
+    if pct >= 90:   return "Excellent"
+    elif pct >= 80: return "Good"
+    elif pct >= 70: return "Satisfactory"
+    elif pct >= 60: return "Marginal"
+    else:           return "Needs improvement"
+
+
+# ── BINARY TABLE HTML ─────────────────────────────────────────────────────────
+
+def binary_table_html(n):
+    """Render a colour-coded binary place-value table like the reference image."""
+    bits   = decimal_to_binary_str(n)
+    powers = [7, 6, 5, 4, 3, 2, 1, 0]
+    values = [128, 64, 32, 16, 8, 4, 2, 1]
+    hdr = "".join(f"<th>2{sup(p)}</th>" for p in powers)
+    val = "".join(f"<td>{v}</td>" for v in values)
+    bit_cells = ""
+    for b in bits:
+        bg = "#2e5c3a" if b == "1" else "#2a2a2a"
+        fc = "#5ec47a" if b == "1" else "#888"
+        bit_cells += f'<td style="background:{bg};color:{fc};font-weight:700;">{b}</td>'
+    return f"""
+<table style="border-collapse:collapse;width:100%;font-size:0.82rem;font-family:monospace;margin-top:0.6rem;">
+  <tr style="background:#1a2233;color:#7aaee8;">{hdr}</tr>
+  <tr style="background:#252525;color:#ccc;">{val}</tr>
+  <tr>{bit_cells}</tr>
+</table>"""
+
+
+# ── HEX TABLE HTML ────────────────────────────────────────────────────────────
+
+def hex_table_html(n, hex_val):
+    """Render a hex place-value table like the reference image."""
+    digits = list(hex_val)
+    length = len(digits)
+    powers = list(range(length - 1, -1, -1))
+    pows16 = [16 ** p for p in powers]
+    dvals  = [HEX_DIGITS.index(d) for d in digits]
+    prods  = [dvals[i] * pows16[i] for i in range(length)]
+
+    hdr   = "".join(f"<th>16{sup(p)}</th>" for p in powers)
+    row1  = "".join(f"<td>{v}</td>" for v in pows16)
+    row2  = "".join(f"<td>{d}</td>" for d in digits)
+    row3_cells = ""
+    for prod in prods:
+        bg = "#2e5c3a" if prod > 0 else "#2a2a2a"
+        fc = "#5ec47a" if prod > 0 else "#888"
+        row3_cells += f'<td style="background:{bg};color:{fc};font-weight:700;">{prod}</td>'
+
+    total_cell = f'<td colspan="{length}" style="text-align:right;color:#7aaee8;padding-top:4px;">'\
+                 f'{"&nbsp;+&nbsp;".join(str(p) for p in prods)} = {n}</td>'
+    return f"""
+<table style="border-collapse:collapse;width:100%;font-size:0.82rem;font-family:monospace;margin-top:0.6rem;">
+  <tr style="background:#1a2233;color:#7aaee8;">{hdr}</tr>
+  <tr style="background:#252525;color:#ccc;">{row1}</tr>
+  <tr style="background:#252525;color:#e0e0e0;">{row2}</tr>
+  <tr>{row3_cells}</tr>
+  <tr style="background:#1e1e1e;">{total_cell}</tr>
+</table>"""
+
+
+# ── QUESTION GENERATORS ───────────────────────────────────────────────────────
+
+def gen_decimal_to_binary():
+    n      = random.randint(1, 255)
+    answer = decimal_to_binary_str(n)
+    rows, temp = [], n
+    while temp > 0:
+        rows.append((temp, temp // 2, temp % 2))
+        temp //= 2
+    bits_collected = [str(r[2]) for r in rows]
+    unpadded = "".join(reversed(bits_collected))
+    lines = ["Divide by 2 repeatedly, collect the remainders:", ""]
+    for orig, quot, rem in rows:
+        lines.append(f"  {orig} ÷ 2 = {quot}  r {rem}")
+    lines += [
+        "",
+        f"Read remainders bottom-to-top  →  {unpadded}",
+        f"Pad to 8 bits (add leading 0s)  →  {answer}",
+        "",
+        "Each column below is a power of 2. Green cells are 1-bits that sum to your number.",
+    ]
+    breakdown_text = "\n".join(lines)
+    breakdown_html = breakdown_text + binary_table_html(n)
+
+    wrongs = set()
+    while len(wrongs) < 3:
+        w = decimal_to_binary_str(random.randint(0, 255))
+        if w != answer: wrongs.add(w)
+    opts = [answer] + list(wrongs)
+    random.shuffle(opts)
+    return {
+        "question":    f"Convert {n} (decimal) to 8-bit binary:",
+        "options":     {chr(65+i): v for i, v in enumerate(opts)},
+        "answer_text": answer,
+        "breakdown":   breakdown_html,
+        "type":        "mcq",
+        "unit":        "Decimal to Binary",
+    }
+
+def gen_decimal_to_hex():
+    n      = random.randint(1, 255)
+    answer = decimal_to_hex_str(n)
+    rows, temp = [], n
+    while temp > 0:
+        rows.append((temp, temp // 16, temp % 16))
+        temp //= 16
+    lines = [
+        "Hex uses base 16. Digits go: 0–9 then A=10 B=11 C=12 D=13 E=14 F=15.",
+        "Divide by 16 repeatedly, collect the remainders:",
+        "",
+    ]
+    for orig, quot, rem in rows:
+        lines.append(f"  {orig} ÷ 16 = {quot}  r {rem}  →  {HEX_DIGITS[rem]}")
+    lines += ["", f"Read remainders bottom-to-top  →  {answer}"]
+    breakdown_text = "\n".join(lines)
+    breakdown_html = breakdown_text + hex_table_html(n, answer)
+
+    wrongs = set()
+    while len(wrongs) < 3:
+        w = decimal_to_hex_str(random.randint(1, 255))
+        if w != answer: wrongs.add(w)
+    opts = [answer] + list(wrongs)
+    random.shuffle(opts)
+    return {
+        "question":    f"Convert {n} (decimal) to hexadecimal:",
+        "options":     {chr(65+i): v for i, v in enumerate(opts)},
+        "answer_text": answer,
+        "breakdown":   breakdown_html,
+        "type":        "mcq",
+        "unit":        "Decimal to Hex",
+    }
+
+def gen_hex_to_decimal():
+    n       = random.randint(1, 4095)
+    hex_val = decimal_to_hex_str(n)
+    digits  = list(hex_val)
+    length  = len(digits)
+    pos_terms  = [f"({d} × 16{sup(length-1-i)})" for i, d in enumerate(digits)]
+    pow_terms  = [f"({HEX_DIGITS.index(d)} × {16**(length-1-i)})" for i, d in enumerate(digits)]
+    prod_terms = [str(HEX_DIGITS.index(d) * (16 ** (length-1-i))) for i, d in enumerate(digits)]
+    intro = (
+        "Multiply each hex digit by its place value (power of 16), then sum.\n"
+        "Place values go right to left: 16⁰=1, 16¹=16, 16²=256, ...\n"
+        "Remember: A=10  B=11  C=12  D=13  E=14  F=15\n\n"
+    )
+    line1 = "Step 1 — Expand:   " + f"{hex_val} = " + " + ".join(pos_terms)
+    line2 = "Step 2 — Evaluate: " + f"{hex_val} = " + " + ".join(pow_terms)
+    line3 = "Step 3 — Multiply: " + f"{hex_val} = " + " + ".join(prod_terms)
+    line4 = f"Step 4 — Sum:      {' + '.join(prod_terms)} = {n}"
+    breakdown_text = intro + "\n".join([line1, line2, line3, line4])
+    breakdown_html = breakdown_text + hex_table_html(n, hex_val)
+
+    wrongs = set()
+    while len(wrongs) < 3:
+        w = random.randint(1, 4095)
+        if w != n: wrongs.add(str(w))
+    opts = [str(n)] + list(wrongs)
+    random.shuffle(opts)
+    return {
+        "question":    f"Convert {hex_val} (hexadecimal) to decimal:",
+        "options":     {chr(65+i): v for i, v in enumerate(opts)},
+        "answer_text": str(n),
+        "breakdown":   breakdown_html,
+        "type":        "mcq",
+        "unit":        "Hex to Decimal",
+    }
+
+def gen_binary_dotted_decimal():
+    octets     = [random.randint(0, 255) for _ in range(4)]
+    binary_ip  = ".".join(decimal_to_binary_str(o) for o in octets)
+    decimal_ip = ".".join(str(o) for o in octets)
+    lines = ["Each octet is 8 bits. Add the place values (128, 64, 32...) where the bit = 1:", ""]
+    for i, o in enumerate(octets):
+        bits  = decimal_to_binary_str(o)
+        terms = [f"{b}×2{sup(7-j)}" for j, b in enumerate(bits) if b == "1"]
+        expr  = " + ".join(terms) if terms else "0"
+        lines.append(f"  Octet {i+1}:  {bits}  =  {expr}  =  {o}")
+    # Each table followed by a decimal result label
+    tables_html = ""
+    for o in octets:
+        tables_html += binary_table_html(o)
+        tables_html += f'<div style="text-align:right;font-size:0.85rem;color:#7aaee8;font-family:monospace;margin-top:0.25rem;margin-bottom:0.75rem;">= <strong>{o}</strong></div>'
+    breakdown_html = tables_html + "\n" + "\n".join(lines)
+
+    wrongs = set()
+    while len(wrongs) < 3:
+        w = ".".join(str(random.randint(0, 255)) for _ in range(4))
+        if w != decimal_ip: wrongs.add(w)
+    opts = [decimal_ip] + list(wrongs)
+    random.shuffle(opts)
+    return {
+        "question":    f"Convert this binary IP to dotted decimal:\n{binary_ip}",
+        "options":     {chr(65+i): v for i, v in enumerate(opts)},
+        "answer_text": decimal_ip,
+        "breakdown":   breakdown_html,
+        "type":        "mcq",
+        "unit":        "Binary to Dotted Decimal",
+    }
+
+
+# ── SUBNETTING CORE ───────────────────────────────────────────────────────────
+
+def build_subnet_data():
+    ip_class = random.choice(["A", "B", "C"])
+    if ip_class == "A":
+        first = random.randint(1, 126);   cidr = random.randint(9, 30)
+    elif ip_class == "B":
+        first = random.randint(128, 191); cidr = random.randint(17, 30)
+    else:
+        first = random.randint(192, 223); cidr = random.randint(25, 30)
+
+    ip_int        = (first << 24) | (random.randint(0,255) << 16) | (random.randint(0,255) << 8) | random.randint(0,255)
+    mask_int      = (0xFFFFFFFF << (32 - cidr)) & 0xFFFFFFFF
+    network_int   = ip_int & mask_int
+    broadcast_int = network_int | (~mask_int & 0xFFFFFFFF)
+
+    class_default = {"A": 8, "B": 16, "C": 24}[ip_class]
+    subnet_bits   = cidr - class_default
+    host_bits     = 32 - cidr
+
+    ip_str      = int_to_dotted(ip_int)
+    mask_str    = int_to_dotted(mask_int)
+    network_str = int_to_dotted(network_int)   # Network ID (magic number result)
+    bcast_str   = int_to_dotted(broadcast_int)
+    first_host  = int_to_dotted(network_int + 1)
+    last_host   = int_to_dotted(broadcast_int - 1)
+    num_subnets = 2 ** subnet_bits
+    num_hosts   = max(0, (2 ** host_bits) - 2)
+
+
+
+    mask_octets = [int(x) for x in mask_str.split(".")]
+    for oi, mo in enumerate(mask_octets):
+        if mo != 255:
+            magic = 256 - mo
+            interesting_octet = oi
+            break
+    else:
+        magic = 1; interesting_octet = 3
+
+    ip_octets      = [int(x) for x in ip_str.split(".")]
+    network_octets = [int(x) for x in network_str.split(".")]
+    host_val       = ip_octets[interesting_octet]
+    subnet_val     = network_octets[interesting_octet]
+
+    blocks = [subnet_val - magic * i for i in range(3, -1, -1)] + [subnet_val + magic * i for i in range(1, 4)]
+    blocks = sorted(set(b for b in blocks if 0 <= b <= 255))[:6]
+    block_str = "(" + ", ".join(str(b) for b in blocks) + ", ...)"
+
+    return {
+        "ip": ip_str, "mask": mask_str, "cidr": cidr, "ip_class": ip_class,
+        "class_default": class_default, "subnet_id": network_str,
+        "broadcast": bcast_str, "first_host": first_host, "last_host": last_host,
+        "num_subnets": num_subnets, "num_hosts": num_hosts,
+        "host_bits": host_bits, "subnet_bits": subnet_bits,
+        "magic": magic, "interesting_octet": interesting_octet,
+        "host_val": host_val, "subnet_val": subnet_val, "block_str": block_str,
+    }
+
+def make_subnet_explanations(d):
+    ip    = d["ip"];   mask  = d["mask"];  cidr  = d["cidr"]
+    cls   = d["ip_class"]; cd = d["class_default"]
+    sbits = d["subnet_bits"]; hbits = d["host_bits"]
+    magic = d["magic"]; hval = d["host_val"]; sval = d["subnet_val"]
+    bstr  = d["block_str"]; bcast = d["broadcast"]
+    bcast_oct = int(bcast.split(".")[d["interesting_octet"]])
+    expls = {}
+
+    first_oct = int(ip.split('.')[0])
+    expls["ip_class"] = (
+        f"The IP class is determined by the first octet:\n"
+        f"  Class A:  1 – 126\n"
+        f"  Class B:  128 – 191\n"
+        f"  Class C:  192 – 223\n"
+        f"First octet of {ip} is {first_oct}  →  Class {cls}"
+    )
+
+    mask_oct_val = 256 - magic
+    octet_names  = ["1st", "2nd", "3rd", "4th"]
+    octet_label  = octet_names[d["interesting_octet"]]
+    bcast_octets = bcast.split(".")
+    bcast_suffix = ".".join(bcast_octets[d["interesting_octet"]+1:])
+    has_suffix   = bool(bcast_suffix)
+
+    suffix_line = "\n   (remaining octets after the interesting one → 0)" if has_suffix else ""
+    expls["subnet_id"] = (
+        f"The mask octet is the first octet in the mask that isn't 255.\n"
+        f"1. Mask octet = {mask_oct_val}  →  block size = 256 – {mask_oct_val} = {magic}\n"
+        f"   (Subnets repeat every {magic} addresses in the {octet_label} octet)\n"
+        f"2. Count up in steps of {magic} until you pass {hval}  →  the last step before passing is your subnet\n"
+        f"   Blocks: {bstr}{suffix_line}\n"
+        f"   {hval} is in the {sval} block  →  Network ID = {d['subnet_id']}"
+    )
+    suffix_line2 = "\n   (all octets to the right of the interesting one fill with 255)" if has_suffix else ""
+    expls["broadcast"] = (
+        f"The broadcast is the last address in the subnet (all host bits = 1).\n"
+        f"1. Find the next subnet: {sval} + {magic} = {sval + magic}\n"
+        f"2. Broadcast = one before that: {sval + magic} – 1 = {bcast_oct} in the {octet_label} octet{suffix_line2}\n"
+        f"3. Broadcast = {bcast}"
+    )
+    expls["host_range"] = (
+        f"Host bits are the bits NOT used by the mask (the 0s on the right).\n"
+        f"We subtract 2 because the Network ID and broadcast are reserved and unusable.\n"
+        f"1. Host bits = 32 – /{cidr} = {hbits}\n"
+        f"2. Usable hosts = 2{sup(hbits)} – 2 = {d['num_hosts']}\n"
+        f"3. First host = Network ID + 1  =  {d['first_host']}\n"
+        f"   Last host  = broadcast – 1  =  {d['last_host']}"
+    )
+    expls["num_subnets"] = (
+        f"Subnetting 'borrows' bits from the host portion to create more networks.\n"
+        f"Class {cls} has a default mask of /{cd} — any bits beyond that are borrowed.\n"
+        f"1. Borrowed bits = /{cidr} – /{cd} = {sbits}\n"
+        f"2. Number of subnets = 2{sup(sbits)} = {d['num_subnets']}"
+    )
+    expls["num_hosts"] = (
+        f"Host bits are the 0s on the right side of the mask.\n"
+        f"We subtract 2 to exclude the Network ID and Broadcast Address.\n"
+        f"1. Host bits = 32 – /{cidr} = {hbits}\n"
+        f"2. Usable hosts = 2{sup(hbits)} – 2 = {d['num_hosts']}"
+    )
+    return expls
+
+def subnet_question_prefix(d):
+    return f"Given:\n  IP:   {d['ip']}\n  Mask: {d['mask']}  (/{d['cidr']})"
+
+
+# ── SUBNET QUESTION GENERATORS ────────────────────────────────────────────────
+
+def _subnet_wrong_ips(correct, n=3):
+    parts = [int(x) for x in correct.split(".")]
+    wrongs = set()
+    while len(wrongs) < n:
+        i = random.randint(0, 3)
+        delta = random.choice([-64, -32, -16, 16, 32, 64, 1, -1, 2, -2])
+        np2 = parts[:]
+        np2[i] = max(0, min(255, np2[i] + delta))
+        w = ".".join(str(x) for x in np2)
+        if w != correct: wrongs.add(w)
+    return list(wrongs)
+
+def gen_subnet_class():
+    d     = build_subnet_data()
+    expls = make_subnet_explanations(d)
+    opts  = {"A": "A", "B": "B", "C": "C"}
+    return {
+        "question":    subnet_question_prefix(d) + "\n\nWhat is the IP class?",
+        "options":     opts,
+        "answer_text": d["ip_class"],
+        "breakdown":   expls["ip_class"],
+        "type":        "mcq",
+        "unit":        "Subnet: IP Class",
+        "subnet_data": d,
+    }
+
+def gen_subnet_ids():
+    d     = build_subnet_data()
+    expls = make_subnet_explanations(d)
+    answer = f"Net ID: {d['subnet_id']}  |  Broadcast: {d['broadcast']}"
+    wrongs = set()
+    while len(wrongs) < 3:
+        bs = _subnet_wrong_ips(d["subnet_id"],  1)[0]
+        bb = _subnet_wrong_ips(d["broadcast"],  1)[0]
+        w  = f"Net ID: {bs}  |  Broadcast: {bb}"
+        if w != answer: wrongs.add(w)
+    opts = [answer] + list(wrongs)
+    random.shuffle(opts)
+    breakdown = expls["subnet_id"] + "\n\n" + expls["broadcast"]
+    return {
+        "question":    subnet_question_prefix(d) + "\n\nWhat are the Network ID and Broadcast Address?",
+        "options":     {chr(65+i): v for i, v in enumerate(opts)},
+        "answer_text": answer,
+        "breakdown":   breakdown,
+        "type":        "mcq",
+        "unit":        "Subnet: Network & Network ID & Broadcast",
+        "subnet_data": d,
+    }
+
+def gen_subnet_host_range():
+    d     = build_subnet_data()
+    expls = make_subnet_explanations(d)
+    answer = f"{d['first_host']} – {d['last_host']}"
+    wrongs = set()
+    while len(wrongs) < 3:
+        w = f"{_subnet_wrong_ips(d['first_host'],1)[0]} – {_subnet_wrong_ips(d['last_host'],1)[0]}"
+        if w != answer: wrongs.add(w)
+    opts = [answer] + list(wrongs)
+    random.shuffle(opts)
+    return {
+        "question":    subnet_question_prefix(d) + "\n\nWhat is the usable host range?",
+        "options":     {chr(65+i): v for i, v in enumerate(opts)},
+        "answer_text": answer,
+        "breakdown":   expls["host_range"],
+        "type":        "mcq",
+        "unit":        "Subnet: Host Range",
+        "subnet_data": d,
+    }
+
+def gen_subnet_num_subnets():
+    d     = build_subnet_data()
+    expls = make_subnet_explanations(d)
+    answer = str(d["num_subnets"])
+    wrongs = set()
+    while len(wrongs) < 3:
+        w = str(2 ** random.randint(1, 14))
+        if w != answer: wrongs.add(w)
+    opts = [answer] + list(wrongs)
+    random.shuffle(opts)
+    return {
+        "question":    subnet_question_prefix(d) + "\n\nHow many subnets can be created?",
+        "options":     {chr(65+i): v for i, v in enumerate(opts)},
+        "answer_text": answer,
+        "breakdown":   expls["num_subnets"],
+        "type":        "mcq",
+        "unit":        "Subnet: Number of Subnets",
+        "subnet_data": d,
+    }
+
+def gen_subnet_num_hosts():
+    d     = build_subnet_data()
+    expls = make_subnet_explanations(d)
+    answer = str(d["num_hosts"])
+    wrongs = set()
+    while len(wrongs) < 3:
+        w = str(max(0, (2 ** random.randint(1, 8)) - 2))
+        if w != answer: wrongs.add(w)
+    opts = [answer] + list(wrongs)
+    random.shuffle(opts)
+    return {
+        "question":    subnet_question_prefix(d) + "\n\nHow many usable hosts per subnet?",
+        "options":     {chr(65+i): v for i, v in enumerate(opts)},
+        "answer_text": answer,
+        "breakdown":   expls["num_hosts"],
+        "type":        "mcq",
+        "unit":        "Subnet: Number of Hosts",
+        "subnet_data": d,
+    }
+
+def gen_subnetting_all():
+    return random.choice([
+        gen_subnet_class, gen_subnet_ids, gen_subnet_host_range,
+        gen_subnet_num_subnets, gen_subnet_num_hosts,
+    ])()
+
+def gen_subnet_full():
+    """Full breakdown question — all fields as text inputs."""
+    d     = build_subnet_data()
+    expls = make_subnet_explanations(d)
+    # Build a combined breakdown string for the review screen
+    breakdown = "\n\n".join(expls[k] for k in ["ip_class","subnet_id","broadcast","host_range","num_subnets","num_hosts"])
+    return {
+        "question":    subnet_question_prefix(d) + "\n\nFill in all fields:",
+        "type":        "subnet_full",
+        "unit":        "Subnetting",
+        "subnet_data": d,
+        "breakdown":   breakdown,
+        "fields": [
+            ("ip_class",    "IP Class",              d["ip_class"]),
+            ("subnet_id",   "Network ID",              d["subnet_id"]),
+            ("broadcast",   "Broadcast Address",      d["broadcast"]),
+            ("first_host",  "First Usable Host",      d["first_host"]),
+            ("last_host",   "Last Usable Host",       d["last_host"]),
+            ("num_subnets", "Number of Subnets",      str(d["num_subnets"])),
+            ("num_hosts",   "Number of Usable Hosts", str(d["num_hosts"])),
+        ],
+        "explanations": expls,
+        "answer_text": (
+            f"Class={d['ip_class']}  SubID={d['subnet_id']}  Bcast={d['broadcast']}  "
+            f"Hosts={d['first_host']}–{d['last_host']}  "
+            f"#Subnets={d['num_subnets']}  #Hosts={d['num_hosts']}"
+        ),
+    }
+
+
+# ── POOL GENERATOR ────────────────────────────────────────────────────────────
+
+GENERATORS = {
+    "Decimal to Binary":                       gen_decimal_to_binary,
+    "Decimal to Hex":                          gen_decimal_to_hex,
+    "Hex to Decimal":                          gen_hex_to_decimal,
+    "Binary to Dotted Decimal":                gen_binary_dotted_decimal,
+    "Subnetting":                              gen_subnetting_all,
+    "Subnet: IP Class":                        gen_subnet_class,
+    "Subnet: Network & Network ID & Broadcast": gen_subnet_ids,
+    "Subnet: Host Range":                      gen_subnet_host_range,
+    "Subnet: Number of Subnets":               gen_subnet_num_subnets,
+    "Subnet: Number of Hosts":                 gen_subnet_num_hosts,
+}
+
+ALL_COMPOSITION = (
+    [gen_binary_dotted_decimal] * 2 +
+    [gen_hex_to_decimal]        * 2 +
+    [gen_decimal_to_hex]        * 2 +
+    [gen_subnet_full]           * 14
+)
+ALL_TOTAL      = 20
+ALL_PASS_SCORE = 16
+
+def generate_question_pool(unit: str, n: int) -> list:
+    if unit == "All":
+        gens = ALL_COMPOSITION[:]
+        random.shuffle(gens)
+        questions = [g() for g in gens]
+    else:
+        questions = [GENERATORS[unit]() for _ in range(n)]
+    for i, q in enumerate(questions):
+        q["id"] = f"q{i}_{random.randint(0, 99999)}"
+    return questions
+
+
+# ── SESSION HELPERS ───────────────────────────────────────────────────────────
+
+def reset_quiz():
+    preserved = {
+        "unit_selector":      st.session_state.get("active_unit", st.session_state.get("unit_selector", "All")),
+        "last_selected_unit": st.session_state.get("last_selected_unit", "All"),
+    }
+    for key in list(st.session_state.keys()):
+        del st.session_state[key]
+    for k, v in preserved.items():
+        st.session_state[k] = v
+
+
+# ── STYLING ───────────────────────────────────────────────────────────────────
+
+CSS = """
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+html, body, [class*="css"] {
+    font-family: 'Inter', sans-serif !important;
+    background-color: #141414 !important;
+    color: #e8e8e8 !important;
+}
+.stApp { background-color: #141414 !important; }
+.question-card {
+    background: #1e1e1e; border: 1px solid #333; border-radius: 10px;
+    padding: 1.75rem 1.75rem 1.25rem; margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.question-meta {
+    font-size: 0.75rem; font-weight: 600; color: #666;
+    text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.6rem;
+}
+.question-text { font-size: 1.05rem; font-weight: 600; color: #f0f0f0; line-height: 1.65; margin: 0; white-space: pre-line; }
+div[data-testid="stRadio"] {
+    background: #1e1e1e; border: 1px solid #333; border-radius: 10px;
+    padding: 1.1rem 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; display: block !important;
+}
+div[data-testid="stRadio"] > div,
+div[data-testid="stRadio"] > div[role="radiogroup"] {
+    gap: 0.4rem !important; display: flex !important; flex-direction: column !important; width: 100% !important;
+}
+div[data-testid="stRadio"] > div > label,
+div[data-testid="stRadio"] > div[role="radiogroup"] > label { width: 100% !important; box-sizing: border-box !important; }
+div[data-testid="stRadio"] label {
+    display: flex !important; align-items: center !important; padding: 0.6rem 0.9rem !important;
+    border: 1px solid #2e2e2e !important; border-radius: 7px !important; margin: 0 !important;
+    cursor: pointer !important; background: #252525 !important;
+    transition: background 0.12s, border-color 0.12s !important; line-height: 1.5 !important;
+    width: 100% !important; box-sizing: border-box !important;
+}
+div[data-testid="stRadio"] label:hover { background: #2a2f3d !important; border-color: #4a6fa5 !important; }
+div[data-testid="stRadio"] label p { margin: 0 !important; font-size: 0.95rem !important; color: #e0e0e0 !important; }
+div[data-testid="stRadio"] > label { display: none !important; }
+div[data-testid="stRadio"] label > div:last-child { flex: 1 !important; }
+div[data-testid="stElementContainer"][width="fit-content"] { width: 100% !important; max-width: 100% !important; }
+.progress-label { font-size: 2rem; color: #666; font-weight: 500; }
+.timer-text { color: #e0e0e0; }
+.timer-warn { color: #e05555 !important; }
+.feedback-correct {
+    background: #1a2e22; border: 1px solid #2e5c3a; border-left: 4px solid #3d9e58;
+    border-radius: 7px; padding: 0.8rem 1rem; font-size: 0.9rem;
+    font-weight: 600; color: #5ec47a; margin-bottom: 1rem;
+}
+.feedback-wrong {
+    background: #2e1a1a; border: 1px solid #5c2e2e; border-left: 4px solid #a03030;
+    border-radius: 7px; padding: 0.8rem 1rem; font-size: 0.9rem;
+    font-weight: 600; color: #e06060; margin-bottom: 1rem;
+}
+.feedback-explanation { margin-top: 0.6rem; font-size: 0.84rem; font-weight: 400; color: #aaa; line-height: 1.7; white-space: pre-line; display: block; }
+.score-big { font-size: 3.5rem; font-weight: 700; text-align: center; color: #f0f0f0; line-height: 1.1; }
+.score-sub { text-align: center; font-size: 1rem; color: #888; margin-bottom: 1.5rem; margin-top: 0.3rem; }
+.stat-row { display: flex; gap: 0.75rem; margin: 1rem 0; }
+.stat-box {
+    flex: 1; background: #1e1e1e; border: 1px solid #333; border-radius: 8px;
+    padding: 0.9rem 0.5rem; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+.stat-val { font-size: 1.5rem; font-weight: 700; color: #f0f0f0; }
+.stat-lbl { font-size: 0.7rem; color: #666; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.2rem; }
+.stButton > button {
+    font-family: 'Inter', sans-serif !important; font-weight: 500 !important;
+    border-radius: 7px !important; font-size: 0.9rem !important; width: 100% !important;
+    padding: 0.6rem 1.1rem !important; background-color: #252525 !important;
+    border: 1px solid #3a3a3a !important; color: #e0e0e0 !important; transition: all 0.15s ease !important;
+}
+.stButton > button:hover { background-color: #2e2e2e !important; border-color: #555 !important; }
+div[data-testid="column"]:last-child .stButton > button {
+    font-size: 0.72rem !important; padding: 0.18rem 0.5rem !important;
+    line-height: 1.2 !important; min-height: unset !important; height: auto !important;
+    color: #555 !important; background: transparent !important; border-color: #2a2a2a !important;
+}
+div[data-testid="column"]:last-child .stButton > button:hover {
+    color: #999 !important; border-color: #444 !important; background: #1a1a1a !important;
+}
+label[data-testid="stWidgetLabel"] p,
+div[data-testid="stSlider"] label p,
+div[data-testid="stCheckbox"] label p { font-size: 0.9rem !important; color: #aaa !important; }
+.stTextInput input { background-color: #1e1e1e !important; color: #e0e0e0 !important; border: 1px solid #333 !important; }
+#MainMenu, footer, header { visibility: hidden; }
+.block-container { padding-top: 2rem !important; max-width: 680px !important; }
+details { background: #1e1e1e !important; border: 1px solid #333 !important; border-radius: 8px !important; }
+summary { color: #ccc !important; }
+.col-header { font-size:0.78rem; font-weight:700; color:#555; text-transform:uppercase;
+              letter-spacing:0.07em; margin-bottom:0.5rem; padding-left:0.1rem; }
+</style>
+"""
+
+st.markdown(CSS, unsafe_allow_html=True)
+
+
+# ── SESSION STATE DEFAULTS ────────────────────────────────────────────────────
+
+if "quiz_active"   not in st.session_state: st.session_state.quiz_active   = False
+if "unit_selector" not in st.session_state: st.session_state.unit_selector = "All"
+
+
+# ── CONFIG SCREEN ─────────────────────────────────────────────────────────────
+
+if not st.session_state.quiz_active:
+    st.markdown("## Quiz Setup")
+
+    # ── Unit picker: buttons that set session_state, so only one is ever active ──
+    current = st.session_state.unit_selector
+
+    col_l, col_r = st.columns(2)
+    with col_l:
+        st.markdown('<div class="col-header">General</div>', unsafe_allow_html=True)
+        for u in LEFT_UNITS:
+            label = f"● {u}" if u == current else u
+            if st.button(label, key=f"usel_{u}", use_container_width=True):
+                st.session_state.unit_selector = u
+                st.rerun()
+    with col_r:
+        st.markdown('<div class="col-header">Subnet Specific</div>', unsafe_allow_html=True)
+        for u in RIGHT_UNITS:
+            label = f"● {u}" if u == current else u
+            if st.button(label, key=f"usel_{u}", use_container_width=True):
+                st.session_state.unit_selector = u
+                st.rerun()
+
+    selected_unit = st.session_state.unit_selector
+
+    is_all = (selected_unit == "All")
+
+    if is_all:
+        st.markdown(
+            '<div style="background:#1a2233;border:1px solid #2e4a7a;border-left:4px solid #4a7acd;'
+            'border-radius:7px;padding:0.75rem 1rem;font-size:0.88rem;color:#7aaee8;margin:0.75rem 0;">'
+            '<strong>All (Exam Mode)</strong><br>'
+            '20 questions &nbsp;·&nbsp; 2 Binary↔Decimal &nbsp;·&nbsp; 2 Hex→Decimal '
+            '&nbsp;·&nbsp; 2 Decimal→Hex &nbsp;·&nbsp; 14 Subnetting<br>'
+            'Passing score: <strong>16 / 20 (80%)</strong>'
+            '</div>',
+            unsafe_allow_html=True,
+        )
+        num_questions = ALL_TOTAL
+        randomize     = True
+    else:
+        col1, col2 = st.columns(2)
+        with col1:
+            num_questions = st.slider("Number of questions", min_value=1, max_value=30, value=10, step=1)
+        with col2:
+            randomize = st.checkbox("Randomize order", value=True)
+
+    st.markdown("---")
+    col3, col4 = st.columns(2)
+    with col3:
+        use_timer = st.checkbox("Enable timer", value=False)
+    with col4:
+        timer_minutes = st.slider("Duration (minutes)", 1, 60, 10, disabled=not use_timer)
+
+    instant_feedback = st.checkbox("Show correct answer after each question", value=True)
+
+    if st.button("Start Quiz"):
+        questions = generate_question_pool(selected_unit, num_questions)
+        if randomize:
+            random.shuffle(questions)
+
+        st.session_state.questions        = questions
+        st.session_state.q_keys           = [q["id"] for q in questions]
+        st.session_state.quiz_active      = True
+        st.session_state.current_q        = 0
+        st.session_state.selected_answers = {}
+        st.session_state.answered         = {}
+        st.session_state.score            = 0
+        st.session_state.start_time       = time.time()
+        st.session_state.q_start_time     = time.time()
+        st.session_state.elapsed_times    = []
+        st.session_state.time_up          = False
+        st.session_state.use_timer        = use_timer
+        st.session_state.timer_seconds    = timer_minutes * 60
+        st.session_state.instant_feedback = instant_feedback
+        st.session_state.total            = num_questions
+        st.session_state.active_unit      = selected_unit
+        st.session_state.is_exam_mode     = is_all
+        st.rerun()
+
+
+# ── QUIZ SCREEN ───────────────────────────────────────────────────────────────
+
+elif st.session_state.quiz_active:
+    questions = st.session_state.questions
+    q_keys    = st.session_state.q_keys
+    total     = st.session_state.total
+    idx       = st.session_state.current_q
+    elapsed   = int(time.time() - st.session_state.start_time)
+    q_by_id   = {q["id"]: q for q in questions}
+
+    if st.session_state.use_timer:
+        remaining = st.session_state.timer_seconds - elapsed
+        if remaining <= 0 and not st.session_state.time_up:
+            st.session_state.time_up   = True
+            st.session_state.current_q = total
+            st.rerun()
+
+    # ── RESULTS ──────────────────────────────────────────────────────────────
+    if idx >= total:
+        score   = st.session_state.score
+        pct     = (score / total * 100) if total else 0
+        elapsed = int(time.time() - st.session_state.start_time)
+        avg_t   = (
+            sum(st.session_state.elapsed_times) / len(st.session_state.elapsed_times)
+            if st.session_state.elapsed_times else 0
+        )
+
+        if st.session_state.get("time_up"):
+            st.warning("Time expired.")
+
+        st.markdown(f'<div class="score-big">{score} / {total}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="score-sub">{pct:.0f}% &mdash; {get_rank(pct)}</div>', unsafe_allow_html=True)
+
+        if st.session_state.get("is_exam_mode"):
+            passed = score >= ALL_PASS_SCORE
+            badge_bg  = "#1a2e22" if passed else "#2e1a1a"
+            badge_bdr = "#3d9e58" if passed else "#a03030"
+            badge_clr = "#5ec47a" if passed else "#e06060"
+            badge_txt = f"✓ PASS — {score}/{total} ({pct:.0f}%)" if passed else f"✗ FAIL — {score}/{total} ({pct:.0f}%)  |  Need {ALL_PASS_SCORE} to pass"
+            st.markdown(
+                f'<div style="background:{badge_bg};border:1px solid {badge_bdr};border-left:4px solid {badge_bdr};'
+                f'border-radius:7px;padding:0.8rem 1rem;font-size:1rem;font-weight:700;color:{badge_clr};margin-bottom:1rem;">'
+                f'{badge_txt}</div>',
+                unsafe_allow_html=True,
+            )
+
+        st.markdown(f'''
+        <div class="stat-row">
+            <div class="stat-box"><div class="stat-val">{score}</div><div class="stat-lbl">Correct</div></div>
+            <div class="stat-box"><div class="stat-val">{total - score}</div><div class="stat-lbl">Incorrect</div></div>
+            <div class="stat-box"><div class="stat-val">{format_time(elapsed)}</div><div class="stat-lbl">Total time</div></div>
+            <div class="stat-box"><div class="stat-val">{avg_t:.1f}s</div><div class="stat-lbl">Avg / question</div></div>
+        </div>''', unsafe_allow_html=True)
+
+        missed = [qid for qid in q_keys if qid in st.session_state.answered and not st.session_state.answered[qid]]
+        if missed:
+            with st.expander(f"Review missed questions ({len(missed)})"):
+                for qid in missed:
+                    q         = q_by_id[qid]
+                    q_display = q.get("question", "")
+                    st.markdown(f"**{q_display}**")
+                    your_raw = st.session_state.selected_answers.get(qid, "Not answered")
+                    st.markdown(f"<span style='color:#c0392b'>Your answer: {your_raw}</span>", unsafe_allow_html=True)
+                    st.markdown(f"<span style='color:#2e7d4f'>Correct: {q['answer_text']}</span>", unsafe_allow_html=True)
+                    breakdown = q.get("breakdown", "")
+                    if breakdown:
+                        st.markdown(
+                            f'<div class="feedback-explanation" style="background:#1a1a1a;border-left:3px solid #444;'
+                            f'padding:0.6rem 0.9rem;border-radius:5px;margin-top:0.4rem;">{breakdown}</div>',
+                            unsafe_allow_html=True,
+                        )
+                    st.markdown("---")
+
+        c1, c2 = st.columns(2)
+        with c1:
+            if st.button("Next Quiz"):
+                reset_quiz(); st.rerun()
+        with c2:
+            if st.button("New Settings"):
+                reset_quiz(); st.rerun()
+
+    # ── ACTIVE QUESTION ───────────────────────────────────────────────────────
+    else:
+        q_key            = q_keys[idx]
+        q_data           = q_by_id[q_key]
+        already_answered = q_key in st.session_state.answered
+
+        timer_str = ""
+        if st.session_state.use_timer:
+            remaining = st.session_state.timer_seconds - elapsed
+            warn_cls  = "timer-warn" if remaining < 60 else "timer-text"
+            timer_str = f'<span class="{warn_cls}">{format_time(remaining)}</span>'
+
+        prog_col, exit_col = st.columns([8, 1])
+        with prog_col:
+            suffix = f"&nbsp;&nbsp;{timer_str}" if timer_str else ""
+            st.markdown(
+                f'<div class="progress-label">Question {idx+1} of {total} &nbsp;&middot;&nbsp; {st.session_state.score} correct{suffix}</div>',
+                unsafe_allow_html=True,
+            )
+        with exit_col:
+            if st.button("Exit", key="exit_btn", use_container_width=True):
+                st.session_state.current_q = total
+                st.rerun()
+
+        st.progress(idx / total)
+        st.markdown("<div style='height:0.75rem'></div>", unsafe_allow_html=True)
+
+        q_text = q_data.get("question", "")
+        st.markdown(
+            f'<div class="question-card">'
+            f'<div class="question-meta">{q_data["unit"]} &nbsp;&middot;&nbsp; Question {idx+1}</div>'
+            f'<div class="question-text">{q_text}</div></div>',
+            unsafe_allow_html=True,
+        )
+
+        # ── SUBNET FULL (text-box) ────────────────────────────────────────────
+        if q_data["type"] == "subnet_full":
+            fields  = q_data["fields"]
+            expls   = q_data["explanations"]
+            results = st.session_state.get(f"sfr_{q_key}", {})
+
+            for fkey, flabel, fcorrect in fields:
+                user_val = st.text_input(
+                    flabel, key=f"sf_{q_key}_{fkey}",
+                    disabled=already_answered,
+                    value=results.get(fkey, ("", "", False))[0] if already_answered else "",
+                )
+                if already_answered and fkey in results:
+                    uv, cv, ok = results[fkey]
+                    if ok:
+                        st.markdown(f'<span style="color:#5ec47a;font-size:0.85rem;">✓ Correct</span>', unsafe_allow_html=True)
+                    else:
+                        expl_key = {"first_host": "host_range", "last_host": "host_range"}.get(fkey, fkey)
+                        expl_text = expls.get(expl_key, "")
+                        st.markdown(
+                            f'<span style="color:#e06060;font-size:0.85rem;">✗ Correct answer: {cv}</span>',
+                            unsafe_allow_html=True,
+                        )
+                        if expl_text and st.session_state.instant_feedback:
+                            st.markdown(
+                                f'<div class="feedback-explanation" style="background:#1a1a1a;border-left:3px solid #444;'
+                                f'padding:0.5rem 0.8rem;border-radius:5px;margin-bottom:0.5rem;">{expl_text}</div>',
+                                unsafe_allow_html=True,
+                            )
+
+            btn_label = "Finish" if (already_answered and idx == total - 1) else "Submit" if not already_answered else "Next"
+            if st.button(btn_label, use_container_width=True):
+                if not already_answered:
+                    field_results = {}
+                    all_correct   = True
+                    for fkey, flabel, fcorrect in fields:
+                        uv = st.session_state.get(f"sf_{q_key}_{fkey}", "").strip()
+                        ok = uv.upper() == fcorrect.upper()
+                        field_results[fkey] = (uv, fcorrect, ok)
+                        if not ok:
+                            all_correct = False
+                    st.session_state[f"sfr_{q_key}"] = field_results
+                    st.session_state.answered[q_key]  = all_correct
+                    # Store a summary for the review screen
+                    st.session_state.selected_answers[q_key] = ", ".join(
+                        f"{fl}={fres[0]}" for (fk, fl, fc), fres in zip(fields, field_results.values())
+                    )
+                    if all_correct:
+                        st.session_state.score += 1
+                    st.session_state.elapsed_times.append(time.time() - st.session_state.q_start_time)
+                    if not st.session_state.instant_feedback:
+                        st.session_state.current_q   += 1
+                        st.session_state.q_start_time = time.time()
+                    st.rerun()
+                else:
+                    st.session_state.current_q   += 1
+                    st.session_state.q_start_time = time.time()
+                    st.rerun()
+
+        # ── MCQ ───────────────────────────────────────────────────────────────
+        else:
+            opts          = q_data["options"]
+            option_labels = [f"{k}  {v}" for k, v in opts.items()]
+            default_idx   = None
+            if q_key in st.session_state.selected_answers:
+                saved = st.session_state.selected_answers[q_key]
+                for i, lbl in enumerate(option_labels):
+                    if lbl == saved:
+                        default_idx = i
+                        break
+
+            st.radio("Select an answer:", option_labels, index=default_idx,
+                     key=f"radio_{q_key}", disabled=already_answered)
+
+            btn_label = "Finish" if (already_answered and idx == total - 1) else "Next"
+            if st.button(btn_label, use_container_width=True):
+                if not already_answered:
+                    radio_val = st.session_state.get(f"radio_{q_key}")
+                    if radio_val:
+                        chosen_key = next((k for k, v in opts.items() if f"{k}  {v}" == radio_val), None)
+                        if chosen_key:
+                            st.session_state.selected_answers[q_key] = radio_val
+                            is_correct = opts[chosen_key].strip() == q_data["answer_text"].strip()
+                            st.session_state.answered[q_key] = is_correct
+                            if is_correct:
+                                st.session_state.score += 1
+                            st.session_state.elapsed_times.append(time.time() - st.session_state.q_start_time)
+                            if not st.session_state.instant_feedback:
+                                st.session_state.current_q   += 1
+                                st.session_state.q_start_time = time.time()
+                            st.rerun()
+                else:
+                    st.session_state.current_q   += 1
+                    st.session_state.q_start_time = time.time()
+                    st.rerun()
+
+            if already_answered and st.session_state.instant_feedback:
+                is_correct = st.session_state.answered[q_key]
+                expl       = q_data["breakdown"]
+                if is_correct:
+                    st.markdown(
+                        f'<div class="feedback-correct">Correct'
+                        f'<div class="feedback-explanation">{expl}</div></div>',
+                        unsafe_allow_html=True,
+                    )
+                else:
+                    st.markdown(
+                        f'<div class="feedback-wrong">Incorrect &mdash; correct answer: {q_data["answer_text"]}'
+                        f'<div class="feedback-explanation">{expl}</div></div>',
+                        unsafe_allow_html=True,
+                    )
+
+        if st.session_state.use_timer and not already_answered:
+            time.sleep(0.5)
+            st.rerun()
+    </script>
+
+    <script type="module">
+      import { mount } from "https://cdn.jsdelivr.net/npm/@stlite/browser@0.85.1/build/stlite.js";
+
+      mount(
+        {
+          entrypoint: "streamlit_app.py",
+          files: {
+            "streamlit_app.py": document.getElementById("app-source").textContent,
+          },
+          requirements: ["pyodide-http"],
+        },
+        document.getElementById("root")
+      );
+    </script>
+  </body>
+</html>
