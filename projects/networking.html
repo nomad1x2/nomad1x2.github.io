@@ -156,7 +156,7 @@ def hex_table_html(n, hex_val):
 # ── QUESTION GENERATORS ───────────────────────────────────────────────────────
 
 def gen_decimal_to_binary():
-    n      = random.randint(1, 255)
+    n      = random.randint(1, 100000)
     answer = decimal_to_binary_str(n)
     rows, temp = [], n
     while temp > 0:
@@ -178,7 +178,7 @@ def gen_decimal_to_binary():
 
     wrongs = set()
     while len(wrongs) < 3:
-        w = decimal_to_binary_str(random.randint(0, 255))
+        w = decimal_to_binary_str(random.randint(0, 100000))
         if w != answer: wrongs.add(w)
     opts = [answer] + list(wrongs)
     random.shuffle(opts)
@@ -192,7 +192,7 @@ def gen_decimal_to_binary():
     }
 
 def gen_decimal_to_hex():
-    n      = random.randint(1, 10000000)
+    n      = random.randint(1, 100000)
     answer = decimal_to_hex_str(n)
     rows, temp = [], n
     while temp > 0:
@@ -211,7 +211,7 @@ def gen_decimal_to_hex():
 
     wrongs = set()
     while len(wrongs) < 3:
-        w = decimal_to_hex_str(random.randint(1, 10000000))
+        w = decimal_to_hex_str(random.randint(1, 100000))
         if w != answer: wrongs.add(w)
     opts = [answer] + list(wrongs)
     random.shuffle(opts)
@@ -225,7 +225,7 @@ def gen_decimal_to_hex():
     }
 
 def gen_hex_to_decimal():
-    n       = random.randint(1, 4095)
+    n       = random.randint(1, 100000)
     hex_val = decimal_to_hex_str(n)
     digits  = list(hex_val)
     length  = len(digits)
@@ -246,7 +246,7 @@ def gen_hex_to_decimal():
 
     wrongs = set()
     while len(wrongs) < 3:
-        w = random.randint(1, 4095)
+        w = random.randint(1, 100000)
         if w != n: wrongs.add(str(w))
     opts = [str(n)] + list(wrongs)
     random.shuffle(opts)
