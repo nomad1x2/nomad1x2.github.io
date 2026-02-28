@@ -11,11 +11,12 @@
     <div id="root"></div>
 
     <script id="app-source" type="text/plain">
-#v2
 import streamlit as st
 import random
 import time
 import ipaddress
+
+#V3
 
 
 # ── CONSTANTS ─────────────────────────────────────────────────────────────────
@@ -27,14 +28,13 @@ UNIT_OPTIONS = [
     "Hex to Decimal",
     "Binary to Dotted Decimal",
     "Subnetting",
-    "Subnet: IP Class",
-    "Subnet: Network & Network ID & Broadcast",
+    "Subnet: Network ID & Broadcast",
     "Subnet: Host Range",
     "Subnet: Number of Subnets",
     "Subnet: Number of Hosts",
 ]
-LEFT_UNITS  = ["All", "Decimal to Binary", "Decimal to Hex", "Hex to Decimal", "Binary to Dotted Decimal", "Subnetting"]
-RIGHT_UNITS = ["Subnet: IP Class", "Subnet: Network & Network ID & Broadcast", "Subnet: Host Range", "Subnet: Number of Subnets", "Subnet: Number of Hosts"]
+LEFT_UNITS  = ["All", "Decimal to Binary", "Decimal to Hex", "Hex to Decimal", "Binary to Dotted Decimal"]
+RIGHT_UNITS = ["Subnetting", "Subnet: Network ID & Broadcast", "Subnet: Host Range", "Subnet: Number of Subnets", "Subnet: Number of Hosts"]
 
 HEX_DIGITS   = "0123456789ABCDEF"
 SUPERSCRIPTS = str.maketrans("0123456789", "⁰¹²³⁴⁵⁶⁷⁸⁹")
@@ -75,6 +75,10 @@ def get_rank(pct: float) -> str:
 # ── BINARY TABLE HTML ─────────────────────────────────────────────────────────
 
 def binary_table_html(n):
+    """
+    Render a colour-coded binary place-value table.
+    Dynamically sized — starts at the leading 1 bit, no padding.
+    """
     if n == 0:
         bit_count = 1
     else:
@@ -82,23 +86,18 @@ def binary_table_html(n):
 
     powers = list(range(bit_count - 1, -1, -1))
     values = [2 ** p for p in powers]
-    bits = format(n, f'0{bit_count}b')
-    
+    bits   = format(n, f'0{bit_count}b')
+
     def td(content, style=""):
         return f'<td style="{style}">{content}</td>'
 
-    # Header row: powers
     hdr_cells = "".join(
         f'<th style="padding:4px 6px;white-space:nowrap;">2{sup(p)}</th>'
         for p in powers
     )
-
-    # Value row
     val_cells = "".join(
         td(v, "padding:3px 6px;") for v in values
     )
-
-    # Bit row: green for 1, dim for 0
     bit_cells = "".join(
         td(
             b,
@@ -120,11 +119,10 @@ def binary_table_html(n):
     )
 
 
-
 # ── HEX TABLE HTML ────────────────────────────────────────────────────────────
 
 def hex_table_html(n, hex_val):
-    """Render a hex place-value table like the reference image."""
+    """Render a hex place-value table."""
     digits = list(hex_val)
     length = len(digits)
     powers = list(range(length - 1, -1, -1))
@@ -173,8 +171,7 @@ def gen_decimal_to_binary():
         "",
         "Each column below is a power of 2. Green cells are 1-bits that sum to your number.",
     ]
-    breakdown_text = "\n".join(lines)
-    breakdown_html = breakdown_text + binary_table_html(n)
+    breakdown_html = "\n".join(lines) + binary_table_html(n)
 
     wrongs = set()
     while len(wrongs) < 3:
@@ -206,8 +203,7 @@ def gen_decimal_to_hex():
     for orig, quot, rem in rows:
         lines.append(f"  {orig} ÷ 16 = {quot}  r {rem}  →  {HEX_DIGITS[rem]}")
     lines += ["", f"Read remainders bottom-to-top  →  {answer}"]
-    breakdown_text = "\n".join(lines)
-    breakdown_html = breakdown_text + hex_table_html(n, answer)
+    breakdown_html = "\n".join(lines) + hex_table_html(n, answer)
 
     wrongs = set()
     while len(wrongs) < 3:
@@ -241,8 +237,7 @@ def gen_hex_to_decimal():
     line2 = "Step 2 — Evaluate: " + f"{hex_val} = " + " + ".join(pow_terms)
     line3 = "Step 3 — Multiply: " + f"{hex_val} = " + " + ".join(prod_terms)
     line4 = f"Step 4 — Sum:      {' + '.join(prod_terms)} = {n}"
-    breakdown_text = intro + "\n".join([line1, line2, line3, line4])
-    breakdown_html = breakdown_text + hex_table_html(n, hex_val)
+    breakdown_html = intro + "\n".join([line1, line2, line3, line4]) + hex_table_html(n, hex_val)
 
     wrongs = set()
     while len(wrongs) < 3:
@@ -269,7 +264,6 @@ def gen_binary_dotted_decimal():
         terms = [f"{b}×2{sup(7-j)}" for j, b in enumerate(bits) if b == "1"]
         expr  = " + ".join(terms) if terms else "0"
         lines.append(f"  Octet {i+1}:  {bits}  =  {expr}  =  {o}")
-    # Each table followed by a decimal result label
     tables_html = ""
     for o in octets:
         tables_html += binary_table_html(o)
@@ -308,21 +302,14 @@ def build_subnet_data():
     network_int   = ip_int & mask_int
     broadcast_int = network_int | (~mask_int & 0xFFFFFFFF)
 
-    class_default = {"A": 8, "B": 16, "C": 24}[ip_class]
-    subnet_bits   = cidr - class_default
-    host_bits     = 32 - cidr
-
     ip_str      = int_to_dotted(ip_int)
     mask_str    = int_to_dotted(mask_int)
-    network_str = int_to_dotted(network_int)   # Network ID (magic number result)
+    network_str = int_to_dotted(network_int)
     bcast_str   = int_to_dotted(broadcast_int)
     first_host  = int_to_dotted(network_int + 1)
     last_host   = int_to_dotted(broadcast_int - 1)
-    num_subnets = 2 ** subnet_bits
-    num_hosts   = max(0, (2 ** host_bits) - 2)
 
-
-
+    # Find interesting octet (first non-255 octet in the mask)
     mask_octets = [int(x) for x in mask_str.split(".")]
     for oi, mo in enumerate(mask_octets):
         if mo != 255:
@@ -331,6 +318,14 @@ def build_subnet_data():
             break
     else:
         magic = 1; interesting_octet = 3
+
+    # Subnet count is based on the octet boundary, not IP class
+    # e.g. interesting octet 3 → boundary /24, interesting octet 2 → /16, etc.
+    octet_boundary = interesting_octet * 8   # 0→0, 1→8, 2→16, 3→24
+    subnet_bits    = cidr - octet_boundary
+    host_bits      = 32 - cidr
+    num_subnets    = 2 ** subnet_bits
+    num_hosts      = max(0, (2 ** host_bits) - 2)
 
     ip_octets      = [int(x) for x in ip_str.split(".")]
     network_octets = [int(x) for x in network_str.split(".")]
@@ -343,7 +338,7 @@ def build_subnet_data():
 
     return {
         "ip": ip_str, "mask": mask_str, "cidr": cidr, "ip_class": ip_class,
-        "class_default": class_default, "subnet_id": network_str,
+        "octet_boundary": octet_boundary, "subnet_id": network_str,
         "broadcast": bcast_str, "first_host": first_host, "last_host": last_host,
         "num_subnets": num_subnets, "num_hosts": num_hosts,
         "host_bits": host_bits, "subnet_bits": subnet_bits,
@@ -353,25 +348,16 @@ def build_subnet_data():
 
 def make_subnet_explanations(d):
     ip    = d["ip"];   mask  = d["mask"];  cidr  = d["cidr"]
-    cls   = d["ip_class"]; cd = d["class_default"]
+    ob    = d["octet_boundary"]
     sbits = d["subnet_bits"]; hbits = d["host_bits"]
     magic = d["magic"]; hval = d["host_val"]; sval = d["subnet_val"]
     bstr  = d["block_str"]; bcast = d["broadcast"]
     bcast_oct = int(bcast.split(".")[d["interesting_octet"]])
     expls = {}
 
-    first_oct = int(ip.split('.')[0])
-    expls["ip_class"] = (
-        f"The IP class is determined by the first octet:\n"
-        f"  Class A:  1 – 126\n"
-        f"  Class B:  128 – 191\n"
-        f"  Class C:  192 – 223\n"
-        f"First octet of {ip} is {first_oct}  →  Class {cls}"
-    )
-
-    mask_oct_val = 256 - magic
     octet_names  = ["1st", "2nd", "3rd", "4th"]
     octet_label  = octet_names[d["interesting_octet"]]
+    mask_oct_val = 256 - magic
     bcast_octets = bcast.split(".")
     bcast_suffix = ".".join(bcast_octets[d["interesting_octet"]+1:])
     has_suffix   = bool(bcast_suffix)
@@ -401,9 +387,9 @@ def make_subnet_explanations(d):
         f"   Last host  = broadcast – 1  =  {d['last_host']}"
     )
     expls["num_subnets"] = (
-        f"Subnetting 'borrows' bits from the host portion to create more networks.\n"
-        f"Class {cls} has a default mask of /{cd} — any bits beyond that are borrowed.\n"
-        f"1. Borrowed bits = /{cidr} – /{cd} = {sbits}\n"
+        f"The number of subnets is determined by how many bits are borrowed in the interesting octet.\n"
+        f"The interesting octet is the {octet_label} octet (the octet after the last 255), so the base boundary is /{ob}.\n"
+        f"1. Borrowed bits = /{cidr} – /{ob} = {sbits}\n"
         f"2. Number of subnets = 2{sup(sbits)} = {d['num_subnets']}"
     )
     expls["num_hosts"] = (
@@ -432,20 +418,6 @@ def _subnet_wrong_ips(correct, n=3):
         if w != correct: wrongs.add(w)
     return list(wrongs)
 
-def gen_subnet_class():
-    d     = build_subnet_data()
-    expls = make_subnet_explanations(d)
-    opts  = {"A": "A", "B": "B", "C": "C"}
-    return {
-        "question":    subnet_question_prefix(d) + "\n\nWhat is the IP class?",
-        "options":     opts,
-        "answer_text": d["ip_class"],
-        "breakdown":   expls["ip_class"],
-        "type":        "mcq",
-        "unit":        "Subnet: IP Class",
-        "subnet_data": d,
-    }
-
 def gen_subnet_ids():
     d     = build_subnet_data()
     expls = make_subnet_explanations(d)
@@ -465,7 +437,7 @@ def gen_subnet_ids():
         "answer_text": answer,
         "breakdown":   breakdown,
         "type":        "mcq",
-        "unit":        "Subnet: Network & Network ID & Broadcast",
+        "unit":        "Subnet: Network ID & Broadcast",
         "subnet_data": d,
     }
 
@@ -531,7 +503,7 @@ def gen_subnet_num_hosts():
 
 def gen_subnetting_all():
     return random.choice([
-        gen_subnet_class, gen_subnet_ids, gen_subnet_host_range,
+        gen_subnet_ids, gen_subnet_host_range,
         gen_subnet_num_subnets, gen_subnet_num_hosts,
     ])()
 
@@ -539,8 +511,7 @@ def gen_subnet_full():
     """Full breakdown question — all fields as text inputs."""
     d     = build_subnet_data()
     expls = make_subnet_explanations(d)
-    # Build a combined breakdown string for the review screen
-    breakdown = "\n\n".join(expls[k] for k in ["ip_class","subnet_id","broadcast","host_range","num_subnets","num_hosts"])
+    breakdown = "\n\n".join(expls[k] for k in ["subnet_id", "broadcast", "host_range", "num_subnets", "num_hosts"])
     return {
         "question":    subnet_question_prefix(d) + "\n\nFill in all fields:",
         "type":        "subnet_full",
@@ -548,17 +519,16 @@ def gen_subnet_full():
         "subnet_data": d,
         "breakdown":   breakdown,
         "fields": [
-            ("ip_class",    "IP Class (Enter the single letter)",              d["ip_class"]),
             ("subnet_id",   "Network ID",              d["subnet_id"]),
-            ("broadcast",   "Broadcast Address",      d["broadcast"]),
-            ("first_host",  "First Usable Host",      d["first_host"]),
-            ("last_host",   "Last Usable Host",       d["last_host"]),
-            ("num_subnets", "Number of Subnets",      str(d["num_subnets"])),
-            ("num_hosts",   "Number of Usable Hosts", str(d["num_hosts"])),
+            ("broadcast",   "Broadcast Address",       d["broadcast"]),
+            ("first_host",  "First Usable Host",       d["first_host"]),
+            ("last_host",   "Last Usable Host",        d["last_host"]),
+            ("num_subnets", "Number of Subnets",       str(d["num_subnets"])),
+            ("num_hosts",   "Number of Usable Hosts",  str(d["num_hosts"])),
         ],
         "explanations": expls,
         "answer_text": (
-            f"Class={d['ip_class']}  SubID={d['subnet_id']}  Bcast={d['broadcast']}  "
+            f"SubID={d['subnet_id']}  Bcast={d['broadcast']}  "
             f"Hosts={d['first_host']}–{d['last_host']}  "
             f"#Subnets={d['num_subnets']}  #Hosts={d['num_hosts']}"
         ),
@@ -568,16 +538,15 @@ def gen_subnet_full():
 # ── POOL GENERATOR ────────────────────────────────────────────────────────────
 
 GENERATORS = {
-    "Decimal to Binary":                       gen_decimal_to_binary,
-    "Decimal to Hex":                          gen_decimal_to_hex,
-    "Hex to Decimal":                          gen_hex_to_decimal,
-    "Binary to Dotted Decimal":                gen_binary_dotted_decimal,
-    "Subnetting":                              gen_subnetting_all,
-    "Subnet: IP Class":                        gen_subnet_class,
-    "Subnet: Network & Network ID & Broadcast": gen_subnet_ids,
-    "Subnet: Host Range":                      gen_subnet_host_range,
-    "Subnet: Number of Subnets":               gen_subnet_num_subnets,
-    "Subnet: Number of Hosts":                 gen_subnet_num_hosts,
+    "Decimal to Binary":                        gen_decimal_to_binary,
+    "Decimal to Hex":                           gen_decimal_to_hex,
+    "Hex to Decimal":                           gen_hex_to_decimal,
+    "Binary to Dotted Decimal":                 gen_binary_dotted_decimal,
+    "Subnetting":                               gen_subnetting_all,
+    "Subnet: Network ID & Broadcast": gen_subnet_ids,
+    "Subnet: Host Range":                       gen_subnet_host_range,
+    "Subnet: Number of Subnets":                gen_subnet_num_subnets,
+    "Subnet: Number of Hosts":                  gen_subnet_num_hosts,
 }
 
 ALL_COMPOSITION = (
@@ -723,7 +692,6 @@ if "unit_selector" not in st.session_state: st.session_state.unit_selector = "Al
 if not st.session_state.quiz_active:
     st.markdown("## Quiz Setup")
 
-    # ── Unit picker: buttons that set session_state, so only one is ever active ──
     current = st.session_state.unit_selector
 
     col_l, col_r = st.columns(2)
@@ -743,7 +711,6 @@ if not st.session_state.quiz_active:
                 st.rerun()
 
     selected_unit = st.session_state.unit_selector
-
     is_all = (selected_unit == "All")
 
     if is_all:
@@ -838,7 +805,7 @@ elif st.session_state.quiz_active:
             badge_bg  = "#1a2e22" if passed else "#2e1a1a"
             badge_bdr = "#3d9e58" if passed else "#a03030"
             badge_clr = "#5ec47a" if passed else "#e06060"
-            badge_txt = f"✓ PASS — {score}/{total} ({pct:.0f}%)" if passed else f"✗ FAIL — {score}/{total} ({pct:.0f}%)  |  Need {ALL_PASS_SCORE} to pass"
+            badge_txt = f"PASS — {score}/{total} ({pct:.0f}%)" if passed else f"FAIL — {score}/{total} ({pct:.0f}%)  |  Need {ALL_PASS_SCORE} to pass"
             st.markdown(
                 f'<div style="background:{badge_bg};border:1px solid {badge_bdr};border-left:4px solid {badge_bdr};'
                 f'border-radius:7px;padding:0.8rem 1rem;font-size:1rem;font-weight:700;color:{badge_clr};margin-bottom:1rem;">'
@@ -959,7 +926,6 @@ elif st.session_state.quiz_active:
                             all_correct = False
                     st.session_state[f"sfr_{q_key}"] = field_results
                     st.session_state.answered[q_key]  = all_correct
-                    # Store a summary for the review screen
                     st.session_state.selected_answers[q_key] = ", ".join(
                         f"{fl}={fres[0]}" for (fk, fl, fc), fres in zip(fields, field_results.values())
                     )
