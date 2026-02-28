@@ -11,7 +11,7 @@
     <div id="root"></div>
 
     <script id="app-source" type="text/plain">
-#v1
+#v2
 import streamlit as st
 import random
 import time
@@ -75,23 +75,50 @@ def get_rank(pct: float) -> str:
 # ── BINARY TABLE HTML ─────────────────────────────────────────────────────────
 
 def binary_table_html(n):
-    """Render a colour-coded binary place-value table like the reference image."""
-    bits   = decimal_to_binary_str(n)
-    powers = [7, 6, 5, 4, 3, 2, 1, 0]
-    values = [128, 64, 32, 16, 8, 4, 2, 1]
-    hdr = "".join(f"<th>2{sup(p)}</th>" for p in powers)
-    val = "".join(f"<td>{v}</td>" for v in values)
-    bit_cells = ""
-    for b in bits:
-        bg = "#2e5c3a" if b == "1" else "#2a2a2a"
-        fc = "#5ec47a" if b == "1" else "#888"
-        bit_cells += f'<td style="background:{bg};color:{fc};font-weight:700;">{b}</td>'
-    return f"""
-<table style="border-collapse:collapse;width:100%;font-size:0.82rem;font-family:monospace;margin-top:0.6rem;">
-  <tr style="background:#1a2233;color:#7aaee8;">{hdr}</tr>
-  <tr style="background:#252525;color:#ccc;">{val}</tr>
-  <tr>{bit_cells}</tr>
-</table>"""
+    if n == 0:
+        bit_count = 1
+    else:
+        bit_count = n.bit_length()  # e.g. 16091 → 14 bits, starts at the leading 1
+
+    powers = list(range(bit_count - 1, -1, -1))
+    values = [2 ** p for p in powers]
+    bits = format(n, f'0{bit_count}b')
+    
+    def td(content, style=""):
+        return f'<td style="{style}">{content}</td>'
+
+    # Header row: powers
+    hdr_cells = "".join(
+        f'<th style="padding:4px 6px;white-space:nowrap;">2{sup(p)}</th>'
+        for p in powers
+    )
+
+    # Value row
+    val_cells = "".join(
+        td(v, "padding:3px 6px;") for v in values
+    )
+
+    # Bit row: green for 1, dim for 0
+    bit_cells = "".join(
+        td(
+            b,
+            f"background:{'#2e5c3a' if b=='1' else '#2a2a2a'};"
+            f"color:{'#5ec47a' if b=='1' else '#666'};"
+            f"font-weight:700;padding:4px 6px;"
+        )
+        for b in bits
+    )
+
+    return (
+        '<div style="overflow-x:auto;margin-top:0.6rem;">'
+        '<table style="border-collapse:collapse;width:100%;font-size:0.82rem;'
+        'font-family:monospace;min-width:max-content;">'
+        f'<tr style="background:#1a2233;color:#7aaee8;text-align:center;">{hdr_cells}</tr>'
+        f'<tr style="background:#252525;color:#ccc;text-align:center;">{val_cells}</tr>'
+        f'<tr style="text-align:center;">{bit_cells}</tr>'
+        '</table></div>'
+    )
+
 
 
 # ── HEX TABLE HTML ────────────────────────────────────────────────────────────
@@ -143,7 +170,6 @@ def gen_decimal_to_binary():
     lines += [
         "",
         f"Read remainders bottom-to-top  →  {unpadded}",
-        f"Pad to 8 bits (add leading 0s)  →  {answer}",
         "",
         "Each column below is a power of 2. Green cells are 1-bits that sum to your number.",
     ]
