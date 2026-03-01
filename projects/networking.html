@@ -11,13 +11,12 @@
     <div id="root"></div>
 
     <script id="app-source" type="text/plain">
-#V5
-
+#V7
 import streamlit as st
 import random
 import time
+import math
 import ipaddress
-
 
 
 # ── CONSTANTS ─────────────────────────────────────────────────────────────────
@@ -34,8 +33,15 @@ UNIT_OPTIONS = [
     "Subnet: Number of Subnets",
     "Subnet: Number of Hosts",
 ]
-LEFT_UNITS  = ["All", "Decimal to Binary", "Decimal to Hex", "Hex to Decimal", "Binary to Dotted Decimal"]
-RIGHT_UNITS = ["Subnetting", "Subnet: Network ID & Broadcast", "Subnet: Host Range", "Subnet: Number of Subnets", "Subnet: Number of Hosts"]
+LEFT_UNITS  = ["All", "Decimal to Binary", "Decimal to Hex", "Hex to Decimal", "Binary to Dotted Decimal", "Subnetting"]
+RIGHT_UNITS = [
+    "Subnet: Network ID & Broadcast",
+    "Subnet: Host Range",
+    "Subnet: Number of Subnets",
+    "Subnet: Number of Hosts",
+    "Subnet Design",
+    "Host-Based Subnet Design",
+]
 
 HEX_DIGITS   = "0123456789ABCDEF"
 SUPERSCRIPTS = str.maketrans("0123456789", "⁰¹²³⁴⁵⁶⁷⁸⁹")
@@ -583,6 +589,334 @@ def gen_subnet_full():
     }
 
 
+# ── SUBNET DESIGN (Worksheet 1) ───────────────────────────────────────────────
+# Given: classful network ID + subnets requested (random)
+# Find:  class, subnet mask, bits taken, second subnet ID (1st non-zero),
+#        next-to-last subnet ID (last before all-ones subnet)
+# All-zeros and all-ones subnets are USABLE (modern equipment).
+
+def _classful_default(ip_str):
+    """Return (class_letter, default_prefix) for a classful IP."""
+    first = int(ip_str.split(".")[0])
+    if 1 <= first <= 126:     return "A", 8
+    elif 128 <= first <= 191: return "B", 16
+    elif 192 <= first <= 223: return "C", 24
+    else:                     return "?", 0
+
+def _ip_to_int(s):
+    parts = s.split(".")
+    while len(parts) < 4: parts.append("0")
+    return sum(int(p) << (8 * (3 - i)) for i, p in enumerate(parts))
+
+def _build_subnet_design_data():
+    """Generate a random classful network + random subnets-requested, compute all answers."""
+    ip_class_choice = random.choice(["A", "B", "C"])
+    if ip_class_choice == "A":
+        first = random.randint(1, 126)
+        # borrow 2–11 bits → 4 to 2048 subnets (keeps numbers sane but covers a wide range)
+        borrowed = random.randint(2, 11)
+        default_prefix = 8
+    elif ip_class_choice == "B":
+        first = random.randint(128, 191)
+        borrowed = random.randint(2, 11)
+        default_prefix = 16
+    else:
+        first = random.randint(192, 223)
+        borrowed = random.randint(2, 6)
+        default_prefix = 24
+
+    # Random "subnets requested" somewhere between 2^(borrowed-1)+1 and 2^borrowed
+    # so that exactly `borrowed` bits are required
+    lo = 2 ** (borrowed - 1) + 1
+    hi = 2 ** borrowed
+    subnets_req = random.randint(lo, hi)
+
+    # Build the network ID (zero out host octets below the default boundary)
+    if ip_class_choice == "A":
+        net_str = f"{first}.0.0.0"
+    elif ip_class_choice == "B":
+        second = random.randint(0, 255)
+        net_str = f"{first}.{second}.0.0"
+    else:
+        second = random.randint(0, 255)
+        third  = random.randint(0, 255)
+        net_str = f"{first}.{second}.{third}.0"
+
+    new_prefix  = default_prefix + borrowed
+    mask_int    = (0xFFFFFFFF << (32 - new_prefix)) & 0xFFFFFFFF
+    mask_str    = int_to_dotted(mask_int)
+    block_size  = 2 ** (32 - new_prefix)
+    total_sub   = 2 ** borrowed
+    net_int     = _ip_to_int(net_str)
+    default_mask_str = {8: "255.0.0.0", 16: "255.255.0.0", 24: "255.255.255.0"}[default_prefix]
+    all_ones_id = int_to_dotted(net_int + (total_sub - 1) * block_size)
+
+    return {
+        "net_str":        net_str,
+        "subnets_req":    subnets_req,
+        "ip_class":       ip_class_choice,
+        "default_prefix": default_prefix,
+        "default_mask":   default_mask_str,
+        "borrowed":       borrowed,
+        "new_prefix":     new_prefix,
+        "mask_str":       mask_str,
+        "block_size":     block_size,
+        "total_sub":      total_sub,
+        "second_subnet":  int_to_dotted(net_int + block_size),
+        "next_to_last":   int_to_dotted(net_int + (total_sub - 2) * block_size),
+        "all_ones_id":    all_ones_id,
+    }
+
+def gen_subnet_design():
+    d   = _build_subnet_design_data()
+    cls = d["ip_class"]; dp = d["default_prefix"]; dm = d["default_mask"]
+    bt  = d["borrowed"];  np_ = d["new_prefix"];   mask = d["mask_str"]
+    req = d["subnets_req"]; ts = d["total_sub"];   bs = d["block_size"]
+    net = d["net_str"];   sec = d["second_subnet"]; ntl = d["next_to_last"]
+
+    # Find the interesting octet and magic number for dotted-decimal walk
+    net_int        = _ip_to_int(net)
+    host_bits      = 32 - np_
+    interesting_oi = 3 - (host_bits // 8)
+    octet_inc      = bs >> (8 * (3 - interesting_oi))
+    oi_label       = ["1st", "2nd", "3rd", "4th"][interesting_oi]
+    mask_oct_val   = int(mask.split(".")[interesting_oi])
+
+    def sid(i): return int_to_dotted(net_int + i * bs)
+    show_n   = min(ts, 4)
+    walk_str = ", ".join(sid(i) for i in range(show_n)) + (", ..." if ts > show_n else "")
+
+    net_parts = net.split(".")
+    ntl_parts = ntl.split(".")
+    ao        = d["all_ones_id"]
+    ao_parts  = ao.split(".")
+
+    # The all-ones subnet has all subnet bits = 1 — describe what that looks like
+    ao_expl = (
+        f"The all-ones subnet is the last subnet in the space — every subnet bit is 1.\n"
+        f"   With {bt} bits borrowed, the last subnet is index {ts-1} (= 2{sup(bt)}–1).\n"
+        f"   In dotted decimal its network ID is {ao}.\n"
+        f"   The {oi_label} octet = {ao_parts[interesting_oi]} "
+        f"({'all subnet bits in this octet are 1' if ao_parts[interesting_oi] == str(mask_oct_val) else f'subnet bits in this octet are all 1'})."
+    )
+
+    # ── Per-field explanations ────────────────────────────────────────────────
+    expls = {
+        "ip_class": (
+            f"Look at the first octet: {net_parts[0]}\n"
+            f"  1–126   → Class A\n"
+            f"  128–191 → Class B\n"
+            f"  192–223 → Class C\n"
+            f"First octet {net_parts[0]} → Class {cls}"
+        ),
+        "mask_str": (
+            f"Start from the classful default for Class {cls}: {dm} (/{dp})\n"
+            f"Add the bits taken ({bt}) to the prefix: /{dp} + {bt} = /{np_}\n"
+            f"/{np_} in dotted decimal = {mask}"
+        ),
+        "bits_taken": (
+            f"Find the smallest power of 2 that is ≥ {req}:\n"
+            f"  2{sup(bt-1)} = {2**(bt-1)} — not enough\n"
+            f"  2{sup(bt)} = {ts} — ✓ covers {req} subnets\n"
+            f"Bits taken = {bt}"
+        ),
+        "second_sub": (
+            f"The subnet sequence counts up by {octet_inc} in the {oi_label} octet (magic number = 256–{mask_oct_val} = {octet_inc}):\n"
+            f"  {walk_str}\n\n"
+            f"Index 0 = all-zeros subnet ({net})  ←  skip this one\n"
+            f"Index 1 = second subnet (1st non-zero) → add one block to the {oi_label} octet:\n"
+            f"  {net}  →  {sec}"
+        ),
+        "ntl_sub": (
+            f"{ao_expl}\n\n"
+            f"Next-to-last = one block before the all-ones subnet.\n"
+            f"Subtract {octet_inc} from the {oi_label} octet:  {ao_parts[interesting_oi]} – {octet_inc} = {ntl_parts[interesting_oi]}\n"
+            f"  All-ones subnet:   {ao}\n"
+            f"  Next-to-last:      {ntl}"
+        ),
+    }
+    # full breakdown shown in missed-question review
+    full_expl = "\n\n".join(expls[k] for k in expls)
+
+    fields = [
+        ("ip_class",   "Class",                           cls),
+        ("mask_str",   "Subnet Mask",                     mask),
+        ("bits_taken", "Bits Taken",                      str(bt)),
+        ("second_sub", "Second Subnet ID (1st non-zero)", sec),
+        ("ntl_sub",    "Next-to-Last Subnet ID",          ntl),
+    ]
+
+    return {
+        "question": (
+            f"Given a network address and subnets requested, fill in all fields.\n"
+            f"(Assume all-zeros and all-ones subnets are usable — modern equipment.)\n\n"
+            f"  Network ID:         {net}\n"
+            f"  Subnets Requested:  {req}"
+        ),
+        "type":         "subnet_full",
+        "unit":         "Subnet Design",
+        "breakdown":    full_expl,
+        "fields":       fields,
+        "explanations": expls,
+        "answer_text":  (
+            f"Class={cls}  Mask={mask}  Bits={bt}  "
+            f"2nd={sec}  NtL={ntl}"
+        ),
+    }
+
+
+# ── HOST-BASED SUBNET DESIGN (Worksheet 2) ────────────────────────────────────
+# Given: classful network ID + hosts required (random)
+# Find:  class, subnet mask, host bits,
+#        first host ID in 2nd subnet, last host ID in 2nd subnet
+# "2nd subnet" = 1st non-zero subnet (index 1)
+
+def _build_host_design_data():
+    """Generate a random classful network + random hosts-required, compute all answers."""
+    ip_class_choice = random.choice(["A", "B", "C"])
+    if ip_class_choice == "A":
+        first = random.randint(1, 126)
+        default_prefix = 8
+        # host bits 8–22 → 254 to ~4M usable hosts; keep sane: 8–16
+        hb = random.randint(8, 16)
+    elif ip_class_choice == "B":
+        first = random.randint(128, 191)
+        default_prefix = 16
+        hb = random.randint(4, 14)
+    else:
+        first = random.randint(192, 223)
+        default_prefix = 24
+        hb = random.randint(2, 6)
+
+    # Random hosts_required between 2^(hb-1)+1 and 2^hb-2
+    # so that exactly `hb` host bits are needed
+    lo = 2 ** (hb - 1) + 1
+    hi = (2 ** hb) - 2
+    if lo > hi: lo = hi  # safety for small hb
+    hosts_req = random.randint(lo, hi)
+
+    # Build the classful network ID
+    if ip_class_choice == "A":
+        net_str = f"{first}.0.0.0"
+    elif ip_class_choice == "B":
+        second = random.randint(0, 255)
+        net_str = f"{first}.{second}.0.0"
+    else:
+        second = random.randint(0, 255)
+        third  = random.randint(0, 255)
+        net_str = f"{first}.{second}.{third}.0"
+
+    new_prefix   = 32 - hb
+    mask_int     = (0xFFFFFFFF << hb) & 0xFFFFFFFF
+    mask_str     = int_to_dotted(mask_int)
+    block_size   = 2 ** hb
+    usable_hosts = block_size - 2
+    net_int      = _ip_to_int(net_str)
+    default_mask_str = {8: "255.0.0.0", 16: "255.255.0.0", 24: "255.255.255.0"}[default_prefix]
+
+    # 2nd subnet = index 1 (first non-zero subnet)
+    subnet2_net = net_int + block_size
+    first_host  = int_to_dotted(subnet2_net + 1)
+    last_host   = int_to_dotted(subnet2_net + block_size - 2)
+
+    return {
+        "net_str":        net_str,
+        "hosts_req":      hosts_req,
+        "ip_class":       ip_class_choice,
+        "default_prefix": default_prefix,
+        "default_mask":   default_mask_str,
+        "hb":             hb,
+        "new_prefix":     new_prefix,
+        "mask_str":       mask_str,
+        "block_size":     block_size,
+        "usable_hosts":   usable_hosts,
+        "first_host":     first_host,
+        "last_host":      last_host,
+    }
+
+def gen_host_design():
+    d   = _build_host_design_data()
+    cls = d["ip_class"]; dp = d["default_prefix"]; dm = d["default_mask"]
+    hb  = d["hb"];       np_ = d["new_prefix"];    mask = d["mask_str"]
+    req = d["hosts_req"]; bs = d["block_size"];    uh = d["usable_hosts"]
+    net = d["net_str"]; fh = d["first_host"];      lh = d["last_host"]
+
+    net_int        = _ip_to_int(net)
+    interesting_oi = 3 - (hb // 8)
+    octet_inc      = bs >> (8 * (3 - interesting_oi))
+    oi_label       = ["1st", "2nd", "3rd", "4th"][interesting_oi]
+    mask_oct_val   = int(mask.split(".")[interesting_oi])
+    subnet2_net    = int_to_dotted(net_int + bs)
+    broadcast2     = int_to_dotted(net_int + 2 * bs - 1)
+    net_parts      = net.split(".")
+
+    def sid(i): return int_to_dotted(net_int + i * bs)
+    walk_str = ", ".join(sid(i) for i in range(4)) + ", ..."
+
+    # ── Per-field explanations ────────────────────────────────────────────────
+    expls = {
+        "ip_class": (
+            f"Look at the first octet: {net_parts[0]}\n"
+            f"  1–126   → Class A\n"
+            f"  128–191 → Class B\n"
+            f"  192–223 → Class C\n"
+            f"First octet {net_parts[0]} → Class {cls}"
+        ),
+        "mask_str": (
+            f"Host bits = {hb}, so prefix = 32 – {hb} = /{np_}\n"
+            f"/{np_} in dotted decimal = {mask}\n\n"
+            f"(Class {cls} default is {dm} (/{dp}); extended by {np_-dp} bits)"
+        ),
+        "host_bits": (
+            f"Find the smallest h where 2ʰ – 2 ≥ {req}:\n"
+            f"  2{sup(hb-1)} – 2 = {(2**(hb-1))-2} — not enough\n"
+            f"  2{sup(hb)} – 2 = {uh} — ✓ covers {req} hosts\n"
+            f"Host bits = {hb}  (the –2 removes the network ID and broadcast)"
+        ),
+        "first_host": (
+            f"Magic number = 256 – {mask_oct_val} = {octet_inc}  (block size in the {oi_label} octet)\n"
+            f"Subnet sequence: {walk_str}\n\n"
+            f"2nd subnet network ID (index 1):\n"
+            f"  {net}  →  add {octet_inc} to the {oi_label} octet  →  {subnet2_net}\n\n"
+            f"First usable host = subnet network + 1:\n"
+            f"  {subnet2_net}  →  {fh}"
+        ),
+        "last_host": (
+            f"2nd subnet network ID = {subnet2_net}\n"
+            f"Broadcast of 2nd subnet = network + block – 1 = {broadcast2}\n\n"
+            f"Last usable host = broadcast – 1:\n"
+            f"  {broadcast2}  →  {lh}"
+        ),
+    }
+    full_expl = "\n\n".join(expls[k] for k in expls)
+
+    fields = [
+        ("ip_class",   "Class",                                        cls),
+        ("mask_str",   "Subnet Mask",                                  mask),
+        ("host_bits",  "Host Bits",                                    str(hb)),
+        ("first_host", "First Host ID in 2nd Subnet (1st non-zero)",   fh),
+        ("last_host",  "Last Host ID in 2nd Subnet (1st non-zero)",    lh),
+    ]
+
+    return {
+        "question": (
+            f"Given a network ID and hosts required, fill in all fields.\n"
+            f"(Find the host range for the 2nd subnet — a.k.a. 1st non-zero subnet.)\n\n"
+            f"  Network ID:      {net}\n"
+            f"  Hosts Required:  {req}"
+        ),
+        "type":         "subnet_full",
+        "unit":         "Host-Based Subnet Design",
+        "breakdown":    full_expl,
+        "fields":       fields,
+        "explanations": expls,
+        "answer_text":  (
+            f"Class={cls}  Mask={mask}  HostBits={hb}  "
+            f"FirstHost={fh}  LastHost={lh}"
+        ),
+    }
+
+
 # ── POOL GENERATOR ────────────────────────────────────────────────────────────
 
 GENERATORS = {
@@ -595,6 +929,8 @@ GENERATORS = {
     "Subnet: Host Range":                       gen_subnet_host_range,
     "Subnet: Number of Subnets":                gen_subnet_num_subnets,
     "Subnet: Number of Hosts":                  gen_subnet_num_hosts,
+    "Subnet Design":                            gen_subnet_design,
+    "Host-Based Subnet Design":                 gen_host_design,
 }
 
 ALL_COMPOSITION = (
@@ -948,8 +1284,10 @@ elif st.session_state.quiz_active:
                     if ok:
                         st.markdown(f'<span style="color:#5ec47a;font-size:0.85rem;">✓ Correct</span>', unsafe_allow_html=True)
                     else:
-                        expl_key = {"first_host": "host_range", "last_host": "host_range"}.get(fkey, fkey)
-                        expl_text = expls.get(expl_key, "")
+                        # For gen_subnet_full, first_host/last_host share the host_range key.
+                        # For the new design units, every fkey IS a key in expls directly.
+                        expl_key  = {"first_host": "host_range", "last_host": "host_range"}.get(fkey, fkey)
+                        expl_text = expls.get(expl_key) or expls.get(fkey, "")
                         st.markdown(
                             f'<span style="color:#e06060;font-size:0.85rem;">✗ Correct answer: {cv}</span>',
                             unsafe_allow_html=True,
