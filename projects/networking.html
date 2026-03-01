@@ -11,32 +11,31 @@
     <div id="root"></div>
 
     <script id="app-source" type="text/plain">
-#V7
+#V8
 import streamlit as st
 import random
 import time
 import math
 import ipaddress
 
-
 # ── CONSTANTS ─────────────────────────────────────────────────────────────────
 
 UNIT_OPTIONS = [
-    "All",
+    "Practice Test",
     "Decimal to Binary",
     "Decimal to Hex",
     "Hex to Decimal",
     "Binary to Dotted Decimal",
     "Subnetting",
-    "Subnet: Network ID & Broadcast",
-    "Subnet: Host Range",
+    "Subnet: IP Info",
+    "Subnet: Host Range & Broadcast",
     "Subnet: Number of Subnets",
     "Subnet: Number of Hosts",
 ]
-LEFT_UNITS  = ["All", "Decimal to Binary", "Decimal to Hex", "Hex to Decimal", "Binary to Dotted Decimal", "Subnetting"]
+LEFT_UNITS  = ["Practice Test", "Decimal to Binary", "Decimal to Hex", "Hex to Decimal", "Binary to Dotted Decimal", "Subnetting"]
 RIGHT_UNITS = [
-    "Subnet: Network ID & Broadcast",
-    "Subnet: Host Range",
+    "Subnet: IP Info",
+    "Subnet: Host Range & Broadcast",
     "Subnet: Number of Subnets",
     "Subnet: Number of Hosts",
     "Subnet Design",
@@ -82,10 +81,6 @@ def get_rank(pct: float) -> str:
 # ── BINARY TABLE HTML ─────────────────────────────────────────────────────────
 
 def binary_table_html(n):
-    """
-    Render a colour-coded binary place-value table.
-    Dynamically sized — starts at the leading 1 bit, no padding.
-    """
     if n == 0:
         bit_count = 1
     else:
@@ -129,7 +124,6 @@ def binary_table_html(n):
 # ── HEX TABLE HTML ────────────────────────────────────────────────────────────
 
 def hex_table_html(n, hex_val):
-    """Render a hex place-value table."""
     digits = list(hex_val)
     length = len(digits)
     powers = list(range(length - 1, -1, -1))
@@ -298,17 +292,15 @@ def gen_binary_dotted_decimal():
 def build_subnet_data():
     ip_class = random.choice(["A", "B", "C"])
 
-    # FIX #4: cap CIDR ranges so borrowed bits stay <= 6 (max 64 subnets).
-    # Avoids unwieldy million-subnet answers while still covering all three classes.
     if ip_class == "A":
         first = random.randint(1, 126)
-        cidr  = random.randint(9, 14)   # 1–6 borrowed bits from /8
+        cidr  = random.randint(9, 14)
     elif ip_class == "B":
         first = random.randint(128, 191)
-        cidr  = random.randint(17, 22)  # 1–6 borrowed bits from /16
+        cidr  = random.randint(17, 22)
     else:
         first = random.randint(192, 223)
-        cidr  = random.randint(25, 30)  # 1–6 borrowed bits from /24
+        cidr  = random.randint(25, 30)
 
     ip_int        = (first << 24) | (random.randint(0,255) << 16) | (random.randint(0,255) << 8) | random.randint(0,255)
     mask_int      = (0xFFFFFFFF << (32 - cidr)) & 0xFFFFFFFF
@@ -322,7 +314,6 @@ def build_subnet_data():
     first_host  = int_to_dotted(network_int + 1)
     last_host   = int_to_dotted(broadcast_int - 1)
 
-    # Find interesting octet (first non-255 octet in the mask)
     mask_octets = [int(x) for x in mask_str.split(".")]
     for oi, mo in enumerate(mask_octets):
         if mo != 255:
@@ -332,7 +323,6 @@ def build_subnet_data():
     else:
         magic = 1; interesting_octet = 3
 
-    # FIX #1: subnet count uses classful default boundary, not interesting-octet boundary
     classful_boundary     = {"A": 8, "B": 16, "C": 24}[ip_class]
     classful_default_mask = {8: "255.0.0.0", 16: "255.255.0.0", 24: "255.255.255.0"}[classful_boundary]
     borrowed_bits         = cidr - classful_boundary
@@ -350,11 +340,18 @@ def build_subnet_data():
     blocks = sorted(set(b for b in blocks if 0 <= b <= 255))[:6]
     block_str = "(" + ", ".join(str(b) for b in blocks) + ", ...)"
 
+    # Classful Network ID: zero out everything below the classful boundary
+    # e.g. Class A 97.x.x.x → 97.0.0.0,  Class B 128.10.x.x → 128.10.0.0
+    classful_mask_int    = (0xFFFFFFFF << (32 - classful_boundary)) & 0xFFFFFFFF
+    classful_network_str = int_to_dotted(ip_int & classful_mask_int)
+
     return {
         "ip": ip_str, "mask": mask_str, "cidr": cidr, "ip_class": ip_class,
         "classful_boundary": classful_boundary, "classful_default_mask": classful_default_mask,
         "borrowed_bits": borrowed_bits,
-        "subnet_id": network_str, "broadcast": bcast_str,
+        "subnet_id": network_str,              # IP AND subnet mask  (bitwise AND result)
+        "classful_network_id": classful_network_str,  # true Network ID (zero subnet)
+        "broadcast": bcast_str,
         "first_host": first_host, "last_host": last_host,
         "num_subnets": num_subnets, "num_hosts": num_hosts,
         "host_bits": host_bits,
@@ -402,7 +399,6 @@ def make_subnet_explanations(d):
         f"   Last host  = broadcast – 1  =  {d['last_host']}"
     )
 
-    # FIX #1 & #5: explanation uses classful boundary throughout
     cb  = d["classful_boundary"]
     cdm = d["classful_default_mask"]
     bb  = d["borrowed_bits"]
@@ -419,68 +415,148 @@ def make_subnet_explanations(d):
         f"1. Host bits = 32 – /{cidr} = {hbits}\n"
         f"2. Usable hosts = 2{sup(hbits)} – 2 = {d['num_hosts']}"
     )
+
+    # Class explanation (reused in new question types)
+    expls["ip_class"] = (
+        f"Look at the first octet of the IP: {ip.split('.')[0]}\n"
+        f"  1–126   → Class A\n"
+        f"  128–191 → Class B\n"
+        f"  192–223 → Class C\n"
+        f"First octet {ip.split('.')[0]} → Class {cls}"
+    )
+
+    # Bits taken explanation (reused in new question types)
+    expls["bits_taken"] = (
+        f"Bits taken = /{cidr} – classful default /{cb} = {bb}\n"
+        f"  Class {cls} default boundary = /{cb} ({cdm})\n"
+        f"  Subnet mask /{cidr} borrows {bb} extra bits beyond the default"
+    )
+
+    # Network ID = the zero subnet — all subnet bits AND host bits zeroed (classful base address)
+    cn = d["classful_network_id"]
+    expls["network_id"] = (
+        f"The Network ID identifies the entire classful network.\n"
+        f"It is the zero subnet — ALL bits below the classful boundary are set to 0.\n"
+        f"  Class {cls} default boundary = /{cb}  →  zero out everything after octet {cb // 8}\n"
+        f"  IP {ip}  →  Network ID = {cn}\n\n"
+        f"There is only one Network ID per classful network.\n"
+        f"It cannot be assigned to a host."
+    )
+
+    # Subnet ID = IP AND subnet mask (bitwise AND)
+    sub = d["subnet_id"]
+    expls["subnet_id_field"] = (
+        f"The Subnet ID identifies which subnet the host belongs to.\n"
+        f"It is calculated as:  IP address  AND  Subnet mask  (bitwise AND)\n\n"
+        f"  IP address:   {ip}\n"
+        f"  Subnet mask:  {d['mask']}\n"
+        f"  AND result:   {sub}  ← this is the Subnet ID\n\n"
+        f"The AND zeroes out all host bits, leaving only the network + subnet bits.\n"
+        f"The Subnet ID cannot be assigned to a host."
+    )
+
     return expls
 
 def subnet_question_prefix(d):
     return f"Given:\n  IP:   {d['ip']}\n  Mask: {d['mask']}  (/{d['cidr']})"
 
 
-# ── SUBNET QUESTION GENERATORS ────────────────────────────────────────────────
+# ── SUBNET: IP INFO (was Network ID & Broadcast) ──────────────────────────────
+# Matches worksheet 1: given IP + Mask, find Class, # Bits Taken, Network ID, Subnet ID
+# Uses text-box (subnet_full) format
 
-def _subnet_wrong_ips(correct, n=3):
-    parts = [int(x) for x in correct.split(".")]
-    wrongs = set()
-    while len(wrongs) < n:
-        i = random.randint(0, 3)
-        delta = random.choice([-64, -32, -16, 16, 32, 64, 1, -1, 2, -2])
-        np2 = parts[:]
-        np2[i] = max(0, min(255, np2[i] + delta))
-        w = ".".join(str(x) for x in np2)
-        if w != correct: wrongs.add(w)
-    return list(wrongs)
-
-def gen_subnet_ids():
+def gen_subnet_ip_info():
     d     = build_subnet_data()
     expls = make_subnet_explanations(d)
-    answer = f"Net ID: {d['subnet_id']}  |  Broadcast: {d['broadcast']}"
-    wrongs = set()
-    while len(wrongs) < 3:
-        bs = _subnet_wrong_ips(d["subnet_id"],  1)[0]
-        bb_w = _subnet_wrong_ips(d["broadcast"], 1)[0]
-        w  = f"Net ID: {bs}  |  Broadcast: {bb_w}"
-        if w != answer: wrongs.add(w)
-    opts = [answer] + list(wrongs)
-    random.shuffle(opts)
-    breakdown = expls["subnet_id"] + "\n\n" + expls["broadcast"]
-    return {
-        "question":    subnet_question_prefix(d) + "\n\nWhat are the Network ID and Broadcast Address?",
-        "options":     {chr(65+i): v for i, v in enumerate(opts)},
-        "answer_text": answer,
-        "breakdown":   breakdown,
-        "type":        "mcq",
-        "unit":        "Subnet: Network ID & Broadcast",
-        "subnet_data": d,
+
+    # Network ID = classful base (zero subnet), Subnet ID = IP AND mask
+    network_id = d["classful_network_id"]
+    subnet_id  = d["subnet_id"]
+
+    fields = [
+        ("ip_class",   "Class  (A, B, or C)",      d["ip_class"]),
+        ("bits_taken", "Number of Bits Taken for Subnet", str(d["borrowed_bits"])),
+        ("network_id", "Network ID",                network_id),
+        ("subnet_id",  "Subnet ID",                 subnet_id),
+    ]
+
+    field_expls = {
+        "ip_class":   expls["ip_class"],
+        "bits_taken": expls["bits_taken"],
+        "network_id": expls["network_id"],
+        "subnet_id":  expls["subnet_id_field"],
     }
 
-def gen_subnet_host_range():
+    full_expl = "\n\n".join(field_expls[k] for k in field_expls)
+
+    return {
+        "question": (
+            f"Given the IP address and subnet mask, identify the class,\n"
+            f"number of bits taken, Network ID, and Subnet ID.\n\n"
+            f"  IP Address:   {d['ip']}\n"
+            f"  Subnet Mask:  {d['mask']}  (/{d['cidr']})"
+        ),
+        "type":         "subnet_full",
+        "unit":         "Subnet: IP Info",
+        "breakdown":    full_expl,
+        "fields":       fields,
+        "explanations": field_expls,
+        "answer_text":  (
+            f"Class={d['ip_class']}  BitsTaken={d['borrowed_bits']}  "
+            f"NetworkID={network_id}  SubnetID={subnet_id}"
+        ),
+    }
+
+
+# ── SUBNET: HOST RANGE & BROADCAST (was Host Range) ──────────────────────────
+# Matches worksheet 2: given Subnet ID + /prefix, find Class, First IP, Last IP, Broadcast
+# Uses text-box (subnet_full) format
+
+def gen_subnet_host_broadcast():
     d     = build_subnet_data()
     expls = make_subnet_explanations(d)
-    answer = f"{d['first_host']} – {d['last_host']}"
-    wrongs = set()
-    while len(wrongs) < 3:
-        w = f"{_subnet_wrong_ips(d['first_host'],1)[0]} – {_subnet_wrong_ips(d['last_host'],1)[0]}"
-        if w != answer: wrongs.add(w)
-    opts = [answer] + list(wrongs)
-    random.shuffle(opts)
-    return {
-        "question":    subnet_question_prefix(d) + "\n\nWhat is the usable host range?",
-        "options":     {chr(65+i): v for i, v in enumerate(opts)},
-        "answer_text": answer,
-        "breakdown":   expls["host_range"],
-        "type":        "mcq",
-        "unit":        "Subnet: Host Range",
-        "subnet_data": d,
+
+    fields = [
+        ("ip_class",   "Class  (A, B, or C)",   d["ip_class"]),
+        ("first_host", "First IP Address",       d["first_host"]),
+        ("last_host",  "Last IP Address",        d["last_host"]),
+        ("broadcast",  "Broadcast Address",      d["broadcast"]),
+    ]
+
+    field_expls = {
+        "ip_class":   expls["ip_class"],
+        "first_host": expls["host_range"],
+        "last_host":  expls["host_range"],
+        "broadcast":  expls["broadcast"],
     }
+
+    full_expl = "\n\n".join([
+        expls["ip_class"],
+        expls["host_range"],
+        expls["broadcast"],
+    ])
+
+    # For this question type the "given" is Subnet ID + mask (not the full IP)
+    return {
+        "question": (
+            f"Given the subnet ID and subnet mask, find the class,\n"
+            f"first and last usable IP address, and broadcast address.\n\n"
+            f"  Subnet ID:    {d['subnet_id']}\n"
+            f"  Subnet Mask:  {d['mask']}  (/{d['cidr']})"
+        ),
+        "type":         "subnet_full",
+        "unit":         "Subnet: Host Range & Broadcast",
+        "breakdown":    full_expl,
+        "fields":       fields,
+        "explanations": field_expls,
+        "answer_text":  (
+            f"Class={d['ip_class']}  First={d['first_host']}  "
+            f"Last={d['last_host']}  Broadcast={d['broadcast']}"
+        ),
+    }
+
+
+# ── SUBNET NUMBER QUESTIONS (MCQ) ────────────────────────────────────────────
 
 def gen_subnet_num_subnets():
     d     = build_subnet_data()
@@ -488,8 +564,6 @@ def gen_subnet_num_subnets():
     answer = str(d["num_subnets"])
     bb     = d["borrowed_bits"]
 
-    # FIX #3: distractors are adjacent borrowed-bit counts — traps the
-    # most common error (off-by-one on borrowed bits) rather than random noise
     wrongs = set()
     for delta in [-2, -1, 1, 2]:
         fake_bb = bb + delta
@@ -519,25 +593,19 @@ def gen_subnet_num_hosts():
     answer = str(d["num_hosts"])
     hbits  = d["host_bits"]
 
-    # FIX #3: distractors target the two most common mistakes —
-    # forgetting to subtract 2, and being off by one host bit
     wrongs = set()
-    # forgot to subtract 2
     w_no_sub = str(2 ** hbits)
     if w_no_sub != answer: wrongs.add(w_no_sub)
-    # off by one host bit (correct formula, wrong bit count)
     for delta in [-1, 1]:
         fake_hb = hbits + delta
         if fake_hb >= 1:
             w = str(max(0, (2 ** fake_hb) - 2))
             if w != answer: wrongs.add(w)
-    # off by one host bit AND forgot to subtract 2
     for delta in [-1, 1]:
         fake_hb = hbits + delta
         if fake_hb >= 1:
             w = str(2 ** fake_hb)
             if w != answer: wrongs.add(w)
-    # pad if still short
     while len(wrongs) < 3:
         w = str(max(0, (2 ** random.randint(1, 8)) - 2))
         if w != answer: wrongs.add(w)
@@ -556,8 +624,12 @@ def gen_subnet_num_hosts():
 
 def gen_subnetting_all():
     return random.choice([
-        gen_subnet_ids, gen_subnet_host_range,
-        gen_subnet_num_subnets, gen_subnet_num_hosts,
+        gen_subnet_ip_info,
+        gen_subnet_host_broadcast,
+        gen_subnet_num_subnets,
+        gen_subnet_num_hosts,
+        gen_subnet_design,
+        gen_host_design,
     ])()
 
 def gen_subnet_full():
@@ -576,7 +648,6 @@ def gen_subnet_full():
             ("broadcast",   "Broadcast Address",       d["broadcast"]),
             ("first_host",  "First Usable Host",       d["first_host"]),
             ("last_host",   "Last Usable Host",        d["last_host"]),
-            # FIX #1/#5: classful-based num_subnets used here too, consistent with explanation
             ("num_subnets", "Number of Subnets",       str(d["num_subnets"])),
             ("num_hosts",   "Number of Usable Hosts",  str(d["num_hosts"])),
         ],
@@ -590,13 +661,8 @@ def gen_subnet_full():
 
 
 # ── SUBNET DESIGN (Worksheet 1) ───────────────────────────────────────────────
-# Given: classful network ID + subnets requested (random)
-# Find:  class, subnet mask, bits taken, second subnet ID (1st non-zero),
-#        next-to-last subnet ID (last before all-ones subnet)
-# All-zeros and all-ones subnets are USABLE (modern equipment).
 
 def _classful_default(ip_str):
-    """Return (class_letter, default_prefix) for a classful IP."""
     first = int(ip_str.split(".")[0])
     if 1 <= first <= 126:     return "A", 8
     elif 128 <= first <= 191: return "B", 16
@@ -609,11 +675,9 @@ def _ip_to_int(s):
     return sum(int(p) << (8 * (3 - i)) for i, p in enumerate(parts))
 
 def _build_subnet_design_data():
-    """Generate a random classful network + random subnets-requested, compute all answers."""
     ip_class_choice = random.choice(["A", "B", "C"])
     if ip_class_choice == "A":
         first = random.randint(1, 126)
-        # borrow 2–11 bits → 4 to 2048 subnets (keeps numbers sane but covers a wide range)
         borrowed = random.randint(2, 11)
         default_prefix = 8
     elif ip_class_choice == "B":
@@ -625,13 +689,10 @@ def _build_subnet_design_data():
         borrowed = random.randint(2, 6)
         default_prefix = 24
 
-    # Random "subnets requested" somewhere between 2^(borrowed-1)+1 and 2^borrowed
-    # so that exactly `borrowed` bits are required
     lo = 2 ** (borrowed - 1) + 1
     hi = 2 ** borrowed
     subnets_req = random.randint(lo, hi)
 
-    # Build the network ID (zero out host octets below the default boundary)
     if ip_class_choice == "A":
         net_str = f"{first}.0.0.0"
     elif ip_class_choice == "B":
@@ -674,7 +735,6 @@ def gen_subnet_design():
     req = d["subnets_req"]; ts = d["total_sub"];   bs = d["block_size"]
     net = d["net_str"];   sec = d["second_subnet"]; ntl = d["next_to_last"]
 
-    # Find the interesting octet and magic number for dotted-decimal walk
     net_int        = _ip_to_int(net)
     host_bits      = 32 - np_
     interesting_oi = 3 - (host_bits // 8)
@@ -691,7 +751,6 @@ def gen_subnet_design():
     ao        = d["all_ones_id"]
     ao_parts  = ao.split(".")
 
-    # The all-ones subnet has all subnet bits = 1 — describe what that looks like
     ao_expl = (
         f"The all-ones subnet is the last subnet in the space — every subnet bit is 1.\n"
         f"   With {bt} bits borrowed, the last subnet is index {ts-1} (= 2{sup(bt)}–1).\n"
@@ -700,7 +759,6 @@ def gen_subnet_design():
         f"({'all subnet bits in this octet are 1' if ao_parts[interesting_oi] == str(mask_oct_val) else f'subnet bits in this octet are all 1'})."
     )
 
-    # ── Per-field explanations ────────────────────────────────────────────────
     expls = {
         "ip_class": (
             f"Look at the first octet: {net_parts[0]}\n"
@@ -735,7 +793,6 @@ def gen_subnet_design():
             f"  Next-to-last:      {ntl}"
         ),
     }
-    # full breakdown shown in missed-question review
     full_expl = "\n\n".join(expls[k] for k in expls)
 
     fields = [
@@ -766,18 +823,12 @@ def gen_subnet_design():
 
 
 # ── HOST-BASED SUBNET DESIGN (Worksheet 2) ────────────────────────────────────
-# Given: classful network ID + hosts required (random)
-# Find:  class, subnet mask, host bits,
-#        first host ID in 2nd subnet, last host ID in 2nd subnet
-# "2nd subnet" = 1st non-zero subnet (index 1)
 
 def _build_host_design_data():
-    """Generate a random classful network + random hosts-required, compute all answers."""
     ip_class_choice = random.choice(["A", "B", "C"])
     if ip_class_choice == "A":
         first = random.randint(1, 126)
         default_prefix = 8
-        # host bits 8–22 → 254 to ~4M usable hosts; keep sane: 8–16
         hb = random.randint(8, 16)
     elif ip_class_choice == "B":
         first = random.randint(128, 191)
@@ -788,14 +839,11 @@ def _build_host_design_data():
         default_prefix = 24
         hb = random.randint(2, 6)
 
-    # Random hosts_required between 2^(hb-1)+1 and 2^hb-2
-    # so that exactly `hb` host bits are needed
     lo = 2 ** (hb - 1) + 1
     hi = (2 ** hb) - 2
-    if lo > hi: lo = hi  # safety for small hb
+    if lo > hi: lo = hi
     hosts_req = random.randint(lo, hi)
 
-    # Build the classful network ID
     if ip_class_choice == "A":
         net_str = f"{first}.0.0.0"
     elif ip_class_choice == "B":
@@ -814,7 +862,6 @@ def _build_host_design_data():
     net_int      = _ip_to_int(net_str)
     default_mask_str = {8: "255.0.0.0", 16: "255.255.0.0", 24: "255.255.255.0"}[default_prefix]
 
-    # 2nd subnet = index 1 (first non-zero subnet)
     subnet2_net = net_int + block_size
     first_host  = int_to_dotted(subnet2_net + 1)
     last_host   = int_to_dotted(subnet2_net + block_size - 2)
@@ -853,7 +900,6 @@ def gen_host_design():
     def sid(i): return int_to_dotted(net_int + i * bs)
     walk_str = ", ".join(sid(i) for i in range(4)) + ", ..."
 
-    # ── Per-field explanations ────────────────────────────────────────────────
     expls = {
         "ip_class": (
             f"Look at the first octet: {net_parts[0]}\n"
@@ -925,26 +971,38 @@ GENERATORS = {
     "Hex to Decimal":                           gen_hex_to_decimal,
     "Binary to Dotted Decimal":                 gen_binary_dotted_decimal,
     "Subnetting":                               gen_subnetting_all,
-    "Subnet: Network ID & Broadcast":           gen_subnet_ids,
-    "Subnet: Host Range":                       gen_subnet_host_range,
+    "Subnet: IP Info":                          gen_subnet_ip_info,
+    "Subnet: Host Range & Broadcast":           gen_subnet_host_broadcast,
     "Subnet: Number of Subnets":                gen_subnet_num_subnets,
     "Subnet: Number of Hosts":                  gen_subnet_num_hosts,
     "Subnet Design":                            gen_subnet_design,
     "Host-Based Subnet Design":                 gen_host_design,
 }
 
-ALL_COMPOSITION = (
-    [gen_binary_dotted_decimal] * 2 +
-    [gen_hex_to_decimal]        * 2 +
-    [gen_decimal_to_hex]        * 2 +
-    [gen_subnet_full]           * 14
-)
+def _build_all_composition():
+    # 6 conversion + 14 subnetting = 20 total
+    # Subnetting: 3 each of 4 types = 12, plus 2 randomly picked extras from same pool
+    subnet_pool = [gen_subnet_ip_info, gen_subnet_host_broadcast, gen_subnet_design, gen_host_design]
+    extras = random.sample(subnet_pool, 2)
+    return (
+        [gen_binary_dotted_decimal]  * 2 +
+        [gen_hex_to_decimal]         * 2 +
+        [gen_decimal_to_hex]         * 2 +
+        [gen_subnet_ip_info]         * 3 +
+        [gen_subnet_host_broadcast]  * 3 +
+        [gen_subnet_design]          * 3 +
+        [gen_host_design]            * 3 +
+        extras
+    )
+
+ALL_TOTAL      = 20
+ALL_PASS_SCORE = 16
 ALL_TOTAL      = 20
 ALL_PASS_SCORE = 16
 
 def generate_question_pool(unit: str, n: int) -> list:
-    if unit == "All":
-        gens = ALL_COMPOSITION[:]
+    if unit == "Practice Test":
+        gens = _build_all_composition()
         random.shuffle(gens)
         questions = [g() for g in gens]
     else:
@@ -958,8 +1016,8 @@ def generate_question_pool(unit: str, n: int) -> list:
 
 def reset_quiz():
     preserved = {
-        "unit_selector":      st.session_state.get("active_unit", st.session_state.get("unit_selector", "All")),
-        "last_selected_unit": st.session_state.get("last_selected_unit", "All"),
+        "unit_selector":      st.session_state.get("active_unit", st.session_state.get("unit_selector", "Practice Test")),
+        "last_selected_unit": st.session_state.get("last_selected_unit", "Practice Test"),
     }
     for key in list(st.session_state.keys()):
         del st.session_state[key]
@@ -1068,7 +1126,7 @@ st.markdown(CSS, unsafe_allow_html=True)
 # ── SESSION STATE DEFAULTS ────────────────────────────────────────────────────
 
 if "quiz_active"   not in st.session_state: st.session_state.quiz_active   = False
-if "unit_selector" not in st.session_state: st.session_state.unit_selector = "All"
+if "unit_selector" not in st.session_state: st.session_state.unit_selector = "Practice Test"
 
 
 # ── CONFIG SCREEN ─────────────────────────────────────────────────────────────
@@ -1095,15 +1153,16 @@ if not st.session_state.quiz_active:
                 st.rerun()
 
     selected_unit = st.session_state.unit_selector
-    is_all = (selected_unit == "All")
+    is_all = (selected_unit == "Practice Test")
 
     if is_all:
         st.markdown(
             '<div style="background:#1a2233;border:1px solid #2e4a7a;border-left:4px solid #4a7acd;'
             'border-radius:7px;padding:0.75rem 1rem;font-size:0.88rem;color:#7aaee8;margin:0.75rem 0;">'
-            '<strong>All (Exam Mode)</strong><br>'
+            '<strong>Practice Test (Exam Mode)</strong><br>'
             '20 questions &nbsp;·&nbsp; 2 Binary↔Decimal &nbsp;·&nbsp; 2 Hex→Decimal '
             '&nbsp;·&nbsp; 2 Decimal→Hex &nbsp;·&nbsp; 14 Subnetting<br>'
+            'Subnetting mix: IP Info · Host Range &amp; Broadcast · Subnet Design · Host-Based Subnet Design (3 each + 2 random)<br>'
             'Passing score: <strong>16 / 20 (80%)</strong>'
             '</div>',
             unsafe_allow_html=True,
@@ -1284,8 +1343,6 @@ elif st.session_state.quiz_active:
                     if ok:
                         st.markdown(f'<span style="color:#5ec47a;font-size:0.85rem;">✓ Correct</span>', unsafe_allow_html=True)
                     else:
-                        # For gen_subnet_full, first_host/last_host share the host_range key.
-                        # For the new design units, every fkey IS a key in expls directly.
                         expl_key  = {"first_host": "host_range", "last_host": "host_range"}.get(fkey, fkey)
                         expl_text = expls.get(expl_key) or expls.get(fkey, "")
                         st.markdown(
