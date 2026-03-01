@@ -11,12 +11,13 @@
     <div id="root"></div>
 
     <script id="app-source" type="text/plain">
+#V5
+
 import streamlit as st
 import random
 import time
 import ipaddress
 
-#V3
 
 
 # ── CONSTANTS ─────────────────────────────────────────────────────────────────
@@ -82,7 +83,7 @@ def binary_table_html(n):
     if n == 0:
         bit_count = 1
     else:
-        bit_count = n.bit_length()  # e.g. 16091 → 14 bits, starts at the leading 1
+        bit_count = n.bit_length()
 
     powers = list(range(bit_count - 1, -1, -1))
     values = [2 ** p for p in powers]
@@ -290,12 +291,18 @@ def gen_binary_dotted_decimal():
 
 def build_subnet_data():
     ip_class = random.choice(["A", "B", "C"])
+
+    # FIX #4: cap CIDR ranges so borrowed bits stay <= 6 (max 64 subnets).
+    # Avoids unwieldy million-subnet answers while still covering all three classes.
     if ip_class == "A":
-        first = random.randint(1, 126);   cidr = random.randint(9, 30)
+        first = random.randint(1, 126)
+        cidr  = random.randint(9, 14)   # 1–6 borrowed bits from /8
     elif ip_class == "B":
-        first = random.randint(128, 191); cidr = random.randint(17, 30)
+        first = random.randint(128, 191)
+        cidr  = random.randint(17, 22)  # 1–6 borrowed bits from /16
     else:
-        first = random.randint(192, 223); cidr = random.randint(25, 30)
+        first = random.randint(192, 223)
+        cidr  = random.randint(25, 30)  # 1–6 borrowed bits from /24
 
     ip_int        = (first << 24) | (random.randint(0,255) << 16) | (random.randint(0,255) << 8) | random.randint(0,255)
     mask_int      = (0xFFFFFFFF << (32 - cidr)) & 0xFFFFFFFF
@@ -319,13 +326,14 @@ def build_subnet_data():
     else:
         magic = 1; interesting_octet = 3
 
-    # Subnet count is based on the octet boundary, not IP class
-    # e.g. interesting octet 3 → boundary /24, interesting octet 2 → /16, etc.
-    octet_boundary = interesting_octet * 8   # 0→0, 1→8, 2→16, 3→24
-    subnet_bits    = cidr - octet_boundary
-    host_bits      = 32 - cidr
-    num_subnets    = 2 ** subnet_bits
-    num_hosts      = max(0, (2 ** host_bits) - 2)
+    # FIX #1: subnet count uses classful default boundary, not interesting-octet boundary
+    classful_boundary     = {"A": 8, "B": 16, "C": 24}[ip_class]
+    classful_default_mask = {8: "255.0.0.0", 16: "255.255.0.0", 24: "255.255.255.0"}[classful_boundary]
+    borrowed_bits         = cidr - classful_boundary
+    num_subnets           = 2 ** borrowed_bits
+
+    host_bits = 32 - cidr
+    num_hosts = max(0, (2 ** host_bits) - 2)
 
     ip_octets      = [int(x) for x in ip_str.split(".")]
     network_octets = [int(x) for x in network_str.split(".")]
@@ -338,18 +346,19 @@ def build_subnet_data():
 
     return {
         "ip": ip_str, "mask": mask_str, "cidr": cidr, "ip_class": ip_class,
-        "octet_boundary": octet_boundary, "subnet_id": network_str,
-        "broadcast": bcast_str, "first_host": first_host, "last_host": last_host,
+        "classful_boundary": classful_boundary, "classful_default_mask": classful_default_mask,
+        "borrowed_bits": borrowed_bits,
+        "subnet_id": network_str, "broadcast": bcast_str,
+        "first_host": first_host, "last_host": last_host,
         "num_subnets": num_subnets, "num_hosts": num_hosts,
-        "host_bits": host_bits, "subnet_bits": subnet_bits,
+        "host_bits": host_bits,
         "magic": magic, "interesting_octet": interesting_octet,
         "host_val": host_val, "subnet_val": subnet_val, "block_str": block_str,
     }
 
 def make_subnet_explanations(d):
-    ip    = d["ip"];   mask  = d["mask"];  cidr  = d["cidr"]
-    ob    = d["octet_boundary"]
-    sbits = d["subnet_bits"]; hbits = d["host_bits"]
+    ip    = d["ip"];  cidr  = d["cidr"]
+    hbits = d["host_bits"]
     magic = d["magic"]; hval = d["host_val"]; sval = d["subnet_val"]
     bstr  = d["block_str"]; bcast = d["broadcast"]
     bcast_oct = int(bcast.split(".")[d["interesting_octet"]])
@@ -386,11 +395,17 @@ def make_subnet_explanations(d):
         f"3. First host = Network ID + 1  =  {d['first_host']}\n"
         f"   Last host  = broadcast – 1  =  {d['last_host']}"
     )
+
+    # FIX #1 & #5: explanation uses classful boundary throughout
+    cb  = d["classful_boundary"]
+    cdm = d["classful_default_mask"]
+    bb  = d["borrowed_bits"]
+    cls = d["ip_class"]
     expls["num_subnets"] = (
-        f"The number of subnets is determined by how many bits are borrowed in the interesting octet.\n"
-        f"The interesting octet is the {octet_label} octet (the octet after the last 255), so the base boundary is /{ob}.\n"
-        f"1. Borrowed bits = /{cidr} – /{ob} = {sbits}\n"
-        f"2. Number of subnets = 2{sup(sbits)} = {d['num_subnets']}"
+        f"Subnets = 2^(borrowed bits), counting borrowed bits from the classful default boundary.\n"
+        f"1. First octet = {ip.split('.')[0]}  →  Class {cls}  →  default mask = {cdm} (/{cb})\n"
+        f"2. Borrowed bits = /{cidr} – /{cb} = {bb}\n"
+        f"3. Number of subnets = 2{sup(bb)} = {d['num_subnets']}"
     )
     expls["num_hosts"] = (
         f"Host bits are the 0s on the right side of the mask.\n"
@@ -425,8 +440,8 @@ def gen_subnet_ids():
     wrongs = set()
     while len(wrongs) < 3:
         bs = _subnet_wrong_ips(d["subnet_id"],  1)[0]
-        bb = _subnet_wrong_ips(d["broadcast"],  1)[0]
-        w  = f"Net ID: {bs}  |  Broadcast: {bb}"
+        bb_w = _subnet_wrong_ips(d["broadcast"], 1)[0]
+        w  = f"Net ID: {bs}  |  Broadcast: {bb_w}"
         if w != answer: wrongs.add(w)
     opts = [answer] + list(wrongs)
     random.shuffle(opts)
@@ -465,14 +480,25 @@ def gen_subnet_num_subnets():
     d     = build_subnet_data()
     expls = make_subnet_explanations(d)
     answer = str(d["num_subnets"])
+    bb     = d["borrowed_bits"]
+
+    # FIX #3: distractors are adjacent borrowed-bit counts — traps the
+    # most common error (off-by-one on borrowed bits) rather than random noise
     wrongs = set()
+    for delta in [-2, -1, 1, 2]:
+        fake_bb = bb + delta
+        if fake_bb >= 1:
+            w = str(2 ** fake_bb)
+            if w != answer:
+                wrongs.add(w)
     while len(wrongs) < 3:
-        w = str(2 ** random.randint(1, 14))
+        w = str(2 ** random.randint(1, 10))
         if w != answer: wrongs.add(w)
-    opts = [answer] + list(wrongs)
+
+    opts = [answer] + list(wrongs)[:3]
     random.shuffle(opts)
     return {
-        "question":    subnet_question_prefix(d) + "\n\nHow many subnets can be created?",
+        "question":    subnet_question_prefix(d) + "\n\nHow many subnets can be created?\n(Use the classful default boundary — Subnets = 2^borrowed bits)",
         "options":     {chr(65+i): v for i, v in enumerate(opts)},
         "answer_text": answer,
         "breakdown":   expls["num_subnets"],
@@ -485,11 +511,32 @@ def gen_subnet_num_hosts():
     d     = build_subnet_data()
     expls = make_subnet_explanations(d)
     answer = str(d["num_hosts"])
+    hbits  = d["host_bits"]
+
+    # FIX #3: distractors target the two most common mistakes —
+    # forgetting to subtract 2, and being off by one host bit
     wrongs = set()
+    # forgot to subtract 2
+    w_no_sub = str(2 ** hbits)
+    if w_no_sub != answer: wrongs.add(w_no_sub)
+    # off by one host bit (correct formula, wrong bit count)
+    for delta in [-1, 1]:
+        fake_hb = hbits + delta
+        if fake_hb >= 1:
+            w = str(max(0, (2 ** fake_hb) - 2))
+            if w != answer: wrongs.add(w)
+    # off by one host bit AND forgot to subtract 2
+    for delta in [-1, 1]:
+        fake_hb = hbits + delta
+        if fake_hb >= 1:
+            w = str(2 ** fake_hb)
+            if w != answer: wrongs.add(w)
+    # pad if still short
     while len(wrongs) < 3:
         w = str(max(0, (2 ** random.randint(1, 8)) - 2))
         if w != answer: wrongs.add(w)
-    opts = [answer] + list(wrongs)
+
+    opts = [answer] + list(wrongs)[:3]
     random.shuffle(opts)
     return {
         "question":    subnet_question_prefix(d) + "\n\nHow many usable hosts per subnet?",
@@ -523,6 +570,7 @@ def gen_subnet_full():
             ("broadcast",   "Broadcast Address",       d["broadcast"]),
             ("first_host",  "First Usable Host",       d["first_host"]),
             ("last_host",   "Last Usable Host",        d["last_host"]),
+            # FIX #1/#5: classful-based num_subnets used here too, consistent with explanation
             ("num_subnets", "Number of Subnets",       str(d["num_subnets"])),
             ("num_hosts",   "Number of Usable Hosts",  str(d["num_hosts"])),
         ],
@@ -543,7 +591,7 @@ GENERATORS = {
     "Hex to Decimal":                           gen_hex_to_decimal,
     "Binary to Dotted Decimal":                 gen_binary_dotted_decimal,
     "Subnetting":                               gen_subnetting_all,
-    "Subnet: Network ID & Broadcast": gen_subnet_ids,
+    "Subnet: Network ID & Broadcast":           gen_subnet_ids,
     "Subnet: Host Range":                       gen_subnet_host_range,
     "Subnet: Number of Subnets":                gen_subnet_num_subnets,
     "Subnet: Number of Hosts":                  gen_subnet_num_hosts,
