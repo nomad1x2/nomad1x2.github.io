@@ -11,7 +11,7 @@
     <div id="root"></div>
 
     <script id="app-source" type="text/plain">
-#V9
+#10
 import streamlit as st
 import random
 import time
@@ -174,19 +174,13 @@ def gen_decimal_to_binary():
     ]
     breakdown_html = "\n".join(lines) + binary_table_html(n)
 
-    wrongs = set()
-    while len(wrongs) < 3:
-        w = decimal_to_binary_str(random.randint(0, 100000))
-        if w != answer: wrongs.add(w)
-    opts = [answer] + list(wrongs)
-    random.shuffle(opts)
     return {
         "question":    f"Convert {n} (decimal) to 8-bit binary:",
-        "options":     {chr(65+i): v for i, v in enumerate(opts)},
         "answer_text": answer,
         "breakdown":   breakdown_html,
-        "type":        "mcq",
+        "type":        "text_input",
         "unit":        "Decimal to Binary",
+        "placeholder": "e.g. 10110011",
     }
 
 def gen_decimal_to_hex():
@@ -206,19 +200,13 @@ def gen_decimal_to_hex():
     lines += ["", f"Read remainders bottom-to-top  →  {answer}"]
     breakdown_html = "\n".join(lines) + hex_table_html(n, answer)
 
-    wrongs = set()
-    while len(wrongs) < 3:
-        w = decimal_to_hex_str(random.randint(1, 100000))
-        if w != answer: wrongs.add(w)
-    opts = [answer] + list(wrongs)
-    random.shuffle(opts)
     return {
         "question":    f"Convert {n} (decimal) to hexadecimal:",
-        "options":     {chr(65+i): v for i, v in enumerate(opts)},
         "answer_text": answer,
         "breakdown":   breakdown_html,
-        "type":        "mcq",
+        "type":        "text_input",
         "unit":        "Decimal to Hex",
+        "placeholder": "e.g. 1A3F",
     }
 
 def gen_hex_to_decimal():
@@ -240,19 +228,13 @@ def gen_hex_to_decimal():
     line4 = f"Step 4 — Sum:      {' + '.join(prod_terms)} = {n}"
     breakdown_html = intro + "\n".join([line1, line2, line3, line4]) + hex_table_html(n, hex_val)
 
-    wrongs = set()
-    while len(wrongs) < 3:
-        w = random.randint(1, 100000)
-        if w != n: wrongs.add(str(w))
-    opts = [str(n)] + list(wrongs)
-    random.shuffle(opts)
     return {
         "question":    f"Convert {hex_val} (hexadecimal) to decimal:",
-        "options":     {chr(65+i): v for i, v in enumerate(opts)},
         "answer_text": str(n),
         "breakdown":   breakdown_html,
-        "type":        "mcq",
+        "type":        "text_input",
         "unit":        "Hex to Decimal",
+        "placeholder": "e.g. 54321",
     }
 
 def gen_binary_dotted_decimal():
@@ -271,19 +253,13 @@ def gen_binary_dotted_decimal():
         tables_html += f'<div style="text-align:right;font-size:0.85rem;color:#7aaee8;font-family:monospace;margin-top:0.25rem;margin-bottom:0.75rem;">= <strong>{o}</strong></div>'
     breakdown_html = tables_html + "\n" + "\n".join(lines)
 
-    wrongs = set()
-    while len(wrongs) < 3:
-        w = ".".join(str(random.randint(0, 255)) for _ in range(4))
-        if w != decimal_ip: wrongs.add(w)
-    opts = [decimal_ip] + list(wrongs)
-    random.shuffle(opts)
     return {
         "question":    f"Convert this binary IP to dotted decimal:\n{binary_ip}",
-        "options":     {chr(65+i): v for i, v in enumerate(opts)},
         "answer_text": decimal_ip,
         "breakdown":   breakdown_html,
-        "type":        "mcq",
+        "type":        "text_input",
         "unit":        "Binary to Dotted Decimal",
+        "placeholder": "e.g. 192.168.1.1",
     }
 
 
@@ -340,8 +316,6 @@ def build_subnet_data():
     blocks = sorted(set(b for b in blocks if 0 <= b <= 255))[:6]
     block_str = "(" + ", ".join(str(b) for b in blocks) + ", ...)"
 
-    # Classful Network ID: zero out everything below the classful boundary
-    # e.g. Class A 97.x.x.x → 97.0.0.0,  Class B 128.10.x.x → 128.10.0.0
     classful_mask_int    = (0xFFFFFFFF << (32 - classful_boundary)) & 0xFFFFFFFF
     classful_network_str = int_to_dotted(ip_int & classful_mask_int)
 
@@ -349,8 +323,8 @@ def build_subnet_data():
         "ip": ip_str, "mask": mask_str, "cidr": cidr, "ip_class": ip_class,
         "classful_boundary": classful_boundary, "classful_default_mask": classful_default_mask,
         "borrowed_bits": borrowed_bits,
-        "subnet_id": network_str,              # IP AND subnet mask  (bitwise AND result)
-        "classful_network_id": classful_network_str,  # true Network ID (zero subnet)
+        "subnet_id": network_str,
+        "classful_network_id": classful_network_str,
         "broadcast": bcast_str,
         "first_host": first_host, "last_host": last_host,
         "num_subnets": num_subnets, "num_hosts": num_hosts,
@@ -416,7 +390,6 @@ def make_subnet_explanations(d):
         f"2. Usable hosts = 2{sup(hbits)} – 2 = {d['num_hosts']}"
     )
 
-    # Class explanation (reused in new question types)
     expls["ip_class"] = (
         f"Look at the first octet of the IP: {ip.split('.')[0]}\n"
         f"  1–126   → Class A\n"
@@ -425,14 +398,12 @@ def make_subnet_explanations(d):
         f"First octet {ip.split('.')[0]} → Class {cls}"
     )
 
-    # Bits taken explanation (reused in new question types)
     expls["bits_taken"] = (
         f"Bits taken = /{cidr} – classful default /{cb} = {bb}\n"
         f"  Class {cls} default boundary = /{cb} ({cdm})\n"
         f"  Subnet mask /{cidr} borrows {bb} extra bits beyond the default"
     )
 
-    # Network ID = the zero subnet — all subnet bits AND host bits zeroed (classful base address)
     cn = d["classful_network_id"]
     expls["network_id"] = (
         f"The Network ID identifies the entire classful network.\n"
@@ -443,7 +414,6 @@ def make_subnet_explanations(d):
         f"It cannot be assigned to a host."
     )
 
-    # Subnet ID = IP AND subnet mask (bitwise AND)
     sub = d["subnet_id"]
     expls["subnet_id_field"] = (
         f"The Subnet ID identifies which subnet the host belongs to.\n"
@@ -461,15 +431,12 @@ def subnet_question_prefix(d):
     return f"Given:\n  IP:   {d['ip']}\n  Mask: {d['mask']}  (/{d['cidr']})"
 
 
-# ── SUBNET: IP INFO (was Network ID & Broadcast) ──────────────────────────────
-# Matches worksheet 1: given IP + Mask, find Class, # Bits Taken, Network ID, Subnet ID
-# Uses text-box (subnet_full) format
+# ── SUBNET: IP INFO ───────────────────────────────────────────────────────────
 
 def gen_subnet_ip_info():
     d     = build_subnet_data()
     expls = make_subnet_explanations(d)
 
-    # Network ID = classful base (zero subnet), Subnet ID = IP AND mask
     network_id = d["classful_network_id"]
     subnet_id  = d["subnet_id"]
 
@@ -508,9 +475,7 @@ def gen_subnet_ip_info():
     }
 
 
-# ── SUBNET: HOST RANGE & BROADCAST (was Host Range) ──────────────────────────
-# Matches worksheet 2: given Subnet ID + /prefix, find Class, First IP, Last IP, Broadcast
-# Uses text-box (subnet_full) format
+# ── SUBNET: HOST RANGE & BROADCAST ───────────────────────────────────────────
 
 def gen_subnet_host_broadcast():
     d     = build_subnet_data()
@@ -536,7 +501,6 @@ def gen_subnet_host_broadcast():
         expls["broadcast"],
     ])
 
-    # For this question type the "given" is Subnet ID + mask (not the full IP)
     return {
         "question": (
             f"Given the subnet ID and subnet mask, find the class,\n"
@@ -675,11 +639,10 @@ def _ip_to_int(s):
     return sum(int(p) << (8 * (3 - i)) for i, p in enumerate(parts))
 
 def _interesting_octet(mask_str):
-    """Return index of first octet in mask that is not 255 (the 'magic' octet)."""
     for i, o in enumerate(mask_str.split(".")):
         if int(o) != 255:
             return i
-    return 3  # /32 edge case
+    return 3
 
 def _build_subnet_design_data():
     ip_class_choice = random.choice(["A", "B", "C"])
@@ -987,8 +950,6 @@ GENERATORS = {
 }
 
 def _build_all_composition():
-    # 6 conversion + 14 subnetting = 20 total
-    # Subnetting: 3 each of 4 types = 12, plus 2 randomly picked extras from same pool
     subnet_pool = [gen_subnet_ip_info, gen_subnet_host_broadcast, gen_subnet_design, gen_host_design]
     extras = random.sample(subnet_pool, 2)
     return (
@@ -1002,8 +963,6 @@ def _build_all_composition():
         extras
     )
 
-ALL_TOTAL      = 20
-ALL_PASS_SCORE = 16
 ALL_TOTAL      = 20
 ALL_PASS_SCORE = 16
 
@@ -1333,7 +1292,7 @@ elif st.session_state.quiz_active:
             unsafe_allow_html=True,
         )
 
-        # ── SUBNET FULL (text-box) ────────────────────────────────────────────
+        # ── SUBNET FULL (text-box fields) ─────────────────────────────────────
         if q_data["type"] == "subnet_full":
             fields  = q_data["fields"]
             expls   = q_data["explanations"]
@@ -1390,6 +1349,53 @@ elif st.session_state.quiz_active:
                     st.session_state.current_q   += 1
                     st.session_state.q_start_time = time.time()
                     st.rerun()
+
+        # ── TEXT INPUT (conversion questions) ─────────────────────────────────
+        elif q_data["type"] == "text_input":
+            placeholder = q_data.get("placeholder", "Type your answer here")
+            answer_text = q_data["answer_text"]
+
+            if already_answered:
+                user_val = st.session_state.selected_answers.get(q_key, "")
+                st.text_input("Your answer:", value=user_val, disabled=True, key=f"ti_display_{q_key}")
+            else:
+                st.text_input("Your answer:", placeholder=placeholder, key=f"ti_{q_key}")
+
+            btn_label = "Finish" if (already_answered and idx == total - 1) else "Submit" if not already_answered else "Next"
+            if st.button(btn_label, use_container_width=True):
+                if not already_answered:
+                    user_val = st.session_state.get(f"ti_{q_key}", "").strip()
+                    if user_val:
+                        is_correct = user_val.upper() == answer_text.upper()
+                        st.session_state.selected_answers[q_key] = user_val
+                        st.session_state.answered[q_key] = is_correct
+                        if is_correct:
+                            st.session_state.score += 1
+                        st.session_state.elapsed_times.append(time.time() - st.session_state.q_start_time)
+                        if not st.session_state.instant_feedback:
+                            st.session_state.current_q   += 1
+                            st.session_state.q_start_time = time.time()
+                        st.rerun()
+                else:
+                    st.session_state.current_q   += 1
+                    st.session_state.q_start_time = time.time()
+                    st.rerun()
+
+            if already_answered and st.session_state.instant_feedback:
+                is_correct = st.session_state.answered[q_key]
+                expl       = q_data["breakdown"]
+                if is_correct:
+                    st.markdown(
+                        f'<div class="feedback-correct">Correct'
+                        f'<div class="feedback-explanation">{expl}</div></div>',
+                        unsafe_allow_html=True,
+                    )
+                else:
+                    st.markdown(
+                        f'<div class="feedback-wrong">Incorrect &mdash; correct answer: {answer_text}'
+                        f'<div class="feedback-explanation">{expl}</div></div>',
+                        unsafe_allow_html=True,
+                    )
 
         # ── MCQ ───────────────────────────────────────────────────────────────
         else:
