@@ -11,7 +11,7 @@
     <div id="root"></div>
 
     <script id="app-source" type="text/plain">
-#V8
+#V9
 import streamlit as st
 import random
 import time
@@ -475,7 +475,7 @@ def gen_subnet_ip_info():
 
     fields = [
         ("ip_class",   "Class  (A, B, or C)",      d["ip_class"]),
-        ("bits_taken", "Number of Bits Taken for Subnet", str(d["borrowed_bits"])),
+        ("bits_taken", "# of Bits Taken for Subnet", str(d["borrowed_bits"])),
         ("network_id", "Network ID",                network_id),
         ("subnet_id",  "Subnet ID",                 subnet_id),
     ]
@@ -674,6 +674,13 @@ def _ip_to_int(s):
     while len(parts) < 4: parts.append("0")
     return sum(int(p) << (8 * (3 - i)) for i, p in enumerate(parts))
 
+def _interesting_octet(mask_str):
+    """Return index of first octet in mask that is not 255 (the 'magic' octet)."""
+    for i, o in enumerate(mask_str.split(".")):
+        if int(o) != 255:
+            return i
+    return 3  # /32 edge case
+
 def _build_subnet_design_data():
     ip_class_choice = random.choice(["A", "B", "C"])
     if ip_class_choice == "A":
@@ -737,7 +744,7 @@ def gen_subnet_design():
 
     net_int        = _ip_to_int(net)
     host_bits      = 32 - np_
-    interesting_oi = 3 - (host_bits // 8)
+    interesting_oi = _interesting_octet(mask)
     octet_inc      = bs >> (8 * (3 - interesting_oi))
     oi_label       = ["1st", "2nd", "3rd", "4th"][interesting_oi]
     mask_oct_val   = int(mask.split(".")[interesting_oi])
@@ -889,7 +896,7 @@ def gen_host_design():
     net = d["net_str"]; fh = d["first_host"];      lh = d["last_host"]
 
     net_int        = _ip_to_int(net)
-    interesting_oi = 3 - (hb // 8)
+    interesting_oi = _interesting_octet(mask)
     octet_inc      = bs >> (8 * (3 - interesting_oi))
     oi_label       = ["1st", "2nd", "3rd", "4th"][interesting_oi]
     mask_oct_val   = int(mask.split(".")[interesting_oi])
