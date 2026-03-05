@@ -342,13 +342,17 @@ if not st.session_state.quiz_active:
 
     col1, col2 = st.columns(2)
     with col1:
-        num_questions = st.slider(
-            "Number of questions",
-            min_value=1,
-            max_value=slider_max,
-            value=slider_default,
-            step=slider_step,
-        )
+        if slider_max > 1:
+            num_questions = st.slider(
+                "Number of questions",
+                min_value=1,
+                max_value=slider_max,
+                value=slider_default,
+                step=slider_step,
+            )
+        else:
+            num_questions = 1
+            st.markdown("**Number of questions:** 1 *(only 1 remaining)*")
     with col2:
         randomize = st.checkbox("Randomize order", value=True)
 
