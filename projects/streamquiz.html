@@ -1,17 +1,4 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>Quiz</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stlite/browser@0.85.1/build/stlite.css" />
-  </head>
-  <body>
-    <div id="root"></div>
-
-    <script id="app-source" type="text/plain">
-#v8
+#v4
 import streamlit as st
 import json
 import random
@@ -44,7 +31,6 @@ UNIT_URLS = {
     "TCP/IP Model Questions": "https://nomad1x2.github.io/projects/quiz_sets/encrypted_tcpip_model.json",
     "OSI Model Questions": "https://nomad1x2.github.io/projects/quiz_sets/encrypted_osi_model.json",
 }
-
 
 
 # ── HELPERS ───────────────────────────────────────────────────────────────────
@@ -271,7 +257,7 @@ if not st.session_state.decryption_ok:
     if st.button("Unlock Quiz"):
         try:
             # Validate key against the "All" URL; raises ValueError on bad key
-            test_url = UNIT_URLS["All"]
+            test_url = UNIT_URLS["All Question Sets"]
             lm = get_last_modified(test_url)
             load_questions(passphrase_input, test_url, lm)
             st.session_state.passphrase    = passphrase_input
@@ -291,7 +277,7 @@ if not st.session_state.quiz_active:
 
     # ── Unit selector ─────────────────────────────────────────────────────────
     if "unit_selector" not in st.session_state:
-        st.session_state.unit_selector = st.session_state.get("last_selected_unit", "All")
+        st.session_state.unit_selector = st.session_state.get("last_selected_unit", "All Question Sets")
 
     selected_unit = st.radio(
         "Select unit",
@@ -574,21 +560,3 @@ elif st.session_state.quiz_active:
         if st.session_state.use_timer and not already_answered:
             time.sleep(0.5)
             st.rerun()
-    </script>
-
-    <script type="module">
-      import { mount } from "https://cdn.jsdelivr.net/npm/@stlite/browser@0.85.1/build/stlite.js";
-
-      mount(
-        {
-          entrypoint: "streamlit_app.py",
-          files: {
-            "streamlit_app.py": document.getElementById("app-source").textContent,
-          },
-          requirements: ["pyodide-http"],
-        },
-        document.getElementById("root")
-      );
-    </script>
-  </body>
-</html>
