@@ -1,0 +1,3052 @@
+{
+  "questions": {
+    "1": {
+      "question": "What organization developed the TCP/IP model in the early 1970s?",
+      "options": {
+        "a.": "ISO",
+        "b.": "IEEE",
+        "c.": "DARPA",
+        "d.": "IANA"
+      },
+      "answer": {
+        "c.": "DARPA (Defense Advanced Research Project Agency) developed the TCP/IP model."
+      }
+    },
+    "2": {
+      "question": "In what year was the OSI Model developed?",
+      "options": {
+        "a.": "1974",
+        "b.": "1980",
+        "c.": "1984",
+        "d.": "1990"
+      },
+      "answer": {
+        "c.": "The OSI Model was developed in 1984."
+      }
+    },
+    "3": {
+      "question": "How many layers does the OSI model have?",
+      "options": {
+        "a.": "4",
+        "b.": "5",
+        "c.": "6",
+        "d.": "7"
+      },
+      "answer": {
+        "d.": "The OSI model has 7 layers."
+      }
+    },
+    "4": {
+      "question": "Which layer of the OSI model is responsible for routing and logical addressing?",
+      "options": {
+        "a.": "Data Link",
+        "b.": "Transport",
+        "c.": "Network",
+        "d.": "Session"
+      },
+      "answer": {
+        "c.": "The Network layer (Layer 3) handles routing and logical addressing."
+      }
+    },
+    "5": {
+      "question": "Which layer of the OSI model is responsible for error detection (but not error recovery)?",
+      "options": {
+        "a.": "Physical",
+        "b.": "Network",
+        "c.": "Transport",
+        "d.": "Data Link"
+      },
+      "answer": {
+        "d.": "The Data Link layer detects errors via FCS but does not recover them."
+      }
+    },
+    "6": {
+      "question": "Which OSI layer encodes signals onto the physical medium?",
+      "options": {
+        "a.": "Data Link",
+        "b.": "Physical",
+        "c.": "Network",
+        "d.": "Transport"
+      },
+      "answer": {
+        "b.": "The Physical layer encodes signals onto the medium to transmit frames."
+      }
+    },
+    "7": {
+      "question": "Which OSI layer manages communication sessions between hosts?",
+      "options": {
+        "a.": "Transport",
+        "b.": "Presentation",
+        "c.": "Session",
+        "d.": "Application"
+      },
+      "answer": {
+        "c.": "The Session layer manages communication sessions between hosts."
+      }
+    },
+    "8": {
+      "question": "Which OSI layer provides services directly to application software running on a computer?",
+      "options": {
+        "a.": "Session",
+        "b.": "Presentation",
+        "c.": "Transport",
+        "d.": "Application"
+      },
+      "answer": {
+        "d.": "The Application layer provides services to application software and interfaces with transport layer services."
+      }
+    },
+    "9": {
+      "question": "Which OSI layer is responsible for flow control and reliable delivery of data?",
+      "options": {
+        "a.": "Network",
+        "b.": "Transport",
+        "c.": "Session",
+        "d.": "Data Link"
+      },
+      "answer": {
+        "b.": "The Transport layer handles flow control (via sliding windows) and reliability (via sequence numbers and acknowledgements)."
+      }
+    },
+    "10": {
+      "question": "What is the PDU at the Network layer called?",
+      "options": {
+        "a.": "Frame",
+        "b.": "Segment",
+        "c.": "Packet",
+        "d.": "Datagram"
+      },
+      "answer": {
+        "c.": "The PDU at the Network layer is called a Packet."
+      }
+    },
+    "11": {
+      "question": "What is the PDU at the Data Link layer called?",
+      "options": {
+        "a.": "Packet",
+        "b.": "Frame",
+        "c.": "Segment",
+        "d.": "Bits"
+      },
+      "answer": {
+        "b.": "The PDU at the Data Link layer is called a Frame."
+      }
+    },
+    "12": {
+      "question": "What is the PDU at the Physical layer called?",
+      "options": {
+        "a.": "Frames",
+        "b.": "Packets",
+        "c.": "Segments",
+        "d.": "Bits"
+      },
+      "answer": {
+        "d.": "The PDU at the Physical layer is Bits."
+      }
+    },
+    "13": {
+      "question": "What is the PDU at the Transport layer for TCP?",
+      "options": {
+        "a.": "Datagram",
+        "b.": "Packet",
+        "c.": "Segment",
+        "d.": "Frame"
+      },
+      "answer": {
+        "c.": "TCP uses Segments as its PDU at the Transport layer."
+      }
+    },
+    "14": {
+      "question": "What is the PDU at the Transport layer for UDP?",
+      "options": {
+        "a.": "Segment",
+        "b.": "Packet",
+        "c.": "Frame",
+        "d.": "Datagram"
+      },
+      "answer": {
+        "d.": "UDP uses Datagrams as its PDU at the Transport layer."
+      }
+    },
+    "15": {
+      "question": "What is the PDU at the Application layer called?",
+      "options": {
+        "a.": "Segment",
+        "b.": "Data",
+        "c.": "Frame",
+        "d.": "Packet"
+      },
+      "answer": {
+        "b.": "The PDU at the Application layer is simply called Data."
+      }
+    },
+    "16": {
+      "question": "What does TCP/IP use to define standardized protocols?",
+      "options": {
+        "a.": "IEEE Standards",
+        "b.": "Request for Comments (RFCs)",
+        "c.": "OSI Specifications",
+        "d.": "DARPA Directives"
+      },
+      "answer": {
+        "b.": "TCP/IP uses Request for Comments (RFCs) to define standardized protocols."
+      }
+    },
+    "17": {
+      "question": "Which of the following best describes 'adjacent-layer interaction'?",
+      "options": {
+        "a.": "The same layer on two different systems communicating with each other",
+        "b.": "Two adjacent layers on the same system working together",
+        "c.": "Two routers exchanging routing tables",
+        "d.": "A switch and a hub communicating"
+      },
+      "answer": {
+        "b.": "Adjacent-layer interaction is when neighboring layers on the same system work together, e.g., HTTP using TCP."
+      }
+    },
+    "18": {
+      "question": "Which of the following best describes 'same-layer interaction'?",
+      "options": {
+        "a.": "Two adjacent layers on the same system working together",
+        "b.": "The same layer on two different systems communicating via headers",
+        "c.": "A switch learning MAC addresses",
+        "d.": "A router forwarding a packet"
+      },
+      "answer": {
+        "b.": "Same-layer interaction is when the same layer on two different systems communicates using headers, e.g., TCP sequence numbers between two hosts."
+      }
+    },
+    "19": {
+      "question": "What is encapsulation in networking?",
+      "options": {
+        "a.": "Removing headers from data as it moves up the OSI model",
+        "b.": "Adding headers (and sometimes trailers) around data as it moves down the OSI model",
+        "c.": "Encrypting data before transmission",
+        "d.": "Compressing data to reduce size"
+      },
+      "answer": {
+        "b.": "Encapsulation is the process of adding headers (and sometimes trailers) around data as it passes down the layers."
+      }
+    },
+    "20": {
+      "question": "What is decapsulation in networking?",
+      "options": {
+        "a.": "Adding headers to data",
+        "b.": "Encrypting a packet",
+        "c.": "Inspecting and removing headers as data moves up the layers",
+        "d.": "Fragmenting a packet for transmission"
+      },
+      "answer": {
+        "c.": "Decapsulation is the process of inspecting and removing headers to process the data inside as it moves up the layers."
+      }
+    },
+    "21": {
+      "question": "What is the main reason TCP is considered 'connection-oriented'?",
+      "options": {
+        "a.": "It uses IP addresses to route packets",
+        "b.": "It establishes a logical connection via a three-way handshake before exchanging data",
+        "c.": "It operates at the Network layer",
+        "d.": "It sends data without waiting for acknowledgement"
+      },
+      "answer": {
+        "b.": "TCP is connection-oriented because it performs a three-way handshake to establish a logical connection before data is exchanged."
+      }
+    },
+    "22": {
+      "question": "What are the three steps of the TCP three-way handshake in order?",
+      "options": {
+        "a.": "SYN, SYN-ACK, ACK",
+        "b.": "ACK, SYN, SYN-ACK",
+        "c.": "SYN, ACK, SYN-ACK",
+        "d.": "SYN-ACK, SYN, ACK"
+      },
+      "answer": {
+        "a.": "The three-way handshake is SYN → SYN-ACK → ACK."
+      }
+    },
+    "23": {
+      "question": "What is the purpose of TCP windowing?",
+      "options": {
+        "a.": "To assign IP addresses dynamically",
+        "b.": "To control how much data a sender can transmit before waiting for an acknowledgement",
+        "c.": "To encrypt data in transit",
+        "d.": "To resolve MAC addresses from IP addresses"
+      },
+      "answer": {
+        "b.": "TCP windowing is a flow control mechanism that limits how many segments can be sent before an acknowledgement is required."
+      }
+    },
+    "24": {
+      "question": "What happens when a sender does not receive a TCP acknowledgement?",
+      "options": {
+        "a.": "The connection is immediately terminated",
+        "b.": "The data segments are retransmitted more slowly",
+        "c.": "The sender increases the window size",
+        "d.": "The packet is dropped permanently"
+      },
+      "answer": {
+        "b.": "If no acknowledgement is received, the sender retransmits data segments more slowly."
+      }
+    },
+    "25": {
+      "question": "What does UDP trade in exchange for speed?",
+      "options": {
+        "a.": "Security",
+        "b.": "Reliability",
+        "c.": "Bandwidth",
+        "d.": "Encryption"
+      },
+      "answer": {
+        "b.": "UDP trades reliability for speed — it does not guarantee delivery."
+      }
+    },
+    "26": {
+      "question": "Which protocol would be most appropriate for a streaming video application?",
+      "options": {
+        "a.": "TCP, because it guarantees delivery",
+        "b.": "UDP, because speed is prioritized over reliability",
+        "c.": "FTP, because it handles large files",
+        "d.": "ICMP, because it monitors the connection"
+      },
+      "answer": {
+        "b.": "UDP is preferred for streaming because it prioritizes speed over guaranteed delivery."
+      }
+    },
+    "27": {
+      "question": "What is the UDP header length?",
+      "options": {
+        "a.": "32 bits",
+        "b.": "48 bits",
+        "c.": "64 bits",
+        "d.": "128 bits"
+      },
+      "answer": {
+        "c.": "The UDP header length is always 64 bits."
+      }
+    },
+    "28": {
+      "question": "What is a socket made up of?",
+      "options": {
+        "a.": "IP address, MAC address, and port number",
+        "b.": "IP address, transport protocol, and port number",
+        "c.": "MAC address, transport protocol, and VLAN ID",
+        "d.": "IP address, subnet mask, and default gateway"
+      },
+      "answer": {
+        "b.": "A socket consists of an IP address, transport protocol (TCP or UDP), and port number."
+      }
+    },
+    "29": {
+      "question": "What is the well-known/system port range?",
+      "options": {
+        "a.": "0 – 1023",
+        "b.": "1024 – 49151",
+        "c.": "49152 – 65535",
+        "d.": "1025 – 50000"
+      },
+      "answer": {
+        "a.": "Well-known/system ports range from 0 to 1023 and are controlled by IANA."
+      }
+    },
+    "30": {
+      "question": "What is the dynamic/ephemeral port range for modern operating systems (newer than Windows XP)?",
+      "options": {
+        "a.": "0 – 1023",
+        "b.": "1024 – 49151",
+        "c.": "49152 – 65535",
+        "d.": "1025 – 50000"
+      },
+      "answer": {
+        "c.": "Modern OSes use the ephemeral port range 49152 – 65535."
+      }
+    },
+    "31": {
+      "question": "What is the primary protocol at the Network layer of the TCP/IP model?",
+      "options": {
+        "a.": "TCP",
+        "b.": "UDP",
+        "c.": "IP",
+        "d.": "Ethernet"
+      },
+      "answer": {
+        "c.": "Internet Protocol (IP) is the primary protocol at the Network layer."
+      }
+    },
+    "32": {
+      "question": "What is the minimum length of an IPv4 header?",
+      "options": {
+        "a.": "10 bytes",
+        "b.": "20 bytes",
+        "c.": "40 bytes",
+        "d.": "60 bytes"
+      },
+      "answer": {
+        "b.": "The minimum IPv4 header length is 20 bytes; the maximum is 60 bytes."
+      }
+    },
+    "33": {
+      "question": "What is the fixed size of an IPv6 header?",
+      "options": {
+        "a.": "20 bytes",
+        "b.": "32 bytes",
+        "c.": "40 bytes",
+        "d.": "60 bytes"
+      },
+      "answer": {
+        "c.": "The IPv6 header is always a fixed 40 bytes."
+      }
+    },
+    "34": {
+      "question": "What is the purpose of the TTL field in an IPv4 header?",
+      "options": {
+        "a.": "To encrypt the packet",
+        "b.": "To identify the transport protocol being used",
+        "c.": "To prevent packets from looping indefinitely in the network",
+        "d.": "To fragment the packet"
+      },
+      "answer": {
+        "c.": "TTL (Time to Live) decrements by 1 at each hop and prevents packets from looping endlessly."
+      }
+    },
+    "35": {
+      "question": "What is the IPv6 equivalent of the IPv4 TTL field?",
+      "options": {
+        "a.": "Flow Label",
+        "b.": "Traffic Class",
+        "c.": "Hop Limit",
+        "d.": "Next Header"
+      },
+      "answer": {
+        "c.": "The Hop Limit field in IPv6 serves the same purpose as TTL in IPv4."
+      }
+    },
+    "36": {
+      "question": "How large are IPv6 source and destination address fields?",
+      "options": {
+        "a.": "32 bits",
+        "b.": "64 bits",
+        "c.": "128 bits",
+        "d.": "256 bits"
+      },
+      "answer": {
+        "c.": "IPv6 source and destination addresses are each 128 bits."
+      }
+    },
+    "37": {
+      "question": "What is the purpose of the IPv6 Flow Label field?",
+      "options": {
+        "a.": "To identify the version of IP",
+        "b.": "To manage Quality of Service (QoS)",
+        "c.": "To limit the number of hops",
+        "d.": "To indicate the payload length"
+      },
+      "answer": {
+        "b.": "The Flow Label field (20 bits) is used for Quality of Service (QoS) management."
+      }
+    },
+    "38": {
+      "question": "What does ARP do?",
+      "options": {
+        "a.": "Translates domain names to IP addresses",
+        "b.": "Maps a known IP address to a MAC address",
+        "c.": "Assigns IP addresses to hosts",
+        "d.": "Encrypts traffic between hosts"
+      },
+      "answer": {
+        "b.": "ARP (Address Resolution Protocol) maps a known IP address to a MAC address."
+      }
+    },
+    "39": {
+      "question": "What does ICMP primarily provide?",
+      "options": {
+        "a.": "Reliable data delivery",
+        "b.": "IP address assignment",
+        "c.": "Feedback about problems in the network",
+        "d.": "Encryption of network traffic"
+      },
+      "answer": {
+        "c.": "ICMP provides feedback about network problems, such as destination unreachable and time exceeded messages."
+      }
+    },
+    "40": {
+      "question": "What is the Frame Check Sequence (FCS) used for?",
+      "options": {
+        "a.": "Encrypting the frame",
+        "b.": "Detecting transmission errors in a frame",
+        "c.": "Routing the frame to the correct destination",
+        "d.": "Assigning a MAC address to the frame"
+      },
+      "answer": {
+        "b.": "FCS uses a 32-bit CRC to allow the receiving NIC to detect whether a frame experienced transmission errors."
+      }
+    },
+    "41": {
+      "question": "How long is a MAC address?",
+      "options": {
+        "a.": "32 bits",
+        "b.": "48 bits",
+        "c.": "64 bits",
+        "d.": "128 bits"
+      },
+      "answer": {
+        "b.": "A MAC address is 48 bits (12 hex digits) long."
+      }
+    },
+    "42": {
+      "question": "What do the first 6 hex digits of a MAC address identify?",
+      "options": {
+        "a.": "The device's IP address",
+        "b.": "The interface serial number",
+        "c.": "The manufacturer or vendor (OUI)",
+        "d.": "The VLAN the device belongs to"
+      },
+      "answer": {
+        "c.": "The first 6 hex digits of a MAC address are the Organizationally Unique Identifier (OUI) identifying the manufacturer."
+      }
+    },
+    "43": {
+      "question": "What is the broadcast MAC address?",
+      "options": {
+        "a.": "00:00:00:00:00:00",
+        "b.": "FF:FF:FF:FF:FF:FF",
+        "c.": "127.0.0.1",
+        "d.": "255.255.255.255"
+      },
+      "answer": {
+        "b.": "The broadcast MAC address is FF:FF:FF:FF:FF:FF, sent to all devices on the network."
+      }
+    },
+    "44": {
+      "question": "What table does a switch use to make forwarding decisions?",
+      "options": {
+        "a.": "Routing table",
+        "b.": "ARP table",
+        "c.": "CAM (MAC address) table",
+        "d.": "DHCP lease table"
+      },
+      "answer": {
+        "c.": "A switch uses the CAM (Content Addressable Memory) table, also called the MAC address table, to forward or filter frames."
+      }
+    },
+    "45": {
+      "question": "What does a switch do when it receives a frame destined for an unknown MAC address?",
+      "options": {
+        "a.": "Drops the frame",
+        "b.": "Sends it back to the sender",
+        "c.": "Floods the frame out all ports except the origin",
+        "d.": "Sends an ICMP error message"
+      },
+      "answer": {
+        "c.": "If the destination MAC is unknown, the switch floods the frame out all ports except the one it was received on."
+      }
+    },
+    "46": {
+      "question": "How long does a switch keep an inactive MAC address in its CAM table by default?",
+      "options": {
+        "a.": "60 seconds",
+        "b.": "180 seconds",
+        "c.": "300 seconds",
+        "d.": "600 seconds"
+      },
+      "answer": {
+        "c.": "Inactive MAC addresses expire from the CAM table after 300 seconds by default."
+      }
+    },
+    "47": {
+      "question": "What is the purpose of Spanning Tree Protocol (STP)?",
+      "options": {
+        "a.": "To assign IP addresses automatically",
+        "b.": "To prevent Layer 2 frame loops in a switched network",
+        "c.": "To encrypt frames on the network",
+        "d.": "To route packets between networks"
+      },
+      "answer": {
+        "b.": "STP prevents Layer 2 frame loops by placing switch ports in either blocking or forwarding state."
+      }
+    },
+    "48": {
+      "question": "What is the difference between a collision domain and a broadcast domain?",
+      "options": {
+        "a.": "They are the same thing",
+        "b.": "A collision domain is where frames can collide; a broadcast domain is where broadcast frames are received by all",
+        "c.": "A broadcast domain is where frames can collide; a collision domain is where broadcasts are sent",
+        "d.": "Collision domains apply to routers; broadcast domains apply to switches"
+      },
+      "answer": {
+        "b.": "A collision domain is a segment where frame collisions can occur; a broadcast domain is where all devices receive a broadcast frame."
+      }
+    },
+    "49": {
+      "question": "What device separates broadcast domains?",
+      "options": {
+        "a.": "Hub",
+        "b.": "Switch",
+        "c.": "Router",
+        "d.": "Bridge"
+      },
+      "answer": {
+        "c.": "Routers ignore broadcasts by default, making them the device that separates broadcast domains."
+      }
+    },
+    "50": {
+      "question": "How does a switch differ from a hub in terms of collision domains?",
+      "options": {
+        "a.": "A hub creates separate collision domains per port; a switch has one shared collision domain",
+        "b.": "A switch creates a separate collision domain per port; a hub has one shared collision domain",
+        "c.": "They handle collision domains the same way",
+        "d.": "Neither device is related to collision domains"
+      },
+      "answer": {
+        "b.": "A switch gives each port its own collision domain, while a hub has a single shared collision domain for all connected devices."
+      }
+    },
+    "51": {
+      "question": "What is the difference between a straight-through and a crossover cable?",
+      "options": {
+        "a.": "Straight-through connects like devices; crossover connects unlike devices",
+        "b.": "Straight-through connects unlike devices; crossover connects like devices",
+        "c.": "They are interchangeable",
+        "d.": "Straight-through is used for fiber; crossover for copper"
+      },
+      "answer": {
+        "b.": "Straight-through cables connect unlike devices (e.g., router to switch); crossover cables connect like devices (e.g., router to router)."
+      }
+    },
+    "52": {
+      "question": "What is the main difference between Single Mode Fiber (SMF) and Multimode Fiber (MMF)?",
+      "options": {
+        "a.": "SMF uses LED and is cheaper; MMF uses laser and is more expensive",
+        "b.": "SMF uses a laser and supports greater distances; MMF uses LED and is cheaper",
+        "c.": "SMF and MMF are identical in performance",
+        "d.": "MMF supports higher bandwidth than SMF"
+      },
+      "answer": {
+        "b.": "SMF uses a laser and glass core for greater bandwidth and distance; MMF uses LED, has a larger core, and is cheaper."
+      }
+    },
+    "53": {
+      "question": "What does CSMA/CD stand for?",
+      "options": {
+        "a.": "Carrier Sense Multiple Access / Collision Detection",
+        "b.": "Channel Sense Multiple Access / Collision Delay",
+        "c.": "Carrier Signal Multiple Access / Collision Delay",
+        "d.": "Channel Sense Media Access / Collision Detection"
+      },
+      "answer": {
+        "a.": "CSMA/CD stands for Carrier Sense Multiple Access / Collision Detection."
+      }
+    },
+    "54": {
+      "question": "What happens when a collision occurs in a CSMA/CD network?",
+      "options": {
+        "a.": "The frame is immediately retransmitted",
+        "b.": "The connection is permanently dropped",
+        "c.": "Each station randomly selects a hold time before retransmitting",
+        "d.": "The switch reroutes the traffic automatically"
+      },
+      "answer": {
+        "c.": "When a collision is detected, each station randomly selects a hold time and waits before retransmitting."
+      }
+    },
+    "55": {
+      "question": "What IEEE standard governs Ethernet?",
+      "options": {
+        "a.": "IEEE 802.1X",
+        "b.": "IEEE 802.3",
+        "c.": "IEEE 802.11",
+        "d.": "IEEE 802.15"
+      },
+      "answer": {
+        "b.": "IEEE 802.3 defines the Ethernet standard."
+      }
+    },
+    "56": {
+      "question": "What IEEE standard governs wireless LANs (Wi-Fi)?",
+      "options": {
+        "a.": "IEEE 802.3",
+        "b.": "IEEE 802.1X",
+        "c.": "IEEE 802.11",
+        "d.": "IEEE 802.16"
+      },
+      "answer": {
+        "c.": "IEEE 802.11 governs Wireless Local Area Networks (WLANs)."
+      }
+    },
+    "57": {
+      "question": "What is IEEE 802.1X used for?",
+      "options": {
+        "a.": "Defining Ethernet cabling standards",
+        "b.": "Port-based Network Access Control and authentication",
+        "c.": "Wireless metropolitan area networks",
+        "d.": "Bluetooth communication"
+      },
+      "answer": {
+        "b.": "IEEE 802.1X is a standard for port-based Network Access Control, providing authentication for devices connecting to LANs/WANs."
+      }
+    },
+    "58": {
+      "question": "What Bluetooth standard falls under IEEE 802.15?",
+      "options": {
+        "a.": "802.15.3",
+        "b.": "802.15.1",
+        "c.": "802.15.4",
+        "d.": "802.15.2"
+      },
+      "answer": {
+        "b.": "Bluetooth is defined under IEEE 802.15.1."
+      }
+    },
+    "59": {
+      "question": "What is WiMAX, and which IEEE standard is it associated with?",
+      "options": {
+        "a.": "A wireless LAN standard; IEEE 802.11",
+        "b.": "A wireless PAN standard; IEEE 802.15",
+        "c.": "A wireless metropolitan area network standard; IEEE 802.16",
+        "d.": "An authentication standard; IEEE 802.1X"
+      },
+      "answer": {
+        "c.": "WiMAX (Worldwide Interoperability for Microwave Access) is associated with IEEE 802.16 and covers wireless metropolitan area networks."
+      }
+    },
+    "60": {
+      "question": "What are the three private IPv4 address ranges?",
+      "options": {
+        "a.": "10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16",
+        "b.": "10.0.0.0/8, 172.0.0.0/8, 192.168.0.0/24",
+        "c.": "10.0.0.0/16, 172.16.0.0/16, 192.168.0.0/16",
+        "d.": "10.0.0.0/8, 172.16.0.0/16, 192.168.0.0/24"
+      },
+      "answer": {
+        "a.": "The three private IPv4 ranges are 10.0.0.0/8, 172.16.0.0/12, and 192.168.0.0/16."
+      }
+    },
+    "61": {
+      "question": "What is the loopback address in IPv4?",
+      "options": {
+        "a.": "0.0.0.0",
+        "b.": "169.254.0.1",
+        "c.": "127.0.0.1",
+        "d.": "192.168.0.1"
+      },
+      "answer": {
+        "c.": "127.0.0.1 is the IPv4 loopback address, representing 'this computer.'"
+      }
+    },
+    "62": {
+      "question": "What is an APIPA address and when is it assigned?",
+      "options": {
+        "a.": "A public IP address assigned by ISPs",
+        "b.": "A private IP address auto-assigned when no DHCP server is reachable, in the 169.254.0.0/16 range",
+        "c.": "A loopback address used for testing",
+        "d.": "An IPv6 address used for local communication"
+      },
+      "answer": {
+        "b.": "APIPA (169.254.0.0/16) is automatically assigned when a host cannot reach a DHCP server, allowing LAN-only communication."
+      }
+    },
+    "63": {
+      "question": "What are the three types of IPv4 Ethernet addressing?",
+      "options": {
+        "a.": "Unicast, Anycast, Multicast",
+        "b.": "Unicast, Broadcast, Multicast",
+        "c.": "Unicast, Broadcast, Anycast",
+        "d.": "Broadcast, Multicast, Anycast"
+      },
+      "answer": {
+        "b.": "IPv4 Ethernet addressing supports Unicast, Broadcast, and Multicast."
+      }
+    },
+    "64": {
+      "question": "What replaced IPv4 broadcast in IPv6?",
+      "options": {
+        "a.": "Unicast",
+        "b.": "Anycast",
+        "c.": "Multicast",
+        "d.": "Link Local"
+      },
+      "answer": {
+        "c.": "IPv6 replaced IPv4 broadcast with Multicast."
+      }
+    },
+    "65": {
+      "question": "What is an IPv6 Anycast address typically used for?",
+      "options": {
+        "a.": "Sending data to all devices on the network",
+        "b.": "Locating the nearest server offering a specific service",
+        "c.": "Providing a globally routable public address",
+        "d.": "Testing the local loopback"
+      },
+      "answer": {
+        "b.": "Anycast is used to locate the nearest server offering a specific service, such as DNS or DHCP."
+      }
+    },
+    "66": {
+      "question": "How is an IPv6 address represented?",
+      "options": {
+        "a.": "4 groups of decimal numbers separated by dots",
+        "b.": "8 groups of 4 hex digits separated by colons",
+        "c.": "12 hex digits with no separators",
+        "d.": "6 groups of 2 hex digits separated by dashes"
+      },
+      "answer": {
+        "b.": "IPv6 addresses are represented as 8 groups of 4 hex digits separated by colons."
+      }
+    },
+    "67": {
+      "question": "What is the rule for abbreviating consecutive zeros in an IPv6 address?",
+      "options": {
+        "a.": "Consecutive zeros can be replaced with '::' multiple times",
+        "b.": "Consecutive zeros can be replaced with '::' only once per address",
+        "c.": "Leading zeros cannot be removed",
+        "d.": "Zeros cannot be abbreviated in IPv6"
+      },
+      "answer": {
+        "b.": "Consecutive groups of zeros can be replaced with '::' but only once per address to avoid ambiguity."
+      }
+    },
+    "68": {
+      "question": "What is the IPv6 loopback address?",
+      "options": {
+        "a.": "FE80::1",
+        "b.": "FF00::1",
+        "c.": "::1",
+        "d.": "2000::1"
+      },
+      "answer": {
+        "c.": "The IPv6 loopback address is ::1 (equivalent to 127.0.0.1 in IPv4)."
+      }
+    },
+    "69": {
+      "question": "What type of IPv6 address is equivalent to a private IPv4 address?",
+      "options": {
+        "a.": "Global Unicast",
+        "b.": "Link Local",
+        "c.": "Unique Local Address",
+        "d.": "Multicast"
+      },
+      "answer": {
+        "c.": "Unique Local Addresses (FC00::/8 or FD00::/8) are the IPv6 equivalent of private IPv4 addresses — not publicly routable."
+      }
+    },
+    "70": {
+      "question": "What type of IPv6 address is only routable within a broadcast domain?",
+      "options": {
+        "a.": "Global Unicast",
+        "b.": "Unique Local",
+        "c.": "Multicast",
+        "d.": "Link Local"
+      },
+      "answer": {
+        "d.": "Link Local addresses (FE80::/10) are only routable within a broadcast domain."
+      }
+    },
+    "71": {
+      "question": "Why was IPv6 developed?",
+      "options": {
+        "a.": "To replace TCP with a faster protocol",
+        "b.": "To increase available IP addresses, improve security, and simplify headers",
+        "c.": "To eliminate the need for DNS",
+        "d.": "To replace Ethernet with a wireless standard"
+      },
+      "answer": {
+        "b.": "IPv6 was developed to increase available addresses, improve security (IPSec), simplify headers, and enable more efficient routing."
+      }
+    },
+    "72": {
+      "question": "How many total IPv6 addresses are available?",
+      "options": {
+        "a.": "2^32",
+        "b.": "2^64",
+        "c.": "2^128",
+        "d.": "2^256"
+      },
+      "answer": {
+        "c.": "IPv6 provides 2^128 addresses — approximately 340 undecillion total."
+      }
+    },
+    "73": {
+      "question": "What is the purpose of IPv6 Extension Headers?",
+      "options": {
+        "a.": "To replace the fixed IPv6 header",
+        "b.": "To move variable-length fields from the IPv4 header into the packet",
+        "c.": "To encrypt the IPv6 payload",
+        "d.": "To limit the number of hops a packet can take"
+      },
+      "answer": {
+        "b.": "IPv6 Extension Headers move variable-length fields (like those in IPv4 headers) into the packet, keeping the fixed header simple."
+      }
+    },
+    "74": {
+      "question": "What does DHCP stand for and what is its primary function?",
+      "options": {
+        "a.": "Dynamic Host Configuration Protocol; assigns IP addresses and network config to hosts",
+        "b.": "Dynamic Host Control Protocol; controls access to the network",
+        "c.": "Distributed Host Configuration Protocol; distributes routing tables",
+        "d.": "Dynamic Host Connection Protocol; establishes VPN connections"
+      },
+      "answer": {
+        "a.": "DHCP (Dynamic Host Configuration Protocol) automatically assigns IP addresses, subnet masks, default gateways, and other config to hosts."
+      }
+    },
+    "75": {
+      "question": "What does DNS stand for and what is its primary function?",
+      "options": {
+        "a.": "Data Network Service; routes packets across networks",
+        "b.": "Domain Name Service; translates domain names into IP addresses",
+        "c.": "Dynamic Naming System; assigns names to MAC addresses",
+        "d.": "Distributed Network System; manages network topology"
+      },
+      "answer": {
+        "b.": "DNS (Domain Name Service) translates human-readable domain names into IP addresses."
+      }
+    },
+    "76": {
+      "question": "What does NTP do?",
+      "options": {
+        "a.": "Translates network addresses",
+        "b.": "Synchronizes computer clock times across a network",
+        "c.": "Monitors network traffic",
+        "d.": "Transfers files between hosts"
+      },
+      "answer": {
+        "b.": "NTP (Network Timing Protocol) synchronizes computer clocks across a network down to a millisecond or fraction of a millisecond."
+      }
+    },
+    "77": {
+      "question": "What could happen to HTTPS certificate signing if NTP is not synchronized?",
+      "options": {
+        "a.": "The certificate becomes more secure",
+        "b.": "Certificate signing can fail",
+        "c.": "The port changes from 443 to 80",
+        "d.": "Nothing — NTP has no effect on certificates"
+      },
+      "answer": {
+        "b.": "If NTP is not synchronized, certificate signing can fail because timestamps are used in the certificate validation process."
+      }
+    },
+    "78": {
+      "question": "What is the difference between FTP and TFTP?",
+      "options": {
+        "a.": "FTP is connectionless; TFTP is connection-oriented",
+        "b.": "FTP is a full-featured file transfer protocol; TFTP is a simplified version with no authentication or directory listing",
+        "c.": "FTP uses UDP; TFTP uses TCP",
+        "d.": "They are identical protocols"
+      },
+      "answer": {
+        "b.": "FTP is a full-featured protocol with authentication and directory support; TFTP is a simplified version that can only read/write files and has no authentication or directory listing."
+      }
+    },
+    "79": {
+      "question": "What is a self-signed HTTPS certificate?",
+      "options": {
+        "a.": "A certificate that confirms the identity of the website",
+        "b.": "A certificate that provides confidentiality but does not confirm the identity of the site",
+        "c.": "A certificate that encrypts traffic using symmetric encryption only",
+        "d.": "A certificate issued by a trusted certificate authority"
+      },
+      "answer": {
+        "b.": "A self-signed certificate provides HTTPS confidentiality but does not confirm the identity of the site."
+      }
+    },
+    "80": {
+      "question": "What is the typical use case for TFTP?",
+      "options": {
+        "a.": "Secure file transfers over the internet",
+        "b.": "Storage and retrieval of Cisco IOS and switch configuration files",
+        "c.": "Streaming video content",
+        "d.": "Remote terminal access"
+      },
+      "answer": {
+        "b.": "TFTP is typically used for the storage and retrieval of Cisco IOS and Catalyst switch configuration files."
+      }
+    },
+    "81": {
+      "question": "What does the acronym OSI stand for?",
+      "options": {
+        "a.": "Open Systems Interconnection",
+        "b.": "Open Standard Infrastructure",
+        "c.": "Organizational Systems Interface",
+        "d.": "Open Source Integration"
+      },
+      "answer": {
+        "a.": "OSI stands for Open Systems Interconnection."
+      }
+    },
+    "82": {
+      "question": "What organization developed the OSI model?",
+      "options": {
+        "a.": "DARPA",
+        "b.": "IEEE",
+        "c.": "ISO",
+        "d.": "IANA"
+      },
+      "answer": {
+        "c.": "The International Organization for Standardization (ISO) developed the OSI model in the late 1970s."
+      }
+    },
+    "83": {
+      "question": "Which network model became the de facto standard by the late 1990s?",
+      "options": {
+        "a.": "OSI",
+        "b.": "TCP/IP",
+        "c.": "IPX/SPX",
+        "d.": "NetBEUI"
+      },
+      "answer": {
+        "b.": "TCP/IP became the de facto standard by the late 1990s, and OSI fell away."
+      }
+    },
+    "84": {
+      "question": "Why is the OSI model still taught today even though it lost to TCP/IP?",
+      "options": {
+        "a.": "It is still used in government networks",
+        "b.": "Most protocols developed in the late 80s and 90s based their documentation on the OSI model",
+        "c.": "It is more secure than TCP/IP",
+        "d.": "It is required by IEEE standards"
+      },
+      "answer": {
+        "b.": "The OSI model is still taught because most protocols from the late 80s and 90s based their documentation on it, making its terminology essential."
+      }
+    },
+    "85": {
+      "question": "What is one benefit of using a layered network model?",
+      "options": {
+        "a.": "It increases network speed",
+        "b.": "It allows vendor interoperability and easier troubleshooting",
+        "c.": "It eliminates the need for IP addresses",
+        "d.": "It removes the need for physical cabling"
+      },
+      "answer": {
+        "b.": "Layered models allow vendor interoperability, easier troubleshooting, and standardized networking architecture."
+      }
+    },
+    "86": {
+      "question": "In the updated 5-layer TCP/IP model, which layer corresponds to OSI layers 5-7?",
+      "options": {
+        "a.": "Transport",
+        "b.": "Network",
+        "c.": "Application",
+        "d.": "Data Link"
+      },
+      "answer": {
+        "c.": "In the updated 5-layer TCP/IP model, OSI layers 5 through 7 are all collapsed into the Application layer."
+      }
+    },
+    "87": {
+      "question": "Which mnemonic correctly represents the OSI layers from Layer 7 down to Layer 1?",
+      "options": {
+        "a.": "Please Do Not Throw Sausage Pizza Away",
+        "b.": "All People Seem To Need Data Processing",
+        "c.": "Please Do Not Teach Stupid People Acronyms",
+        "d.": "All of the above"
+      },
+      "answer": {
+        "d.": "All listed mnemonics are valid for remembering OSI layers — some go top-down (7 to 1), others bottom-up (1 to 7)."
+      }
+    },
+    "88": {
+      "question": "What does TCP/IP use as its open, standardized format — making it vendor-neutral?",
+      "options": {
+        "a.": "Proprietary vendor agreements",
+        "b.": "IEEE 802 standards only",
+        "c.": "Request for Comments (RFCs)",
+        "d.": "OSI specifications"
+      },
+      "answer": {
+        "c.": "TCP/IP is an open-source, vendor-neutral standard that uses RFCs to define its protocols."
+      }
+    },
+    "89": {
+      "question": "What two functions does TCP perform at the Transport layer?",
+      "options": {
+        "a.": "Encryption and compression",
+        "b.": "Flow control via sliding windows and reliability via sequence numbers and acknowledgements",
+        "c.": "Routing and addressing",
+        "d.": "MAC learning and frame filtering"
+      },
+      "answer": {
+        "b.": "TCP performs flow control via sliding windows and ensures reliability via sequence numbers and acknowledgements."
+      }
+    },
+    "90": {
+      "question": "What does TCP do if a segment is not received by the destination?",
+      "options": {
+        "a.": "Drops the connection permanently",
+        "b.": "Resends the segment",
+        "c.": "Sends an ICMP error",
+        "d.": "Switches to UDP"
+      },
+      "answer": {
+        "b.": "TCP resends anything that is not received, ensuring reliable delivery."
+      }
+    },
+    "91": {
+      "question": "What is a 'virtual circuit' in the context of TCP?",
+      "options": {
+        "a.": "A physical dedicated cable between two hosts",
+        "b.": "A logical connection TCP supplies between end-user applications",
+        "c.": "A VLAN connecting two switches",
+        "d.": "An encrypted tunnel between routers"
+      },
+      "answer": {
+        "b.": "TCP supplies a virtual circuit — a logical connection — between end-user applications to ensure reliable communication."
+      }
+    },
+    "92": {
+      "question": "Which of the following is an example of a connection-oriented transport service?",
+      "options": {
+        "a.": "UDP",
+        "b.": "ICMP",
+        "c.": "Telnet",
+        "d.": "TFTP"
+      },
+      "answer": {
+        "c.": "Telnet uses TCP, which is connection-oriented, requiring a handshake before data is exchanged."
+      }
+    },
+    "93": {
+      "question": "Which of the following is an example of a connectionless protocol?",
+      "options": {
+        "a.": "TCP",
+        "b.": "FTP",
+        "c.": "Telnet",
+        "d.": "ICMP"
+      },
+      "answer": {
+        "d.": "ICMP is a connectionless protocol — it does not establish a connection before sending messages."
+      }
+    },
+    "94": {
+      "question": "What does it mean that UDP is 'fire and forget'?",
+      "options": {
+        "a.": "UDP deletes data after sending",
+        "b.": "UDP sends data without waiting for or guaranteeing acknowledgement",
+        "c.": "UDP automatically retransmits lost packets",
+        "d.": "UDP encrypts data before sending"
+      },
+      "answer": {
+        "b.": "UDP is 'fire and forget' — it sends data without establishing a connection or confirming delivery."
+      }
+    },
+    "95": {
+      "question": "What does it mean for a protocol to be 'connectionless'?",
+      "options": {
+        "a.": "Data is exchanged without setting up a link between processes first",
+        "b.": "The protocol requires a handshake before sending data",
+        "c.": "The protocol only works on local networks",
+        "d.": "No IP address is needed"
+      },
+      "answer": {
+        "a.": "A connectionless protocol allows data to be exchanged without first setting up a logical link between processes."
+      }
+    },
+    "96": {
+      "question": "What is the purpose of a port number in networking?",
+      "options": {
+        "a.": "To identify the physical interface on a router",
+        "b.": "To enable multiple programs to share one connection simultaneously",
+        "c.": "To assign an IP address to a host",
+        "d.": "To encrypt data in transit"
+      },
+      "answer": {
+        "b.": "Port numbers allow multiple programs to share one network connection simultaneously by identifying specific services or applications."
+      }
+    },
+    "97": {
+      "question": "Who controls the well-known port number assignments?",
+      "options": {
+        "a.": "IEEE",
+        "b.": "ISO",
+        "c.": "IANA",
+        "d.": "DARPA"
+      },
+      "answer": {
+        "c.": "The Internet Assigned Numbers Authority (IANA) controls well-known/system port assignments (0–1023)."
+      }
+    },
+    "98": {
+      "question": "What is the purpose of the IPv4 Identification field?",
+      "options": {
+        "a.": "To identify the transport protocol being used",
+        "b.": "To identify all fragments of an original IP packet when fragmentation occurs",
+        "c.": "To identify the sending host's MAC address",
+        "d.": "To identify the TTL value"
+      },
+      "answer": {
+        "b.": "The Identification field gives all fragments of a fragmented packet the same ID so they can be reassembled at the destination."
+      }
+    },
+    "99": {
+      "question": "What is the purpose of the Fragment Offset field in an IPv4 header?",
+      "options": {
+        "a.": "To indicate how many routers the packet has passed through",
+        "b.": "To indicate the exact position of a fragment within the original IP packet",
+        "c.": "To indicate the length of the payload",
+        "d.": "To indicate the version of IP being used"
+      },
+      "answer": {
+        "b.": "The Fragment Offset field tells the receiver the exact position of each fragment within the original IP packet for reassembly."
+      }
+    },
+    "100": {
+      "question": "What is the purpose of the Header Checksum field in an IPv4 header?",
+      "options": {
+        "a.": "To encrypt the header",
+        "b.": "To verify the header was received without errors",
+        "c.": "To identify the destination MAC address",
+        "d.": "To fragment the packet"
+      },
+      "answer": {
+        "b.": "The Header Checksum stores a value used to verify that the IP header was received error-free."
+      }
+    },
+    "101": {
+      "question": "What does the DSCP field in an IPv4 header define?",
+      "options": {
+        "a.": "The destination IP address",
+        "b.": "The type of service / priority of the packet",
+        "c.": "The size of the payload",
+        "d.": "Whether the packet is fragmented"
+      },
+      "answer": {
+        "b.": "The Differentiated Services Code Point (DSCP) field defines the type of service and priority of the packet."
+      }
+    },
+    "102": {
+      "question": "What does the Protocol field in an IPv4 header indicate?",
+      "options": {
+        "a.": "The version of IP being used",
+        "b.": "Which upper-layer protocol the packet belongs to",
+        "c.": "The total length of the packet",
+        "d.": "The number of hops remaining"
+      },
+      "answer": {
+        "b.": "The Protocol field tells the destination host which upper-layer protocol (e.g., TCP, UDP, ICMP) the packet belongs to."
+      }
+    },
+    "103": {
+      "question": "What does the Next Header field in an IPv6 header describe?",
+      "options": {
+        "a.": "The destination MAC address",
+        "b.": "The next extension header or where the payload begins",
+        "c.": "The total number of hops allowed",
+        "d.": "The priority of the packet"
+      },
+      "answer": {
+        "b.": "The Next Header field in IPv6 describes the next extension header (if any) or indicates where the actual payload begins."
+      }
+    },
+    "104": {
+      "question": "What is the maximum payload length indicated by the Payload Length field in an IPv6 header?",
+      "options": {
+        "a.": "1,024 bytes",
+        "b.": "32,768 bytes",
+        "c.": "65,535 bytes",
+        "d.": "131,072 bytes"
+      },
+      "answer": {
+        "c.": "The IPv6 Payload Length field is 16 bits and can indicate up to 65,535 bytes."
+      }
+    },
+    "105": {
+      "question": "What is one key difference between how ARP resolves addresses locally vs. across networks?",
+      "options": {
+        "a.": "ARP works across routers by default",
+        "b.": "Local ARP resolves addresses when both hosts share the same media; routing is needed across different networks",
+        "c.": "ARP only works with IPv6",
+        "d.": "ARP uses TCP to resolve addresses"
+      },
+      "answer": {
+        "b.": "Local ARP resolves addresses when both hosts share the same wire; different networks require a router to forward traffic."
+      }
+    },
+    "106": {
+      "question": "What does ICMP use to carry its messages?",
+      "options": {
+        "a.": "TCP segments",
+        "b.": "UDP datagrams",
+        "c.": "A normal IP packet with a new IP header encapsulating the ICMP message",
+        "d.": "Ethernet frames directly"
+      },
+      "answer": {
+        "c.": "ICMP messages are encapsulated with a new IP header and transmitted back to the original sending host."
+      }
+    },
+    "107": {
+      "question": "Which of the following is NOT a valid ICMP message type?",
+      "options": {
+        "a.": "Echo Request",
+        "b.": "Destination Unreachable",
+        "c.": "SYN-ACK",
+        "d.": "Time Exceeded"
+      },
+      "answer": {
+        "c.": "SYN-ACK is a TCP handshake message, not an ICMP message type."
+      }
+    },
+    "108": {
+      "question": "What is the purpose of the Preamble in an Ethernet frame?",
+      "options": {
+        "a.": "To identify the source MAC address",
+        "b.": "To inform the receiving system that a frame is starting and enable synchronization",
+        "c.": "To check for errors in the frame",
+        "d.": "To indicate the type of protocol inside the frame"
+      },
+      "answer": {
+        "b.": "The Preamble informs the receiving system that a frame is starting and enables synchronization."
+      }
+    },
+    "109": {
+      "question": "What is the purpose of the Start Frame Delimiter (SFD) in an Ethernet frame?",
+      "options": {
+        "a.": "To detect errors in the frame",
+        "b.": "To signal that the Destination MAC Address field begins with the next byte",
+        "c.": "To identify the sending system",
+        "d.": "To indicate the end of the frame"
+      },
+      "answer": {
+        "b.": "The SFD signifies that the Destination MAC Address field begins with the next byte."
+      }
+    },
+    "110": {
+      "question": "What is the minimum data size requirement for the Data and Pad field in an Ethernet frame?",
+      "options": {
+        "a.": "20 bytes",
+        "b.": "32 bytes",
+        "c.": "46 bytes",
+        "d.": "64 bytes"
+      },
+      "answer": {
+        "c.": "The Data and Pad field requires a minimum of 46 bytes; padding is added if the payload is smaller than this."
+      }
+    },
+    "111": {
+      "question": "What does the Type field in an Ethernet frame indicate?",
+      "options": {
+        "a.": "The size of the payload",
+        "b.": "The type of protocol inside the frame, such as IPv4 or IPv6",
+        "c.": "The source MAC address",
+        "d.": "Whether the frame is unicast or broadcast"
+      },
+      "answer": {
+        "b.": "The Type field defines the protocol encapsulated inside the frame, for example IPv4 or IPv6."
+      }
+    },
+    "112": {
+      "question": "What does a switch do when it first initializes and its MAC address table is empty?",
+      "options": {
+        "a.": "Drops all frames until the table is populated",
+        "b.": "Floods all frames out every port and learns MAC addresses from source addresses",
+        "c.": "Sends an ARP request to all devices",
+        "d.": "Requests the MAC table from the router"
+      },
+      "answer": {
+        "b.": "When the MAC table is empty, the switch floods frames out all ports and populates the table by reading source MAC addresses."
+      }
+    },
+    "113": {
+      "question": "Why does a switch never learn a broadcast or multicast MAC address?",
+      "options": {
+        "a.": "Switches do not process broadcast frames",
+        "b.": "Broadcast and multicast addresses never appear as the source address of a frame",
+        "c.": "They are filtered by the FCS",
+        "d.": "The CAM table only stores IPv6 addresses"
+      },
+      "answer": {
+        "b.": "Switches learn MAC addresses from source addresses only — broadcast and multicast addresses never appear as a source, so they are never learned."
+      }
+    },
+    "114": {
+      "question": "What is the difference between a bridge and a switch?",
+      "options": {
+        "a.": "A bridge uses hardware to forward frames; a switch uses software",
+        "b.": "A bridge has fewer interfaces and uses software; a switch has more interfaces and uses hardware",
+        "c.": "A bridge operates at Layer 3; a switch operates at Layer 2",
+        "d.": "They are identical devices"
+      },
+      "answer": {
+        "b.": "A bridge has a small number of interfaces (2–4) and uses software to forward frames; a switch has many interfaces (24–48) and uses hardware, making it faster."
+      }
+    },
+    "115": {
+      "question": "What topology does 10BASE-T Ethernet use?",
+      "options": {
+        "a.": "Bus topology",
+        "b.": "Ring topology",
+        "c.": "Star topology with a bridge or switch at the center",
+        "d.": "Mesh topology"
+      },
+      "answer": {
+        "c.": "10BASE-T uses a star topology with a bridge or switch at the center."
+      }
+    },
+    "116": {
+      "question": "What is one major disadvantage of early coaxial (10BASE2/5) Ethernet?",
+      "options": {
+        "a.": "It could only support one device",
+        "b.": "One problem on the cable affects the entire LAN",
+        "c.": "It required fiber optic transceivers",
+        "d.": "It did not support broadcast traffic"
+      },
+      "answer": {
+        "b.": "In coaxial Ethernet, a single fault affects the entire LAN since all devices share the same physical medium."
+      }
+    },
+    "117": {
+      "question": "What is modal dispersion and which fiber type experiences it?",
+      "options": {
+        "a.": "Signal loss due to bending; occurs in Single Mode Fiber",
+        "b.": "Light traveling different distances depending on entry angle; occurs in Multimode Fiber",
+        "c.": "Electromagnetic interference; occurs in UTP",
+        "d.": "Signal reflection; occurs in Single Mode Fiber"
+      },
+      "answer": {
+        "b.": "Modal dispersion occurs in Multimode Fiber because light travels different distances depending on its entry angle, causing signal degradation."
+      }
+    },
+    "118": {
+      "question": "What type of connector is standard for UTP Ethernet cables?",
+      "options": {
+        "a.": "RJ-11",
+        "b.": "RJ-45",
+        "c.": "LC",
+        "d.": "BNC"
+      },
+      "answer": {
+        "b.": "RJ-45 is the standard connector for UTP Ethernet cables."
+      }
+    },
+    "119": {
+      "question": "What is the purpose of twisting wire pairs in UTP cabling?",
+      "options": {
+        "a.": "To increase cable length",
+        "b.": "To reduce electromagnetic interference (EMI)",
+        "c.": "To increase data throughput",
+        "d.": "To make the cable easier to route"
+      },
+      "answer": {
+        "b.": "Wire pairs are twisted in UTP cabling to reduce electromagnetic interference (EMI)."
+      }
+    },
+    "120": {
+      "question": "What additional protection does Shielded Twisted Pair (STP) provide over UTP?",
+      "options": {
+        "a.": "Higher data rates",
+        "b.": "Longer cable runs",
+        "c.": "Metal shielding around pairs to further reduce EMI",
+        "d.": "Built-in encryption"
+      },
+      "answer": {
+        "c.": "STP adds metal shielding around each pair or collection of pairs to further reduce electromagnetic interference beyond what UTP provides."
+      }
+    },
+    "121": {
+      "question": "What does the Organizational Unique Identifier (OUI) in a MAC address identify?",
+      "options": {
+        "a.": "The device's IP subnet",
+        "b.": "The manufacturer or vendor of the network interface",
+        "c.": "The interface serial number",
+        "d.": "The VLAN the device belongs to"
+      },
+      "answer": {
+        "b.": "The OUI is the first half (6 hex digits) of a MAC address and identifies the manufacturer or vendor."
+      }
+    },
+    "122": {
+      "question": "Can a MAC address be spoofed?",
+      "options": {
+        "a.": "No, it is permanently burned into the hardware",
+        "b.": "Yes, it can be spoofed even though it is burned into the card",
+        "c.": "Only on wireless networks",
+        "d.": "Only by changing the NIC physically"
+      },
+      "answer": {
+        "b.": "Although MAC addresses are burned into the card, they can be spoofed through software."
+      }
+    },
+    "123": {
+      "question": "What are the three types of Ethernet MAC address categories a switch handles?",
+      "options": {
+        "a.": "Static, Dynamic, Reserved",
+        "b.": "Unicast, Broadcast, Multicast",
+        "c.": "Public, Private, Loopback",
+        "d.": "Global, Local, Link-Local"
+      },
+      "answer": {
+        "b.": "Switches handle three Ethernet address categories: Unicast (single host), Broadcast (all devices), and Multicast (a dynamic subset)."
+      }
+    },
+    "124": {
+      "question": "What does 'full duplex' mean in the context of a switch port?",
+      "options": {
+        "a.": "Only one device can transmit at a time",
+        "b.": "A device can send and receive simultaneously",
+        "c.": "Data is transmitted in one direction only",
+        "d.": "The port operates at half speed"
+      },
+      "answer": {
+        "b.": "Full duplex means a device can send and receive data simultaneously, which is enabled by switches giving each port its own collision domain."
+      }
+    },
+    "125": {
+      "question": "How many bits is the IPv6 Traffic Class field, and what is its purpose?",
+      "options": {
+        "a.": "4 bits; indicates the IP version",
+        "b.": "8 bits; describes the packet's priority used at the application layer",
+        "c.": "16 bits; indicates the payload length",
+        "d.": "20 bits; used for QoS management"
+      },
+      "answer": {
+        "b.": "The Traffic Class field is 8 bits and describes the packet's priority, used at the application layer."
+      }
+    },
+    "126": {
+      "question": "What is the three-part structure of an IPv6 packet?",
+      "options": {
+        "a.": "Preamble, Header, Payload",
+        "b.": "Fixed Header, Extension Header(s), Upper Layer Protocol Data Unit (payload)",
+        "c.": "Header, Data, FCS",
+        "d.": "Source, Destination, Payload"
+      },
+      "answer": {
+        "b.": "An IPv6 packet consists of a Fixed Header, optional Extension Headers, and the Upper Layer Protocol Data Unit (payload)."
+      }
+    },
+    "127": {
+      "question": "What is the Class A private IPv4 address range?",
+      "options": {
+        "a.": "172.16.0.0 – 172.31.255.255",
+        "b.": "192.168.0.0 /16",
+        "c.": "10.0.0.0 /8",
+        "d.": "169.254.0.0 /16"
+      },
+      "answer": {
+        "c.": "The Class A private address range is 10.0.0.0/8, covering 10.0.0.0 through 10.255.255.255."
+      }
+    },
+    "128": {
+      "question": "What first octet range identifies a Class B IPv4 address?",
+      "options": {
+        "a.": "0 – 127",
+        "b.": "128 – 191",
+        "c.": "192 – 223",
+        "d.": "224 – 255"
+      },
+      "answer": {
+        "b.": "Class B IPv4 addresses have a first octet ranging from 128 to 191."
+      }
+    },
+    "129": {
+      "question": "What first octet range identifies a Class C IPv4 address?",
+      "options": {
+        "a.": "0 – 127",
+        "b.": "128 – 191",
+        "c.": "192 – 223",
+        "d.": "224 – 255"
+      },
+      "answer": {
+        "c.": "Class C IPv4 addresses have a first octet ranging from 192 to 223."
+      }
+    },
+    "130": {
+      "question": "What does NAT stand for, and how does it relate to IPv6?",
+      "options": {
+        "a.": "Network Address Translation; it is required in IPv6",
+        "b.": "Network Address Translation; it is optional in IPv6 due to the abundance of addresses",
+        "c.": "Network Access Transfer; it replaces DHCP in IPv6",
+        "d.": "Network Address Table; it maps MAC to IP in IPv6"
+      },
+      "answer": {
+        "b.": "NAT (Network Address Translation) is optional in IPv6 because the massive address space eliminates the need to conserve addresses like in IPv4."
+      }
+    },
+    "131": {
+      "question": "What does it mean that IPv6 Global Unicast addresses are 'globally routable'?",
+      "options": {
+        "a.": "They can only be used within a single LAN",
+        "b.": "They can be routed across the public internet, similar to public IPv4 addresses",
+        "c.": "They are only routable within a broadcast domain",
+        "d.": "They are reserved for loopback testing"
+      },
+      "answer": {
+        "b.": "Global Unicast addresses (2000::/3) are publicly routable on the internet, equivalent to public IPv4 addresses."
+      }
+    },
+    "132": {
+      "question": "What does the DHCP server do before offering an IP address to detect conflicts?",
+      "options": {
+        "a.": "Sends a DNS query",
+        "b.": "Pings the IP address first; if it gets a response, the address is already in use",
+        "c.": "Checks the ARP table of the router",
+        "d.": "Broadcasts to all hosts asking if the address is taken"
+      },
+      "answer": {
+        "b.": "Before offering an IP address, the DHCP server pings it; if it receives a response, it knows the address is in use and marks it as a conflict."
+      }
+    },
+    "133": {
+      "question": "What does the DHCP client do after receiving an Acknowledgement to verify no address conflict exists?",
+      "options": {
+        "a.": "Sends a DNS query to confirm the address",
+        "b.": "ARPs its new IP address to verify it does not overlap with another host",
+        "c.": "Pings the default gateway",
+        "d.": "Sends a DHCP Release message"
+      },
+      "answer": {
+        "b.": "After receiving the DHCP Acknowledgement, the client ARPs its new IP address to verify it does not conflict with another host on the network."
+      }
+    },
+    "134": {
+      "question": "What information does a DHCP server assign to a client? (Select the most complete answer)",
+      "options": {
+        "a.": "IP address only",
+        "b.": "IP address and subnet mask only",
+        "c.": "IP address, lease, subnet mask, and default gateway (and possibly DNS and vendor info)",
+        "d.": "IP address, MAC address, and VLAN ID"
+      },
+      "answer": {
+        "c.": "A DHCP server assigns an IP address, lease duration, subnet mask, default gateway, and possibly other options like DNS server address."
+      }
+    },
+    "135": {
+      "question": "What happens when a DNS server does not know how to resolve a domain name?",
+      "options": {
+        "a.": "It returns an error immediately",
+        "b.": "It asks another DNS server, continuing until the correct IP is found",
+        "c.": "It assigns a temporary IP address",
+        "d.": "It redirects to the default gateway"
+      },
+      "answer": {
+        "b.": "If a DNS server cannot resolve a domain name, it asks another DNS server, and so on, until the correct IP address is returned."
+      }
+    },
+    "1": {
+      "question": "At which OSI layer does a Hub operate?",
+      "options": {
+        "a.": "Data Link",
+        "b.": "Network",
+        "c.": "Physical",
+        "d.": "Transport"
+      },
+      "answer": {
+        "c.": "Hubs operate at the Physical layer and are not smart devices."
+      }
+    },
+    "2": {
+      "question": "What transmission mode do hubs operate in?",
+      "options": {
+        "a.": "Full-duplex",
+        "b.": "Half-duplex",
+        "c.": "Simplex",
+        "d.": "Multiplexed"
+      },
+      "answer": {
+        "b.": "Hubs transmit to every attached line in half-duplex mode."
+      }
+    },
+    "3": {
+      "question": "What is the maximum cable length for twisted pair before a repeater is needed?",
+      "options": {
+        "a.": "50 meters",
+        "b.": "100 meters",
+        "c.": "150 meters",
+        "d.": "200 meters"
+      },
+      "answer": {
+        "b.": "Twisted pair has a maximum length of 100 meters; repeaters are used to extend beyond this."
+      }
+    },
+    "4": {
+      "question": "What is the primary function of a repeater?",
+      "options": {
+        "a.": "Filter traffic by MAC address",
+        "b.": "Route packets between networks",
+        "c.": "Regenerate and boost signals to extend distances",
+        "d.": "Convert between analog and digital signals"
+      },
+      "answer": {
+        "c.": "Repeaters regenerate/boost signals to extend cable distances beyond the normal maximum."
+      }
+    },
+    "5": {
+      "question": "What does MODEM stand for?",
+      "options": {
+        "a.": "Modular Output Digital Electronic Module",
+        "b.": "Modulator/Demodulator",
+        "c.": "Medium Output Data Exchange Module",
+        "d.": "Modular Data Encoding Method"
+      },
+      "answer": {
+        "b.": "MODEM stands for Modulator/Demodulator."
+      }
+    },
+    "6": {
+      "question": "What is the primary function of a modem?",
+      "options": {
+        "a.": "Route packets between networks",
+        "b.": "Convert carrier signals between analog and digital",
+        "c.": "Amplify network signals",
+        "d.": "Connect dissimilar media types"
+      },
+      "answer": {
+        "b.": "A modem converts carrier signals between analog and digital modes."
+      }
+    },
+    "7": {
+      "question": "What is the purpose of a media converter?",
+      "options": {
+        "a.": "Convert analog signals to digital",
+        "b.": "Allow connection and interoperability between dissimilar media types",
+        "c.": "Boost signal strength over long distances",
+        "d.": "Assign IP addresses to devices"
+      },
+      "answer": {
+        "b.": "Media converters allow connection and interoperability between dissimilar media types."
+      }
+    },
+    "8": {
+      "question": "Which devices operate at the Physical layer? (Choose the most complete answer)",
+      "options": {
+        "a.": "Hub, Switch, Router",
+        "b.": "Hub, Repeater, Modem, Media Converter",
+        "c.": "Bridge, Switch, Wireless Access Point",
+        "d.": "Router, Firewall, NIC"
+      },
+      "answer": {
+        "b.": "Hubs, Repeaters, Modems, and Media Converters all operate at the Physical layer."
+      }
+    },
+    "9": {
+      "question": "What layers does a NIC implement connections for?",
+      "options": {
+        "a.": "Network and Transport layers",
+        "b.": "Physical and Data Link layers",
+        "c.": "Data Link and Network layers",
+        "d.": "Physical layer only"
+      },
+      "answer": {
+        "b.": "A NIC implements electronics for both Physical and Data Link layer connections to a network."
+      }
+    },
+    "10": {
+      "question": "How does a bridge reduce LAN traffic?",
+      "options": {
+        "a.": "By routing packets between networks",
+        "b.": "By dividing the LAN into two collision domains",
+        "c.": "By filtering broadcast traffic",
+        "d.": "By assigning VLANs to each port"
+      },
+      "answer": {
+        "b.": "A bridge reduces traffic by dividing the LAN into two collision domains."
+      }
+    },
+    "11": {
+      "question": "At which OSI layer do bridges and switches primarily operate?",
+      "options": {
+        "a.": "Physical",
+        "b.": "Network",
+        "c.": "Data Link",
+        "d.": "Transport"
+      },
+      "answer": {
+        "c.": "Bridges and switches primarily operate at the Data Link layer."
+      }
+    },
+    "12": {
+      "question": "At which OSI layer does a Wireless Access Point operate?",
+      "options": {
+        "a.": "Physical",
+        "b.": "Data Link",
+        "c.": "Network",
+        "d.": "Transport"
+      },
+      "answer": {
+        "b.": "Wireless Access Points operate at the Data Link layer."
+      }
+    },
+    "13": {
+      "question": "What does a router use to select the best path for network packets?",
+      "options": {
+        "a.": "CAM table",
+        "b.": "ARP cache",
+        "c.": "Routing table",
+        "d.": "DNS table"
+      },
+      "answer": {
+        "c.": "A router uses a routing table to select the best path for forwarding packets."
+      }
+    },
+    "14": {
+      "question": "At which OSI layer does a router operate?",
+      "options": {
+        "a.": "Data Link",
+        "b.": "Transport",
+        "c.": "Network",
+        "d.": "Session"
+      },
+      "answer": {
+        "c.": "Routers operate at the Network layer."
+      }
+    },
+    "15": {
+      "question": "At which OSI layers does a firewall operate?",
+      "options": {
+        "a.": "Physical and Data Link",
+        "b.": "Data Link and Network",
+        "c.": "Network and Transport",
+        "d.": "Transport and Application"
+      },
+      "answer": {
+        "c.": "Firewalls operate at the Network and Transport layers."
+      }
+    },
+    "16": {
+      "question": "What switching technology does the PSTN use?",
+      "options": {
+        "a.": "Packet switching",
+        "b.": "Circuit switching",
+        "c.": "Cell switching",
+        "d.": "Message switching"
+      },
+      "answer": {
+        "b.": "The PSTN uses circuit switching to allow users to make landline telephone calls."
+      }
+    },
+    "17": {
+      "question": "How many class levels exist in the PSTN hierarchy?",
+      "options": {
+        "a.": "3",
+        "b.": "4",
+        "c.": "5",
+        "d.": "7"
+      },
+      "answer": {
+        "c.": "The PSTN has a five-level hierarchy known as Classes 1 through 5."
+      }
+    },
+    "18": {
+      "question": "Which PSTN class office is the ONLY one that connects directly to individual or business subscribers?",
+      "options": {
+        "a.": "Class 1",
+        "b.": "Class 2",
+        "c.": "Class 4",
+        "d.": "Class 5"
+      },
+      "answer": {
+        "d.": "Class 5 (End Office) is the only PSTN class that connects to individual or business subscribers."
+      }
+    },
+    "19": {
+      "question": "What is the 'Local Loop' in the context of the PSTN?",
+      "options": {
+        "a.": "The connection between Class 4 and Class 1 offices",
+        "b.": "The last mile run from the Class 5 office to the subscriber",
+        "c.": "The fiber backbone between regional centers",
+        "d.": "The internal wiring of a PBX"
+      },
+      "answer": {
+        "b.": "The Local Loop (Last Mile) is the connection from the Class 5 End Office to the subscriber."
+      }
+    },
+    "20": {
+      "question": "What is a Private Branch Exchange (PBX)?",
+      "options": {
+        "a.": "A public telephone exchange owned by the government",
+        "b.": "A telephone exchange typically owned by the customer where internal calls are free",
+        "c.": "A device that converts analog to digital signals",
+        "d.": "A VOIP call manager"
+      },
+      "answer": {
+        "b.": "A PBX is a telephone exchange typically owned by the customer; calls made within the PBX are at no cost."
+      }
+    },
+    "21": {
+      "question": "What does LATA stand for?",
+      "options": {
+        "a.": "Local Area Telephone Access",
+        "b.": "Local Access and Transport Area",
+        "c.": "Long Access Trunk Area",
+        "d.": "Local Area Transmission Authority"
+      },
+      "answer": {
+        "b.": "LATA stands for Local Access and Transport Area."
+      }
+    },
+    "22": {
+      "question": "What does the North American Numbering Plan (NANP) provide?",
+      "options": {
+        "a.": "A system for routing internet traffic",
+        "b.": "A telephone numbering scheme with a three-digit area code and seven-digit number",
+        "c.": "A method for encrypting telephone calls",
+        "d.": "A billing standard for long-distance calls"
+      },
+      "answer": {
+        "b.": "The NANP directs telephone calls to a particular region using a three-digit area code and a seven-digit telephone number."
+      }
+    },
+    "23": {
+      "question": "What protocol is primarily abused in out-of-band PSTN attacks?",
+      "options": {
+        "a.": "SIP",
+        "b.": "RTP",
+        "c.": "SS7",
+        "d.": "H.323"
+      },
+      "answer": {
+        "c.": "Out-of-band attacks primarily abuse SS7 (Signaling System 7), which has weak authentication and vulnerable network databases."
+      }
+    },
+    "24": {
+      "question": "What can an attacker do by exploiting SS7?",
+      "options": {
+        "a.": "Only intercept calls on the same local network",
+        "b.": "Alter call forwarding, intercept transmissions, modify billing, and track device location",
+        "c.": "Only perform denial of service attacks",
+        "d.": "Access only unencrypted WiFi traffic"
+      },
+      "answer": {
+        "b.": "Exploiting SS7 can allow attackers to alter call forwarding, intercept transmissions, change billing, and even track a subscriber's physical location."
+      }
+    },
+    "25": {
+      "question": "Why does PSTN being analog by design create security concerns?",
+      "options": {
+        "a.": "Analog signals travel slower than digital",
+        "b.": "PSTN voice networks are plain text analog systems by design",
+        "c.": "Analog signals cannot be routed",
+        "d.": "Analog systems are incompatible with firewalls"
+      },
+      "answer": {
+        "b.": "By design, PSTN voice networks are plain text analog systems, making them inherently vulnerable to interception."
+      }
+    },
+    "26": {
+      "question": "Why do dial-up modems pose a security risk in PSTN-connected environments?",
+      "options": {
+        "a.": "They broadcast traffic to all devices",
+        "b.": "They often become back doors into a network because they can be dialed in",
+        "c.": "They disable firewall rules automatically",
+        "d.": "They expose MAC addresses to the internet"
+      },
+      "answer": {
+        "b.": "Dial-up modems often become back doors into a network because attackers can dial in to gain access."
+      }
+    },
+    "27": {
+      "question": "What switching technology does VOIP use?",
+      "options": {
+        "a.": "Circuit switching",
+        "b.": "Cell switching",
+        "c.": "Packet switching",
+        "d.": "Message switching"
+      },
+      "answer": {
+        "c.": "VOIP uses a packet-switched network to allow users to make calls over IP."
+      }
+    },
+    "28": {
+      "question": "What are the three core components of a VOIP system?",
+      "options": {
+        "a.": "IP Phone, DNS Server, Firewall",
+        "b.": "IP Phone/Softphone, Call Manager, Media Gateway",
+        "c.": "SIP Server, RTP Client, PBX",
+        "d.": "Proxy Server, Registration Server, NIC"
+      },
+      "answer": {
+        "b.": "The three core VOIP components are the IP Phone/Softphone, Call Manager, and Media Gateway."
+      }
+    },
+    "29": {
+      "question": "What is the role of the Media Gateway in a VOIP system?",
+      "options": {
+        "a.": "Encrypts all VOIP traffic",
+        "b.": "Interfaces IP-based voice systems with traditional circuit-switched networks like the PSTN",
+        "c.": "Assigns IP addresses to VOIP phones",
+        "d.": "Provides the user interface for making calls"
+      },
+      "answer": {
+        "b.": "The Media Gateway interfaces the IP network-based voice system with traditional circuit-switched networks such as the PSTN."
+      }
+    },
+    "30": {
+      "question": "What is the role of the Call Manager in a VOIP system?",
+      "options": {
+        "a.": "Encrypts voice packets",
+        "b.": "Converts analog signals to digital",
+        "c.": "Sets up and monitors calls, maintains the dial plan, and performs phone number translations",
+        "d.": "Provides physical connectivity to the network"
+      },
+      "answer": {
+        "c.": "The Call Manager sets up and monitors calls, maintains the dial plan, and performs phone number translations."
+      }
+    },
+    "31": {
+      "question": "What does SIP stand for and what is it used for?",
+      "options": {
+        "a.": "Secure IP Protocol; encrypts VOIP calls",
+        "b.": "Session Initiation Protocol; used to set up and terminate calls",
+        "c.": "Signal Integration Protocol; used to route packets",
+        "d.": "Streaming Internet Protocol; used to stream audio"
+      },
+      "answer": {
+        "b.": "SIP (Session Initiation Protocol) is used to set up (INVITE) and terminate/transfer (BYE) calls."
+      }
+    },
+    "32": {
+      "question": "What are the two types of SIP messages?",
+      "options": {
+        "a.": "Unicast and Multicast",
+        "b.": "Requests and Responses",
+        "c.": "Commands and Acknowledgements",
+        "d.": "Headers and Payloads"
+      },
+      "answer": {
+        "b.": "SIP uses two types of messages: Requests and Responses."
+      }
+    },
+    "33": {
+      "question": "What is the purpose of the Realtime Transport Protocol (RTP)?",
+      "options": {
+        "a.": "Set up and terminate VOIP calls",
+        "b.": "Encrypt VOIP traffic",
+        "c.": "Describe the packet format for the actual media data",
+        "d.": "Register VOIP phones with the call manager"
+      },
+      "answer": {
+        "c.": "RTP is a media protocol that describes the packet format for the actual voice/media data."
+      }
+    },
+    "34": {
+      "question": "What is Registration Hijacking in the context of VOIP?",
+      "options": {
+        "a.": "Flooding a VOIP server with REGISTER packets",
+        "b.": "Impersonating a legitimate User Agent by re-registering using the victim's registration info",
+        "c.": "Intercepting and modifying SIP packets",
+        "d.": "Forcing a call to hang up with a spoofed BYE message"
+      },
+      "answer": {
+        "b.": "Registration Hijacking involves DOSing a victim User Agent and re-registering an attacker's own UA using the victim's registration information."
+      }
+    },
+    "35": {
+      "question": "How can Proxy Impersonation be accomplished in a VOIP attack?",
+      "options": {
+        "a.": "By flooding the SIP server with INVITE messages",
+        "b.": "By intercepting RTP media streams",
+        "c.": "By DNS spoofing, ARP cache spoofing, or changing the proxy address on a SIP phone",
+        "d.": "By exploiting the SS7 protocol"
+      },
+      "answer": {
+        "c.": "Proxy Impersonation can be accomplished via DNS spoofing, ARP cache spoofing, or simply changing the proxy address configured on a SIP phone."
+      }
+    },
+    "36": {
+      "question": "What is a Session Tear Down attack in VOIP?",
+      "options": {
+        "a.": "Flooding a VOIP server with registration requests",
+        "b.": "Forcing a call to hang up by sending spoofed SIP BYE messages to participating User Agents",
+        "c.": "Intercepting media packets using RTP",
+        "d.": "Redirecting a call to a rogue proxy"
+      },
+      "answer": {
+        "b.": "A Session Tear Down attack forces a call to end by sending spoofed SIP BYE messages to the participating User Agents."
+      }
+    },
+    "37": {
+      "question": "What forms can a VOIP Denial of Service attack take?",
+      "options": {
+        "a.": "Only packet flooding",
+        "b.": "Malformed packets, manipulating SIP states, and flooding (e.g., REGISTER or INVITE floods)",
+        "c.": "Only SIP BYE message spoofing",
+        "d.": "Only ARP cache poisoning"
+      },
+      "answer": {
+        "b.": "VOIP DoS attacks can involve malformed packets, manipulating SIP states, and simple flooding such as REGISTER or INVITE floods."
+      }
+    },
+    "38": {
+      "question": "What is VOSIP?",
+      "options": {
+        "a.": "Encrypted voice over an encrypted IP network",
+        "b.": "Unencrypted voice over an encrypted IP network",
+        "c.": "Encrypted voice over an unencrypted IP network",
+        "d.": "Unencrypted voice over an unencrypted IP network"
+      },
+      "answer": {
+        "b.": "VOSIP (Voice over Secure IP) is unencrypted voice transmitted over a network that is already encrypted."
+      }
+    },
+    "39": {
+      "question": "What is SVOIP?",
+      "options": {
+        "a.": "Unencrypted voice over an encrypted IP network",
+        "b.": "Encrypted voice over an encrypted IP network",
+        "c.": "Encrypted voice over a non-secure IP network",
+        "d.": "Unencrypted voice over a non-secure IP network"
+      },
+      "answer": {
+        "c.": "SVOIP (Secure VOIP) is encrypted voice transmitted over a non-secure IP network — the VOIP traffic itself is encrypted by the sender/receiver."
+      }
+    },
+    "40": {
+      "question": "What is SVOSIP and why is it considered 'twice encrypted'?",
+      "options": {
+        "a.": "Encrypted voice over an encrypted network — once by the client and once by the network",
+        "b.": "Unencrypted voice over a double-encrypted network",
+        "c.": "Voice encrypted twice by the same client before sending",
+        "d.": "Voice encrypted by two different firewalls"
+      },
+      "answer": {
+        "a.": "SVOSIP is encrypted voice over an encrypted IP network — it is twice encrypted, once by the client and once by the network."
+      }
+    },
+    "41": {
+      "question": "What is one recommended Layer 2 security measure for VOIP traffic?",
+      "options": {
+        "a.": "Enable full-duplex mode on all ports",
+        "b.": "Create VLANs dedicated to VOIP traffic",
+        "c.": "Use RTP encryption only",
+        "d.": "Block all SIP traffic at the firewall"
+      },
+      "answer": {
+        "b.": "Creating dedicated VLANs for VOIP traffic is a recommended Layer 2 network segregation security measure."
+      }
+    },
+    "42": {
+      "question": "What is one advantage VOIP has over PSTN?",
+      "options": {
+        "a.": "VOIP has simpler design and basic operation",
+        "b.": "VOIP uses existing IPv4/IPv6 networks and is cheaper due to packet switching",
+        "c.": "VOIP provides a dedicated wire pair for each call",
+        "d.": "VOIP does not require any physical security"
+      },
+      "answer": {
+        "b.": "VOIP uses existing IP networks and is cheaper because it leverages packet-switched infrastructure."
+      }
+    },
+    "43": {
+      "question": "What is one disadvantage of PSTN compared to VOIP?",
+      "options": {
+        "a.": "PSTN is more expensive and does not scale or integrate well with newer technologies",
+        "b.": "PSTN has no physical security",
+        "c.": "PSTN relies on packet switching",
+        "d.": "PSTN cannot support voice calls"
+      },
+      "answer": {
+        "a.": "PSTN is expensive, does not scale well, and does not integrate well with newer technologies."
+      }
+    },
+    "44": {
+      "question": "What does DSN stand for and what organization operates it?",
+      "options": {
+        "a.": "Defense Switched Network; operated by DISA/DISN",
+        "b.": "Defense Signal Network; operated by NSA",
+        "c.": "Digital Switched Network; operated by DARPA",
+        "d.": "Defense Secure Network; operated by DHS"
+      },
+      "answer": {
+        "a.": "DSN stands for Defense Switched Network and is run and operated by DISN, owned by DISA."
+      }
+    },
+    "45": {
+      "question": "What services does the DSN provide?",
+      "options": {
+        "a.": "Only secure voice",
+        "b.": "Non-secure voice, secure voice, data, facsimile, and video teleconferencing for DOD C2 elements",
+        "c.": "Only data and video conferencing",
+        "d.": "Only facsimile and non-secure voice"
+      },
+      "answer": {
+        "b.": "The DSN provides worldwide non-secure voice, secure voice, data, facsimile, and VTC services for DOD C2 elements."
+      }
+    },
+    "46": {
+      "question": "How does a DSN Multifunction Switch function?",
+      "options": {
+        "a.": "Similar to a PSTN Class 1 Regional Center only",
+        "b.": "Similar to both a PSTN Class 4 and Class 5 office",
+        "c.": "Similar to a commercial internet router",
+        "d.": "Similar to a VOIP media gateway only"
+      },
+      "answer": {
+        "b.": "A DSN Multifunction Switch functions similarly to both a PSTN Class 4 and Class 5 office."
+      }
+    },
+    "47": {
+      "question": "Why does the DSN inherit vulnerabilities from commercial technologies?",
+      "options": {
+        "a.": "The DSN runs on open-source software only",
+        "b.": "The DSN mimics and operates on the structure of a typical commercial telephone system",
+        "c.": "The DSN uses the same encryption as the public internet",
+        "d.": "The DSN connects directly to the public PSTN without any filtering"
+      },
+      "answer": {
+        "b.": "Because the DSN mimics and operates on the structure of a typical commercial telephone system, most vulnerabilities are inherited from those commercial technologies."
+      }
+    },
+    "48": {
+      "question": "What does 4G LTE stand for?",
+      "options": {
+        "a.": "Fourth Generation Local Transport Extension",
+        "b.": "Fourth Generation Long-Term Evolution",
+        "c.": "Fast Generation Long-Term Ethernet",
+        "d.": "Fourth Generation Link Transmission Enablement"
+      },
+      "answer": {
+        "b.": "4G LTE stands for Fourth Generation Long-Term Evolution."
+      }
+    },
+    "49": {
+      "question": "What maximum data rate does 4G LTE support compared to 3G?",
+      "options": {
+        "a.": "4G supports up to 14 Mbps; 3G supports up to 100 Mbps",
+        "b.": "4G supports up to 150 Mbps; 3G supports up to 50 Mbps",
+        "c.": "4G supports up to 299 Mbps; 3G supports up to 14 Mbps",
+        "d.": "4G supports up to 1 Gbps; 3G supports up to 100 Mbps"
+      },
+      "answer": {
+        "c.": "4G supports up to 299 Mbps compared to 3G's maximum of 14 Mbps."
+      }
+    },
+    "50": {
+      "question": "What is the Evolved Node B (eNB) in 4G architecture?",
+      "options": {
+        "a.": "The mobile device used by the end user",
+        "b.": "The core network that uses packet switching",
+        "c.": "A base station that provides radio coverage and connectivity to mobile devices",
+        "d.": "The billing system for mobile subscribers"
+      },
+      "answer": {
+        "c.": "The eNB (Evolved Node B) is a base station that provides radio coverage and connectivity to mobile devices."
+      }
+    },
+    "51": {
+      "question": "What is the Evolved Packet Core (EPC) in 4G?",
+      "options": {
+        "a.": "The mobile device used by the end user",
+        "b.": "The core network that uses packet switching to combine voice and data on an IP service architecture",
+        "c.": "A base station providing radio coverage",
+        "d.": "The software that manages SIP calls"
+      },
+      "answer": {
+        "b.": "The EPC is the core network in 4G architecture that uses packet switching to combine voice and data on an IP service architecture."
+      }
+    },
+    "52": {
+      "question": "What organization developed the 4G LTE standard?",
+      "options": {
+        "a.": "IEEE",
+        "b.": "DARPA",
+        "c.": "3GPP (3rd Generation Partnership Program)",
+        "d.": "IANA"
+      },
+      "answer": {
+        "c.": "4G LTE was developed by the 3rd Generation Partnership Program (3GPP)."
+      }
+    },
+    "53": {
+      "question": "What wave technology does 5G use?",
+      "options": {
+        "a.": "Radio waves",
+        "b.": "Infrared waves",
+        "c.": "Millimeter wave technology",
+        "d.": "Microwave technology"
+      },
+      "answer": {
+        "c.": "5G uses millimeter wave technology for its high-bandwidth transmissions."
+      }
+    },
+    "54": {
+      "question": "What is a key limitation of 5G millimeter waves?",
+      "options": {
+        "a.": "They travel too far and cause interference with other networks",
+        "b.": "They have short range and do not penetrate obstacles like walls or trees well",
+        "c.": "They only support a small number of connected devices",
+        "d.": "They require fiber optic cabling to function"
+      },
+      "answer": {
+        "b.": "5G millimeter waves have short range — they may only span a few blocks and are easily disrupted by obstacles like concrete walls or tree leaves."
+      }
+    },
+    "55": {
+      "question": "What is the Mobile Core in 5G also known as?",
+      "options": {
+        "a.": "Evolved Packet Core (EPC)",
+        "b.": "Next Generation Core (NG-Core)",
+        "c.": "Radio Access Network (RAN)",
+        "d.": "User Equipment Core (UEC)"
+      },
+      "answer": {
+        "b.": "The 5G Mobile Core is also known as the Next Generation Core (NG-Core)."
+      }
+    },
+    "56": {
+      "question": "What is the role of the Radio Access Network (RAN) in 5G?",
+      "options": {
+        "a.": "Manage subscriber billing and authentication",
+        "b.": "A collection of cellphone towers working together to support handovers, link aggregation, and load balancing",
+        "c.": "Provide the packet-switched backbone between ISPs",
+        "d.": "Encrypt all mobile traffic before transmission"
+      },
+      "answer": {
+        "b.": "The RAN is a collection of cellphone towers (eNBs) working in unison to support handovers, link aggregation, and load balancing."
+      }
+    },
+    "57": {
+      "question": "Why is SMS-based two-factor authentication not recommended for cellular security?",
+      "options": {
+        "a.": "SMS messages are too slow for 2FA",
+        "b.": "SMS is easily spoofed",
+        "c.": "SMS 2FA requires too much battery power",
+        "d.": "SMS cannot be received on smartphones"
+      },
+      "answer": {
+        "b.": "SMS-based two-factor authentication is not recommended because SMS can be easily spoofed."
+      }
+    },
+    "58": {
+      "question": "What is the key difference between a circuit-switched and a packet-switched network?",
+      "options": {
+        "a.": "Circuit-switched uses routers; packet-switched uses dedicated paths",
+        "b.": "Circuit-switched uses a dedicated pre-determined path; packet-switched routes each packet independently through multiple pathways",
+        "c.": "They are functionally identical",
+        "d.": "Circuit-switched supports IP traffic; packet-switched does not"
+      },
+      "answer": {
+        "b.": "Circuit-switched networks use a dedicated pre-determined path for the entire communication; packet-switched networks route each packet independently through multiple pathways via routers."
+      }
+    },
+    "59": {
+      "question": "In a packet-switched network, what does each data unit know about its path?",
+      "options": {
+        "a.": "The entire path from source to destination",
+        "b.": "Only the final destination address — intermediate routers decide the path",
+        "c.": "Only the next hop address",
+        "d.": "Nothing — the path is randomly assigned"
+      },
+      "answer": {
+        "b.": "In a packet-switched network, each data unit only knows the final destination; intermediate routing decisions are made by routers."
+      }
+    },
+    "60": {
+      "question": "What is a Virtual Circuit?",
+      "options": {
+        "a.": "A physical dedicated cable between two hosts",
+        "b.": "A connection-oriented service between two hosts over a packet-switched network",
+        "c.": "A VLAN connecting multiple switches",
+        "d.": "An encrypted tunnel created by a VPN"
+      },
+      "answer": {
+        "b.": "A virtual circuit provides a connection-oriented service between two hosts over a packet-switched network, such as TCP."
+      }
+    },
+    "61": {
+      "question": "What is a key characteristic of a Bus topology?",
+      "options": {
+        "a.": "All nodes are connected to a central device",
+        "b.": "Every station shares the media and can see all traffic; one failure affects all nodes",
+        "c.": "Each device has a dedicated point-to-point connection to every other device",
+        "d.": "Traffic travels in a single direction around a loop"
+      },
+      "answer": {
+        "b.": "In a bus topology, every station shares the media and can see all traffic, and one failure affects all nodes."
+      }
+    },
+    "62": {
+      "question": "What redundancy concern exists with a unidirectional Ring topology?",
+      "options": {
+        "a.": "It requires a central switch to function",
+        "b.": "A secondary link is needed for redundancy since traffic only flows one way",
+        "c.": "All nodes share the same collision domain",
+        "d.": "It cannot support full-duplex communication"
+      },
+      "answer": {
+        "b.": "A unidirectional ring topology requires a secondary link for redundancy since traffic only flows in one direction."
+      }
+    },
+    "63": {
+      "question": "In a Star topology using a Hub, what is the logical topology?",
+      "options": {
+        "a.": "Logical star",
+        "b.": "Logical ring",
+        "c.": "Logical bus",
+        "d.": "Logical mesh"
+      },
+      "answer": {
+        "c.": "A star topology using a hub is a physical star but a logical bus — all nodes share the same collision domain."
+      }
+    },
+    "64": {
+      "question": "In a Star topology using a Switch, what is the logical topology?",
+      "options": {
+        "a.": "Logical bus",
+        "b.": "Logical ring",
+        "c.": "Logical star",
+        "d.": "Logical mesh"
+      },
+      "answer": {
+        "c.": "A star topology using a switch is both a physical and logical star — each node is in its own collision domain."
+      }
+    },
+    "65": {
+      "question": "What is the main advantage of a Mesh topology?",
+      "options": {
+        "a.": "Low cost and simple management",
+        "b.": "Extremely reliable with redundancy, fault tolerance, and load balancing",
+        "c.": "Easy to expand with minimal cabling",
+        "d.": "All devices share a single collision domain"
+      },
+      "answer": {
+        "b.": "Mesh topology provides extreme reliability through redundancy, fault tolerance, and load balancing across multiple paths."
+      }
+    },
+    "66": {
+      "question": "What is a key disadvantage of a full Mesh topology?",
+      "options": {
+        "a.": "No redundancy between devices",
+        "b.": "High administrative overhead and exponentially more cabling required",
+        "c.": "Cannot support more than 10 devices",
+        "d.": "Only supports half-duplex communication"
+      },
+      "answer": {
+        "b.": "Full mesh topology has high administrative overhead and requires exponentially more cabling as devices are added."
+      }
+    },
+    "67": {
+      "question": "What defines a Hybrid topology?",
+      "options": {
+        "a.": "A network that uses only wireless connections",
+        "b.": "A combination of two or more network topologies that does not exhibit one standard topology",
+        "c.": "A topology that uses both hubs and switches",
+        "d.": "A network that combines IPv4 and IPv6"
+      },
+      "answer": {
+        "b.": "A hybrid topology combines two or more standard topologies in a way that the resulting network does not exhibit any single standard topology."
+      }
+    },
+    "68": {
+      "question": "What is supernetting (route summarization)?",
+      "options": {
+        "a.": "Dividing a network into smaller subnets",
+        "b.": "Broadening the subnet mask to create a summary route covering multiple networks",
+        "c.": "Assigning static IP addresses to all devices",
+        "d.": "Converting IPv4 addresses to IPv6"
+      },
+      "answer": {
+        "b.": "Supernetting (route summarization) is the opposite of subnetting — it broadens the mask to create a summary route that covers multiple networks, shrinking routing tables."
+      }
+    },
+    "69": {
+      "question": "What is a discontiguous network?",
+      "options": {
+        "a.": "A network that spans multiple physical locations",
+        "b.": "Two networks of the same classful network separated by a different network address",
+        "c.": "A network without a default gateway",
+        "d.": "A network that uses VLSM"
+      },
+      "answer": {
+        "b.": "A discontiguous network occurs when two networks of the same classful network are separated by a different network address."
+      }
+    },
+    "70": {
+      "question": "Which older routing protocols do NOT support discontiguous networks?",
+      "options": {
+        "a.": "EIGRP and OSPF",
+        "b.": "RIPv2 and OSPF",
+        "c.": "RIPv1 and IGRP",
+        "d.": "BGP and EIGRP"
+      },
+      "answer": {
+        "c.": "Older routing protocols like RIPv1 and IGRP do not advertise subnet masks and therefore do not support discontiguous networks."
+      }
+    },
+    "71": {
+      "question": "Which newer routing protocols DO support discontiguous networks?",
+      "options": {
+        "a.": "RIPv1 and IGRP",
+        "b.": "EIGRP and OSPF",
+        "c.": "RIPv1 and OSPF",
+        "d.": "IGRP and BGP"
+      },
+      "answer": {
+        "b.": "Newer routing protocols like EIGRP and OSPF support discontiguous networks because they advertise subnet masks."
+      }
+    },
+    "72": {
+      "question": "What is the correct order of steps when applying VLSM?",
+      "options": {
+        "a.": "Smallest to largest requirements, then assign subnets",
+        "b.": "Order requirements largest to smallest, then create the smallest subnet that meets each requirement",
+        "c.": "Assign equal-sized subnets to all requirements",
+        "d.": "Start with the default subnet and subdivide equally"
+      },
+      "answer": {
+        "b.": "VLSM requires ordering host requirements from largest to smallest and creating the smallest subnet sufficient for each requirement, starting with the largest."
+      }
+    },
+    "73": {
+      "question": "What benefit does supernetting provide to routing performance?",
+      "options": {
+        "a.": "It increases the number of available IP addresses",
+        "b.": "It shrinks the routing table and improves routing performance by converging faster",
+        "c.": "It encrypts routing table entries",
+        "d.": "It prevents routing loops"
+      },
+      "answer": {
+        "b.": "Supernetting shrinks the routing table, improves routing performance, and allows routes to converge more quickly."
+      }
+    },
+    "74": {
+      "question": "In IPv6 subnetting, how many bits are reserved for the routing/networking prefix?",
+      "options": {
+        "a.": "32 bits",
+        "b.": "48 bits",
+        "c.": "64 bits",
+        "d.": "16 bits"
+      },
+      "answer": {
+        "b.": "The first 48 bits of an IPv6 address are reserved for the networking/routing prefix, usually provided by the ISP."
+      }
+    },
+    "75": {
+      "question": "In IPv6 subnetting, how many bits are designated for the Subnet ID?",
+      "options": {
+        "a.": "48 bits",
+        "b.": "64 bits",
+        "c.": "16 bits",
+        "d.": "32 bits"
+      },
+      "answer": {
+        "c.": "The next 16 bits after the 48-bit routing prefix are designated for the Subnet ID."
+      }
+    },
+    "76": {
+      "question": "In IPv6 subnetting, how many bits are allocated for hosts (Interface ID)?",
+      "options": {
+        "a.": "16 bits",
+        "b.": "32 bits",
+        "c.": "48 bits",
+        "d.": "64 bits"
+      },
+      "answer": {
+        "d.": "The last 64 bits of an IPv6 address are allocated for the Interface ID (hosts), and are used for auto-configuration."
+      }
+    },
+    "77": {
+      "question": "Why do network and broadcast addresses not exist as reserved addresses in IPv6?",
+      "options": {
+        "a.": "IPv6 uses a different broadcast mechanism",
+        "b.": "Host bits of all 0s or all 1s are not an issue in IPv6 — there are no network or broadcast addresses",
+        "c.": "IPv6 reserves different addresses for these purposes",
+        "d.": "IPv6 does not support subnetting"
+      },
+      "answer": {
+        "b.": "In IPv6, host bits of all 0s or all 1s are not reserved, so there are no dedicated network or broadcast addresses."
+      }
+    },
+    "79": {
+      "question": "What is the Class 4 Toll Office's role in the PSTN hierarchy?",
+      "options": {
+        "a.": "It connects directly to individual subscribers",
+        "b.": "It connects to multiple Class 5 offices and to other Class 4 and Class 1 offices",
+        "c.": "It only connects to regional Class 1 centers",
+        "d.": "It provides the local loop to subscribers"
+      },
+      "answer": {
+        "b.": "The Class 4 Toll Office connects to multiple Class 5 offices and to other Class 4 offices and Class 1 Regional Centers."
+      }
+    },
+    "80": {
+      "question": "What is one physical security measure recommended for PSTN networks?",
+      "options": {
+        "a.": "Encrypting all analog signals",
+        "b.": "Locks on a building's phone closet and high physical security at central offices",
+        "c.": "Installing firewalls on all phone lines",
+        "d.": "Using two-factor authentication for all calls"
+      },
+      "answer": {
+        "b.": "Physical security measures for PSTN include locks on phone closets and high levels of physical security at central offices and cable vaults."
+      }
+    },
+    "81": {
+      "question": "What makes PSTN more physically secure than some other technologies?",
+      "options": {
+        "a.": "PSTN uses end-to-end encryption",
+        "b.": "Each call has a dedicated wire pair for the entirety of the call",
+        "c.": "PSTN traffic is anonymized by default",
+        "d.": "PSTN uses packet switching making interception harder"
+      },
+      "answer": {
+        "b.": "PSTN is considered more physically secure than some technologies because each call uses a dedicated wire pair for the entire duration of the call."
+      }
+    },
+    "82": {
+      "question": "What percentage of global cellular connections were 4G based in 2022?",
+      "options": {
+        "a.": "40%",
+        "b.": "50%",
+        "c.": "60%",
+        "d.": "70%"
+      },
+      "answer": {
+        "c.": "60% of global cellular connections were 4G based in 2022."
+      }
+    },
+    "83": {
+      "question": "What is the role of the 5G Mobile Core in relation to subscribers?",
+      "options": {
+        "a.": "It provides the radio signals directly to devices",
+        "b.": "It bridges the Radio Access Network to the IP world and manages subscriber mobility by tracking the serving base station",
+        "c.": "It encrypts all 5G traffic",
+        "d.": "It assigns IP addresses via DHCP only"
+      },
+      "answer": {
+        "b.": "The 5G Mobile Core bridges the RAN to the internet, provides external packet data network connectivity, and manages subscriber mobility by tracking the serving base station."
+      }
+    },
+    "84": {
+      "question": "What is one advantage of a Hybrid topology over a pure single topology?",
+      "options": {
+        "a.": "It is cheaper and easier to manage",
+        "b.": "It is flexible, reliable, has increased fault tolerance, and allows easy addition of new nodes",
+        "c.": "It requires less cabling than any other topology",
+        "d.": "It eliminates all collision domains"
+      },
+      "answer": {
+        "b.": "Hybrid topology offers flexibility, reliability, increased fault tolerance, and allows new nodes to be easily added without disrupting the rest of the network."
+      }
+    },
+    "85": {
+      "question": "What is the difference between circuit switching's resource reservation and packet switching's bandwidth sharing?",
+      "options": {
+        "a.": "Both reserve dedicated resources for each connection",
+        "b.": "Circuit switching reserves a dedicated path; packet switching shares bandwidth among all users with no reservation",
+        "c.": "Packet switching reserves resources; circuit switching shares bandwidth",
+        "d.": "They handle resources identically"
+      },
+      "answer": {
+        "b.": "Circuit switching reserves dedicated resources for the entire path of a call; packet switching shares bandwidth dynamically among users with no reservation."
+      }
+    },
+    "86": {
+      "question": "What topology does a Hub create physically vs. logically?",
+      "options": {
+        "a.": "Physical bus, logical star",
+        "b.": "Physical star, logical bus",
+        "c.": "Physical star, logical star",
+        "d.": "Physical bus, logical bus"
+      },
+      "answer": {
+        "b.": "A hub creates a physical star topology but a logical bus — all nodes share the same collision domain."
+      }
+    },
+    "87": {
+      "question": "What Ethernet standard were 10BASE-T hubs introduced with?",
+      "options": {
+        "a.": "1983",
+        "b.": "1988",
+        "c.": "1990",
+        "d.": "1995"
+      },
+      "answer": {
+        "c.": "10BASE-T was introduced in 1990 and used hubs connecting computers in a star topology."
+      }
+    },
+    "88": {
+      "question": "Can a NIC now commonly be found built into the motherboard?",
+      "options": {
+        "a.": "No, NICs are always separate expansion cards",
+        "b.": "Yes, many NICs are now built into the motherboard",
+        "c.": "Only in server systems",
+        "d.": "Only in wireless devices"
+      },
+      "answer": {
+        "b.": "Many NICs are now built directly into the motherboard rather than being separate expansion cards."
+      }
+    },
+    "89": {
+      "question": "What is the primary difference between a hub and a switch in terms of how they handle traffic?",
+      "options": {
+        "a.": "A hub forwards traffic only to the intended recipient; a switch sends to all ports",
+        "b.": "A hub sends traffic to all connected ports; a switch forwards only to the intended port",
+        "c.": "They handle traffic identically",
+        "d.": "A hub operates at Layer 3; a switch operates at Layer 2"
+      },
+      "answer": {
+        "b.": "A hub sends traffic to all connected ports (not smart), while a switch forwards traffic only to the specific port of the intended recipient using its MAC table."
+      }
+    },
+    "90": {
+      "question": "A Wireless Access Point typically connects to what device as a standalone unit?",
+      "options": {
+        "a.": "A modem",
+        "b.": "A hub",
+        "c.": "A router",
+        "d.": "A repeater"
+      },
+      "answer": {
+        "c.": "A Wireless Access Point typically connects to a router as a standalone device, though it can also be integrated into the router itself."
+      }
+    },
+    "91": {
+      "question": "What is the key function of a firewall?",
+      "options": {
+        "a.": "Assign IP addresses to devices on the network",
+        "b.": "Monitor and control incoming and outgoing network traffic based on pre-determined rules",
+        "c.": "Translate between analog and digital signals",
+        "d.": "Forward packets between networks using a routing table"
+      },
+      "answer": {
+        "b.": "A firewall monitors and controls incoming and outgoing network traffic using pre-determined rules, acting as a barrier between trusted and untrusted connections."
+      }
+    },
+    "92": {
+      "question": "How does a router differ from a switch in terms of broadcast domains?",
+      "options": {
+        "a.": "Routers extend broadcast domains; switches break them up",
+        "b.": "Routers break up broadcast domains; switches do not",
+        "c.": "Both routers and switches break up broadcast domains",
+        "d.": "Neither routers nor switches affect broadcast domains"
+      },
+      "answer": {
+        "b.": "Routers break up broadcast domains by default ignoring broadcast traffic, while switches do not — all ports on a switch share the same broadcast domain unless VLANs are used."
+      }
+    },
+    "93": {
+      "question": "What is the purpose of the SS7 protocol in normal telephone network operation?",
+      "options": {
+        "a.": "It encrypts telephone calls end-to-end",
+        "b.": "It allows cell phone carriers to collect location data and share it with other carriers",
+        "c.": "It assigns telephone numbers to subscribers",
+        "d.": "It manages billing for internet traffic"
+      },
+      "answer": {
+        "b.": "In normal operation, SS7 allows carriers to collect location data related to a user's device from cell towers and share it with other carriers."
+      }
+    },
+    "94": {
+      "question": "What type of PSTN attack involves tampering, denial of service, and spoofing via wireless phone calls?",
+      "options": {
+        "a.": "Out of band attacks",
+        "b.": "Internet based attacks",
+        "c.": "Wireless based attacks",
+        "d.": "Physical attacks"
+      },
+      "answer": {
+        "c.": "Wireless based attacks exploit the fact that wireless calls eventually travel through the PSTN backbone, enabling call tampering, denial of service, and spoofing."
+      }
+    },
+    "95": {
+      "question": "Why are PSTN control computers vulnerable to attack?",
+      "options": {
+        "a.": "They run outdated analog software",
+        "b.": "Most PSTN infrastructure is operated by computers with the same vulnerabilities as regular servers",
+        "c.": "They are directly connected to the public internet without firewalls",
+        "d.": "They use SS7 for authentication"
+      },
+      "answer": {
+        "b.": "PSTN control computers have the same vulnerabilities as regular servers and computers, making them susceptible to internet-based attacks."
+      }
+    },
+    "96": {
+      "question": "What does a softphone refer to in the context of VOIP?",
+      "options": {
+        "a.": "A phone with a soft keyboard",
+        "b.": "A piece of software running on a PC that enables VOIP calls over an IP network",
+        "c.": "A wireless phone that connects via Bluetooth",
+        "d.": "A phone that uses analog signals"
+      },
+      "answer": {
+        "b.": "A softphone is a piece of software running on a PC that uses VOIP technologies to make telephone calls over an IP network."
+      }
+    },
+    "97": {
+      "question": "Which SIP message is used to initiate a call?",
+      "options": {
+        "a.": "BYE",
+        "b.": "REGISTER",
+        "c.": "INVITE",
+        "d.": "ACK"
+      },
+      "answer": {
+        "c.": "The SIP INVITE message is used to set up (initiate) a call."
+      }
+    },
+    "98": {
+      "question": "Which SIP message is used to terminate or transfer a call?",
+      "options": {
+        "a.": "INVITE",
+        "b.": "REGISTER",
+        "c.": "ACK",
+        "d.": "BYE"
+      },
+      "answer": {
+        "d.": "The SIP BYE message is used to terminate or transfer a call."
+      }
+    },
+    "99": {
+      "question": "How does SIP call setup compare to the TCP three-way handshake?",
+      "options": {
+        "a.": "SIP uses fewer steps than TCP",
+        "b.": "SIP is identical to TCP's three-way handshake",
+        "c.": "SIP is similar to the TCP three-way handshake but involves more steps",
+        "d.": "SIP does not use any handshake mechanism"
+      },
+      "answer": {
+        "c.": "SIP call setup is similar to the TCP three-way handshake but involves more steps."
+      }
+    },
+    "100": {
+      "question": "What is Message Tampering in the context of VOIP attacks?",
+      "options": {
+        "a.": "Flooding a server with SIP REGISTER messages",
+        "b.": "An attacker intercepting and modifying packets exchanged between SIP components (man-in-the-middle)",
+        "c.": "Sending a spoofed BYE message to hang up a call",
+        "d.": "Impersonating a legitimate User Agent"
+      },
+      "answer": {
+        "b.": "Message Tampering is a man-in-the-middle attack where an attacker intercepts and modifies packets exchanged between SIP components."
+      }
+    },
+    "101": {
+      "question": "What attacks does Message Tampering in VOIP commonly cause?",
+      "options": {
+        "a.": "Denial of service and bandwidth exhaustion",
+        "b.": "Registration hijacking and proxy impersonation",
+        "c.": "Session tear down and packet flooding",
+        "d.": "DNS poisoning and ARP spoofing"
+      },
+      "answer": {
+        "b.": "Message Tampering commonly leads to registration hijacking and proxy impersonation."
+      }
+    },
+    "102": {
+      "question": "What Layer 3 security measure is recommended for isolating VOIP traffic?",
+      "options": {
+        "a.": "Enable SIP encryption on all phones",
+        "b.": "Place VOIP traffic on its own network and broadcast IP space",
+        "c.": "Block all UDP traffic at the router",
+        "d.": "Use static IP addresses for all VOIP phones"
+      },
+      "answer": {
+        "b.": "At Layer 3, VOIP traffic should be placed on its own network and broadcast IP space to isolate it, typically done alongside Layer 2 VLANs."
+      }
+    },
+    "103": {
+      "question": "What physical security measure is specifically recommended for VOIP phone hardware?",
+      "options": {
+        "a.": "Encrypt the SIP channel",
+        "b.": "Pin lock phone configuration settings",
+        "c.": "Disable RTP on all phones",
+        "d.": "Use only wired VOIP phones"
+      },
+      "answer": {
+        "b.": "Pin locking phone configuration settings is a recommended physical security measure for VOIP hardware."
+      }
+    },
+    "104": {
+      "question": "What does the DSN assure for users with flash and flash override precedence?",
+      "options": {
+        "a.": "Encrypted communications at all times",
+        "b.": "Non-blocking service",
+        "c.": "Guaranteed delivery of all packets",
+        "d.": "Priority routing over the public internet"
+      },
+      "answer": {
+        "b.": "The DSN assures non-blocking service for users with flash and flash override precedence capabilities."
+      }
+    },
+    "105": {
+      "question": "What type of switches are found at military bases, posts, camps, and stations in the DSN?",
+      "options": {
+        "a.": "Multifunction switches",
+        "b.": "Class 1 regional switches",
+        "c.": "Installation switches",
+        "d.": "Nodal switches"
+      },
+      "answer": {
+        "c.": "Installation switches are the DSN switches found at bases, posts, camps, and stations."
+      }
+    },
+    "106": {
+      "question": "Why does a CVE affecting a commercial phone model also potentially affect the DOD's DSN?",
+      "options": {
+        "a.": "The DOD uses the same internet infrastructure as commercial users",
+        "b.": "If the DOD uses the same commercial phone model, the CVE applies and must be mitigated",
+        "c.": "All CVEs automatically apply to government networks",
+        "d.": "DSN uses identical software to commercial ISPs"
+      },
+      "answer": {
+        "b.": "If the DOD is using the same commercial phone model affected by a CVE, that vulnerability applies to their systems and must be mitigated by patching or feature disabling."
+      }
+    },
+    "107": {
+      "question": "What does UE stand for in cellular network architecture?",
+      "options": {
+        "a.": "Universal Ethernet",
+        "b.": "User Equipment",
+        "c.": "Uplink Encoder",
+        "d.": "Universal Endpoint"
+      },
+      "answer": {
+        "b.": "UE stands for User Equipment — the mobile device used by the end user."
+      }
+    },
+    "108": {
+      "question": "What earlier cellular standards is 4G LTE based on?",
+      "options": {
+        "a.": "TDMA and FDMA",
+        "b.": "GSM and CDMA",
+        "c.": "WiMAX and LTE",
+        "d.": "HSPA and EDGE"
+      },
+      "answer": {
+        "b.": "4G LTE is based on 3G standards, specifically GSM and CDMA."
+      }
+    },
+    "109": {
+      "question": "What is one recommended security practice for mobile devices treated like computers?",
+      "options": {
+        "a.": "Disable all wireless radios when not in use",
+        "b.": "Patch management, encryption, two-factor authentication, and use of VPNs",
+        "c.": "Only connect to trusted cellular networks",
+        "d.": "Avoid installing any third-party applications"
+      },
+      "answer": {
+        "b.": "Mobile devices should be treated like computers — applying patch management, encryption, two-factor authentication (not SMS-based), and VPNs."
+      }
+    },
+    "110": {
+      "question": "In circuit switching, what does each data unit know about its path?",
+      "options": {
+        "a.": "Only the next hop",
+        "b.": "Only the final destination",
+        "c.": "The entire path address, provided by the source",
+        "d.": "Nothing — the path is dynamically assigned"
+      },
+      "answer": {
+        "c.": "In circuit switching, each data unit knows the entire path address, which is provided by the source."
+      }
+    },
+    "111": {
+      "question": "What is a key characteristic of resource reservation in circuit switching vs. packet switching?",
+      "options": {
+        "a.": "Both reserve bandwidth for each connection",
+        "b.": "Circuit switching reserves the path; packet switching has no resource reservation as bandwidth is shared",
+        "c.": "Packet switching reserves the path; circuit switching shares bandwidth",
+        "d.": "Neither reserves resources"
+      },
+      "answer": {
+        "b.": "Resource reservation is a feature of circuit switching because the path is fixed; packet switching has no reservation since bandwidth is shared among users."
+      }
+    },
+    "112": {
+      "question": "What is a key disadvantage of a Ring topology that requires addressing with additional infrastructure?",
+      "options": {
+        "a.": "All nodes share a collision domain",
+        "b.": "A unidirectional ring requires a secondary link for redundancy",
+        "c.": "It requires a central switch to function",
+        "d.": "Ring topology cannot support full-duplex communication"
+      },
+      "answer": {
+        "b.": "A unidirectional ring topology has a single point of failure — a secondary link is needed to provide redundancy."
+      }
+    },
+    "113": {
+      "question": "In a Star topology, what is the difference between a 'physical star' and a 'logical star'?",
+      "options": {
+        "a.": "Physical star uses wireless; logical star uses wired connections",
+        "b.": "Physical star means all nodes connect to a central device; logical star means all nodes are in separate collision domains",
+        "c.": "They are the same thing",
+        "d.": "Physical star uses a hub; logical star uses a router"
+      },
+      "answer": {
+        "b.": "Physical star means all nodes are physically connected to a central device; logical star means each node is in its own separate collision domain (as with a switch)."
+      }
+    },
+    "114": {
+      "question": "What is one disadvantage of a Hybrid topology?",
+      "options": {
+        "a.": "It cannot support more than two topologies",
+        "b.": "It is difficult to manage and expensive",
+        "c.": "It provides no fault tolerance",
+        "d.": "New nodes cannot be added without rebuilding the network"
+      },
+      "answer": {
+        "b.": "Hybrid topologies are difficult to manage and expensive due to their complex combination of multiple topology types."
+      }
+    },
+    "115": {
+      "question": "What benefit does supernetting provide to routing table convergence?",
+      "options": {
+        "a.": "It slows convergence to ensure accuracy",
+        "b.": "It makes routing faster to converge by reducing the number of routes",
+        "c.": "It has no effect on convergence speed",
+        "d.": "It prevents convergence entirely"
+      },
+      "answer": {
+        "b.": "By summarizing multiple routes into one, supernetting reduces the routing table size, making routes quicker to converge."
+      }
+    },
+    "116": {
+      "question": "In IPv6, what notation is exclusively used for subnet masks?",
+      "options": {
+        "a.": "Dotted decimal notation",
+        "b.": "Hexadecimal notation",
+        "c.": "Slash (prefix length) notation",
+        "d.": "Binary notation"
+      },
+      "answer": {
+        "c.": "IPv6 does not use traditional subnet masks — everything is written in slash (prefix length) notation, such as /48 or /52."
+      }
+    },
+    "117": {
+      "question": "What are the three parts of the IPv6 address structure used in subnetting?",
+      "options": {
+        "a.": "Network ID, Host ID, Broadcast",
+        "b.": "Routing Prefix (48 bits), Subnet ID (16 bits), Interface ID/Hosts (64 bits)",
+        "c.": "ISP Prefix (32 bits), Subnet ID (32 bits), Host ID (64 bits)",
+        "d.": "Global Prefix (48 bits), Local Prefix (16 bits), MAC Address (64 bits)"
+      },
+      "answer": {
+        "b.": "IPv6 addresses used in subnetting are divided into a 48-bit Routing Prefix, a 16-bit Subnet ID, and a 64-bit Interface ID for hosts."
+      }
+    },
+    "118": {
+      "question": "What is the LATA associated with in the PSTN?",
+      "options": {
+        "a.": "A long-distance carrier's backbone network",
+        "b.": "An area within a divested Regional Bell Operating Company permitted to offer exchange telecommunications services",
+        "c.": "A class of PSTN office connecting regional centers",
+        "d.": "A type of PBX used in large enterprises"
+      },
+      "answer": {
+        "b.": "LATA represents an area within a divested Regional Bell Operating Company (RBOC) permitted to offer exchange telecommunications and exchange access services."
+      }
+    },
+    "119": {
+      "question": "What does the term 'convergence' refer to in the context of routing protocols and supernetting?",
+      "options": {
+        "a.": "The process of combining IPv4 and IPv6 networks",
+        "b.": "The speed at which routing updates spread through the network",
+        "c.": "The merging of PSTN and VOIP networks",
+        "d.": "The process of assigning IP addresses"
+      },
+      "answer": {
+        "b.": "In routing, convergence refers to the speed at which routing updates spread through the network — supernetting helps by reducing the number of routes that need to be advertised."
+      }
+    },
+    "120": {
+      "question": "What does the 64-bit Interface ID in an IPv6 address support in terms of configuration?",
+      "options": {
+        "a.": "Static assignment only",
+        "b.": "Auto-configuration",
+        "c.": "DHCP assignment only",
+        "d.": "MAC address resolution"
+      },
+      "answer": {
+        "b.": "The last 64 bits of an IPv6 address (the Interface ID) are used for auto-configuration of host addresses."
+      }
+    }
+  }
+}
