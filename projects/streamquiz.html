@@ -24,6 +24,8 @@ import struct
 import base64
 import urllib.request
 
+random.seed()  # Force re-seed from OS entropy on each script run
+
 try:
     import pyodide_http
     pyodide_http.patch_all()
