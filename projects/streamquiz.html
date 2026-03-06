@@ -336,23 +336,21 @@ if not st.session_state.quiz_active:
         )
 
     # ── Slider: clamp so it never breaks with very small pools ────────────────
-    slider_max     = max(1, available_count)
-    slider_step    = 5 if available_count >= 10 else 1
-    slider_default = min(10, slider_max)
-
     col1, col2 = st.columns(2)
     with col1:
-        if slider_max > 1:
+        if available_count <= 1:
+            num_questions = available_count
+            st.markdown(f"**Number of questions:** {available_count} *(only {available_count} remaining)*")
+        else:
+            slider_step    = 5 if available_count >= 10 else 1
+            slider_default = min(10, available_count)
             num_questions = st.slider(
                 "Number of questions",
                 min_value=1,
-                max_value=slider_max,
+                max_value=available_count,
                 value=slider_default,
                 step=slider_step,
             )
-        else:
-            num_questions = 1
-            st.markdown("**Number of questions:** 1 *(only 1 remaining)*")
     with col2:
         randomize = st.checkbox("Randomize order", value=True)
 
