@@ -361,9 +361,13 @@ if not st.session_state.quiz_active:
             num_questions = available_count
             st.markdown(f"**Number of questions:** {available_count} *(only {available_count} remaining)*")
         else:
-            # Clamp persisted preference to what's actually available
+            # Clamp ALL three state keys directly — widget `value` param is
+            # ignored by Streamlit when the key already exists in session state,
+            # so we must mutate the keys themselves before rendering.
             clamped = max(1, min(st.session_state.get("pref_num_questions", 10), available_count))
-            st.session_state["pref_num_questions"] = clamped  # keep it in-bounds
+            st.session_state["pref_num_questions"] = clamped
+            st.session_state["slider_num_q"]       = clamped
+            st.session_state["number_input_num_q"] = clamped
 
             slider_step = 5 if available_count >= 10 else 1
 
@@ -371,7 +375,6 @@ if not st.session_state.quiz_active:
                 "Number of questions",
                 min_value=1,
                 max_value=available_count,
-                value=clamped,
                 step=slider_step,
                 key="slider_num_q",
                 on_change=_sync_from_slider,
@@ -380,7 +383,6 @@ if not st.session_state.quiz_active:
                 "Or type an exact number",
                 min_value=1,
                 max_value=available_count,
-                value=clamped,
                 step=1,
                 key="number_input_num_q",
                 on_change=_sync_from_input,
