@@ -12,7 +12,7 @@
 
     <script id="app-source" type="text/plain">
 
-#V10.1
+#V10.2
 
 import streamlit as st
 import json
@@ -49,7 +49,6 @@ UNIT_URLS = {
     "TCP/IP Model Questions": "https://nomad1x2.github.io/projects/quiz_sets/encrypted_tcpip_model.json",
     "OSI Model Questions": "https://nomad1x2.github.io/projects/quiz_sets/encrypted_osi_model.json",
 }
-
 
 
 # ── HELPERS ───────────────────────────────────────────────────────────────────
@@ -139,11 +138,12 @@ def get_rank(pct: float) -> str:
 
 
 def reset_quiz():
-    """Reset the current quiz run while preserving mastered sets, passphrase, and decryption status."""
+    """Reset the current quiz run while preserving mastered sets, passphrase, decryption status, and num_questions pref."""
     preserved = {
-        "decryption_ok": st.session_state.get("decryption_ok", False),
-        "passphrase":    st.session_state.get("passphrase", ""),
-        "unit_selector": st.session_state.get("active_unit", st.session_state.get("unit_selector", "All")),
+        "decryption_ok":        st.session_state.get("decryption_ok", False),
+        "passphrase":           st.session_state.get("passphrase", ""),
+        "unit_selector":        st.session_state.get("active_unit", st.session_state.get("unit_selector", "All Question Sets")),
+        "pref_num_questions":   st.session_state.get("pref_num_questions", 10),
     }
     for unit in UNIT_OPTIONS:
         mk = get_mastered_key(unit)
@@ -245,6 +245,7 @@ label[data-testid="stWidgetLabel"] p,
 div[data-testid="stSlider"] label p,
 div[data-testid="stCheckbox"] label p { font-size: 0.9rem !important; color: #aaa !important; }
 .stTextInput input { background-color: #1e1e1e !important; color: #e0e0e0 !important; border: 1px solid #333 !important; }
+.stNumberInput input { background-color: #1e1e1e !important; color: #e0e0e0 !important; border: 1px solid #333 !important; }
 #MainMenu, footer, header { visibility: hidden; }
 .block-container { padding-top: 2rem !important; max-width: 680px !important; }
 details { background: #1e1e1e !important; border: 1px solid #333 !important; border-radius: 8px !important; }
@@ -262,9 +263,10 @@ st.markdown(CSS, unsafe_allow_html=True)
 
 # ── SESSION STATE DEFAULTS ────────────────────────────────────────────────────
 
-if "decryption_ok" not in st.session_state: st.session_state.decryption_ok = False
-if "quiz_active"   not in st.session_state: st.session_state.quiz_active   = False
-if "passphrase"    not in st.session_state: st.session_state.passphrase    = ""
+if "decryption_ok"      not in st.session_state: st.session_state.decryption_ok      = False
+if "quiz_active"        not in st.session_state: st.session_state.quiz_active         = False
+if "passphrase"         not in st.session_state: st.session_state.passphrase          = ""
+if "pref_num_questions" not in st.session_state: st.session_state.pref_num_questions  = 10
 
 
 # ── UNLOCK SCREEN ─────────────────────────────────────────────────────────────
@@ -338,25 +340,57 @@ if not st.session_state.quiz_active:
             unsafe_allow_html=True,
         )
 
-    # ── Slider: clamp so it never breaks with very small pools ────────────────
+    # ── Question count controls ───────────────────────────────────────────────
+    # Both widgets share `pref_num_questions` as their source of truth.
+    # on_change callbacks write back to it so whichever widget moves, the
+    # other reflects it on the next render.
+
+    def _sync_from_slider():
+        val = st.session_state["slider_num_q"]
+        st.session_state["pref_num_questions"]    = val
+        st.session_state["number_input_num_q"]    = val
+
+    def _sync_from_input():
+        val = int(st.session_state["number_input_num_q"])
+        st.session_state["pref_num_questions"] = val
+        st.session_state["slider_num_q"]       = val
+
     col1, col2 = st.columns(2)
     with col1:
         if available_count <= 1:
             num_questions = available_count
             st.markdown(f"**Number of questions:** {available_count} *(only {available_count} remaining)*")
         else:
-            slider_step    = 5 if available_count >= 10 else 1
-            slider_default = min(10, available_count)
-            num_questions = st.slider(
+            # Clamp persisted preference to what's actually available
+            clamped = max(1, min(st.session_state.get("pref_num_questions", 10), available_count))
+            st.session_state["pref_num_questions"] = clamped  # keep it in-bounds
+
+            slider_step = 5 if available_count >= 10 else 1
+
+            st.slider(
                 "Number of questions",
                 min_value=1,
                 max_value=available_count,
-                value=slider_default,
+                value=clamped,
                 step=slider_step,
+                key="slider_num_q",
+                on_change=_sync_from_slider,
             )
+            st.number_input(
+                "Or type an exact number",
+                min_value=1,
+                max_value=available_count,
+                value=clamped,
+                step=1,
+                key="number_input_num_q",
+                on_change=_sync_from_input,
+            )
+
+            num_questions = st.session_state["pref_num_questions"]
+
     with col2:
         randomize = st.checkbox("Randomize order", value=True)
-
+        
     st.markdown("---")
     col3, col4 = st.columns(2)
     with col3:
@@ -407,7 +441,7 @@ elif st.session_state.quiz_active:
     q_keys       = st.session_state.q_keys
     total        = st.session_state.total
     idx          = st.session_state.current_q
-    active_unit  = st.session_state.get("active_unit", "All")
+    active_unit  = st.session_state.get("active_unit", "All Question Sets")
     mastered_key = get_mastered_key(active_unit)
     if mastered_key not in st.session_state:
         st.session_state[mastered_key] = set()
