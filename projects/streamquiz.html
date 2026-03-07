@@ -12,7 +12,7 @@
 
     <script id="app-source" type="text/plain">
 
-#V10.2
+#11
 
 import streamlit as st
 import json
@@ -138,12 +138,18 @@ def get_rank(pct: float) -> str:
 
 
 def reset_quiz():
-    """Reset the current quiz run while preserving mastered sets, passphrase, decryption status, and num_questions pref."""
+    """Reset the current quiz run while preserving mastered sets, passphrase, decryption status, num_questions pref, and all settings."""
     preserved = {
         "decryption_ok":        st.session_state.get("decryption_ok", False),
         "passphrase":           st.session_state.get("passphrase", ""),
         "unit_selector":        st.session_state.get("active_unit", st.session_state.get("unit_selector", "All Question Sets")),
         "pref_num_questions":   st.session_state.get("pref_num_questions", 10),
+        # Persist all settings across quiz resets
+        "cfg_randomize":        st.session_state.get("cfg_randomize", True),
+        "cfg_use_timer":        st.session_state.get("cfg_use_timer", False),
+        "cfg_timer_minutes":    st.session_state.get("cfg_timer_minutes", 10),
+        "cfg_instant_feedback": st.session_state.get("cfg_instant_feedback", True),
+        "cfg_start_at":         st.session_state.get("cfg_start_at", 1),
     }
     for unit in UNIT_OPTIONS:
         mk = get_mastered_key(unit)
@@ -255,6 +261,11 @@ summary { color: #ccc !important; }
     border-radius: 7px; padding: 0.75rem 1rem; font-size: 0.88rem;
     color: #7aaee8; margin-bottom: 1rem;
 }
+.resume-banner {
+    background: #1e2218; border: 1px solid #3a4a2a; border-left: 4px solid #6a9a3a;
+    border-radius: 7px; padding: 0.75rem 1rem; font-size: 0.88rem;
+    color: #a0c870; margin-bottom: 0.5rem;
+}
 </style>
 """
 
@@ -340,98 +351,145 @@ if not st.session_state.quiz_active:
             unsafe_allow_html=True,
         )
 
-    # ── Question count controls ───────────────────────────────────────────────
-    # Both widgets share `pref_num_questions` as their source of truth.
-    # on_change callbacks write back to it so whichever widget moves, the
-    # other reflects it on the next render.
+    # ── Read all settings from session_state (set by widgets on prior run) ──────
+    # These are the "committed" values from the last render; widgets below will
+    # update them for the *next* render. On very first run, defaults apply.
+    randomize        = st.session_state.get("cfg_randomize", True)
+    use_timer        = st.session_state.get("cfg_use_timer", False)
+    timer_minutes    = st.session_state.get("cfg_timer_minutes", 10)
+    instant_feedback = st.session_state.get("cfg_instant_feedback", True)
+    start_at         = st.session_state.get("cfg_start_at", 1)
 
-    def _sync_from_slider():
-        val = st.session_state["slider_num_q"]
-        st.session_state["pref_num_questions"]    = val
-        st.session_state["number_input_num_q"]    = val
+    # Clamp start_at to valid range
+    start_at = max(1, min(start_at, available_count))
 
-    def _sync_from_input():
-        val = int(st.session_state["number_input_num_q"])
-        st.session_state["pref_num_questions"] = val
-        st.session_state["slider_num_q"]       = val
+    # Effective pool size after resume offset
+    effective_available = available_count - (start_at - 1) if not randomize else available_count
+    effective_available = max(1, effective_available)
 
-    col1, col2 = st.columns(2)
-    with col1:
-        if available_count <= 1:
-            num_questions = available_count
-            st.markdown(f"**Number of questions:** {available_count} *(only {available_count} remaining)*")
-        else:
-            # Clamp ALL three state keys directly — widget `value` param is
-            # ignored by Streamlit when the key already exists in session state,
-            # so we must mutate the keys themselves before rendering.
-            clamped = max(1, min(st.session_state.get("pref_num_questions", 10), available_count))
-            st.session_state["pref_num_questions"] = clamped
-            st.session_state["slider_num_q"]       = clamped
-            st.session_state["number_input_num_q"] = clamped
+    num_questions = max(1, min(st.session_state.get("pref_num_questions", 10), effective_available))
 
-            slider_step = 5 if available_count >= 10 else 1
-
-            st.slider(
-                "Number of questions",
-                min_value=1,
-                max_value=available_count,
-                step=slider_step,
-                key="slider_num_q",
-                on_change=_sync_from_slider,
-            )
-            st.number_input(
-                "Or type an exact number",
-                min_value=1,
-                max_value=available_count,
-                step=1,
-                key="number_input_num_q",
-                on_change=_sync_from_input,
-            )
-
-            num_questions = st.session_state["pref_num_questions"]
-
-    with col2:
-        randomize = st.checkbox("Randomize order", value=True)
-        
+    # ── Divider + Start / Reset buttons (rendered BEFORE settings widgets) ────
     st.markdown("---")
-    col3, col4 = st.columns(2)
-    with col3:
-        use_timer = st.checkbox("Enable timer", value=False)
-    with col4:
-        timer_minutes = st.slider("Duration (minutes)", 1, 60, 10, disabled=not use_timer)
 
-    instant_feedback = st.checkbox("Show correct answer after each question", value=True)
-    st.markdown(f"*{available_count} questions available (excluding mastered) in **{selected_unit}***")
+    if st.button("Start Quiz", use_container_width=True):
+        available_keys = [k for k in unit_pool if k not in mastered_set]
 
-    col_start, col_reset = st.columns([3, 1])
-    with col_start:
-        if st.button("Start Quiz"):
-            available_keys = [k for k in unit_pool if k not in mastered_set]
-            if randomize:
-                random.shuffle(available_keys)
+        if randomize:
+            random.shuffle(available_keys)
             chosen = available_keys[:num_questions]
+            pre_master_keys = []
+        else:
+            pre_master_keys = available_keys[:start_at - 1]
+            remaining_keys  = available_keys[start_at - 1:]
+            chosen = remaining_keys[:num_questions]
 
-            st.session_state.questions        = {k: shuffle_question_options(unit_pool[k]) for k in chosen}
-            st.session_state.q_keys           = chosen
-            st.session_state.quiz_active      = True
-            st.session_state.current_q        = 0
-            st.session_state.selected_answers = {}
-            st.session_state.answered         = {}
-            st.session_state.score            = 0
-            st.session_state.start_time       = time.time()
-            st.session_state.q_start_time     = time.time()
-            st.session_state.elapsed_times    = []
-            st.session_state.time_up          = False
-            st.session_state.use_timer        = use_timer
-            st.session_state.timer_seconds    = timer_minutes * 60
-            st.session_state.instant_feedback = instant_feedback
-            st.session_state.total            = num_questions
-            st.session_state.active_unit      = selected_unit
-            st.rerun()
+        if pre_master_keys:
+            st.session_state[mastered_key].update(pre_master_keys)
 
-    with col_reset:
+        st.session_state.questions        = {k: shuffle_question_options(unit_pool[k]) for k in chosen}
+        st.session_state.q_keys           = chosen
+        st.session_state.quiz_active      = True
+        st.session_state.current_q        = 0
+        st.session_state.selected_answers = {}
+        st.session_state.answered         = {}
+        st.session_state.score            = 0
+        st.session_state.start_time       = time.time()
+        st.session_state.q_start_time     = time.time()
+        st.session_state.elapsed_times    = []
+        st.session_state.time_up          = False
+        st.session_state.use_timer        = use_timer
+        st.session_state.timer_seconds    = timer_minutes * 60
+        st.session_state.instant_feedback = instant_feedback
+        st.session_state.total            = num_questions
+        st.session_state.active_unit      = selected_unit
+        st.rerun()
+
+    # ── Settings expander (rendered after button — appears below it) ──────────
+    with st.expander("Settings", expanded=st.session_state.get("settings_open", True)):
+
+        col_rand, col_timer_chk = st.columns(2)
+        with col_rand:
+            new_randomize = st.checkbox("Randomize order", value=randomize, key="randomize_chk")
+            st.session_state["cfg_randomize"] = new_randomize
+        with col_timer_chk:
+            new_use_timer = st.checkbox("Enable timer", value=use_timer)
+            st.session_state["cfg_use_timer"] = new_use_timer
+
+        # Resume / start-at — sequential mode only
+        if not new_randomize and available_count > 1:
+            max_start = available_count
+            st.markdown(
+                '<div class="resume-banner">'
+                '<strong>Resume from question:</strong> Questions before this number will be marked as mastered '
+                'so they are skipped on restart. Set to 1 to start from the beginning.</div>',
+                unsafe_allow_html=True,
+            )
+            new_start_at = st.number_input(
+                f"Start at question # (1 – {max_start})",
+                min_value=1,
+                max_value=max_start,
+                value=start_at,
+                step=1,
+                key="start_at_input",
+            )
+            st.session_state["cfg_start_at"] = int(new_start_at)
+            eff_avail = max(1, available_count - (int(new_start_at) - 1))
+        else:
+            st.session_state["cfg_start_at"] = 1
+            eff_avail = available_count
+
+        # Question count
+        def _sync_from_slider():
+            v = st.session_state["slider_num_q"]
+            st.session_state["pref_num_questions"]  = v
+            st.session_state["number_input_num_q"]  = v
+
+        def _sync_from_input():
+            v = int(st.session_state["number_input_num_q"])
+            st.session_state["pref_num_questions"] = v
+            st.session_state["slider_num_q"]       = v
+
+        col1, col2 = st.columns(2)
+        with col1:
+            if eff_avail <= 1:
+                st.markdown(f"**Number of questions:** {eff_avail} *(only {eff_avail} remaining)*")
+                st.session_state["pref_num_questions"] = eff_avail
+            else:
+                clamped = max(1, min(st.session_state.get("pref_num_questions", 10), eff_avail))
+                st.session_state["pref_num_questions"] = clamped
+                st.session_state["slider_num_q"]       = clamped
+                st.session_state["number_input_num_q"] = clamped
+
+                st.slider(
+                    "Number of questions",
+                    min_value=1,
+                    max_value=eff_avail,
+                    step=5 if eff_avail >= 10 else 1,
+                    key="slider_num_q",
+                    on_change=_sync_from_slider,
+                )
+                st.number_input(
+                    "Or type an exact number",
+                    min_value=1,
+                    max_value=eff_avail,
+                    step=1,
+                    key="number_input_num_q",
+                    on_change=_sync_from_input,
+                )
+
+        with col2:
+            new_timer_minutes = st.slider("Duration (minutes)", 1, 60, timer_minutes, disabled=not new_use_timer)
+            st.session_state["cfg_timer_minutes"] = new_timer_minutes
+
+        new_instant = st.checkbox("Show correct answer after each question", value=instant_feedback)
+        st.session_state["cfg_instant_feedback"] = new_instant
+
+        st.markdown(f"*{available_count} questions available (excluding mastered) in **{selected_unit}***")
+
         if mastered_count > 0:
-            if st.button("Reset Mastered"):
+            st.markdown("<div style='height:0.4rem'></div>", unsafe_allow_html=True)
+            if st.button("Reset Mastered", key="reset_mastered_btn", use_container_width=True):
                 st.session_state[mastered_key] = set()
                 st.rerun()
 
