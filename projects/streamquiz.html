@@ -12,7 +12,7 @@
 
     <script id="app-source" type="text/plain">
 
-#11
+#11.2
 
 import streamlit as st
 import json
@@ -138,6 +138,7 @@ def get_rank(pct: float) -> str:
 
 
 def reset_quiz():
+    random.seed()
     """Reset the current quiz run while preserving mastered sets, passphrase, decryption status, num_questions pref, and all settings."""
     preserved = {
         "decryption_ok":        st.session_state.get("decryption_ok", False),
@@ -373,6 +374,7 @@ if not st.session_state.quiz_active:
     st.markdown("---")
 
     if st.button("Start Quiz", use_container_width=True):
+        random.seed()
         available_keys = [k for k in unit_pool if k not in mastered_set]
 
         if randomize:
