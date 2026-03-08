@@ -607,8 +607,9 @@ elif st.session_state.quiz_active:
         prog_col, exit_col = st.columns([8, 1])
         with prog_col:
             suffix = f"&nbsp;&nbsp;{timer_str}" if timer_str else ""
+            score_display = f" &nbsp;&middot;&nbsp; {st.session_state.score} correct" if st.session_state.instant_feedback else ""
             st.markdown(
-                f'<div class="progress-label">Question {idx+1} of {total} &nbsp;&middot;&nbsp; {st.session_state.score} correct{suffix}</div>',
+                f'<div class="progress-label">Question {idx+1} of {total}{score_display}{suffix}</div>',
                 unsafe_allow_html=True,
             )
         with exit_col:
