@@ -12,7 +12,7 @@
 
     <script id="app-source" type="text/plain">
 
-#12
+#12.1
 
 import streamlit as st
 import json
@@ -35,7 +35,18 @@ except ImportError:
 
 # ── CONSTANTS ─────────────────────────────────────────────────────────────────
 
-UNIT_OPTIONS = ["All Question Sets", "Self Study Questions", "Jeopardy Questions", "Footstomped Questions", "Network Topology Questions", "IPv4/IPv6 Questions", "IEEE 802.* Questions", "Layer Specific Questions", "TCP/IP Model Questions","OSI Model Questions"]
+UNIT_OPTIONS = ["All Question Sets",
+    "Jeopardy Questions",
+    "Slide Misc Questions",
+    "AFIN",
+    "Cisco Fundamentals",
+    "Cisco Security",
+    "Layer 2",
+    "Layer 3 / Routing",
+    "Defense / Analysis",
+    "VLANs / Trunking",
+    "Wireless"
+]
 
 UNIT_URLS = {
     "All Question Sets":    "https://nomad1x2.github.io/projects/quiz_sets/networking2/encrypted_all_net_2.json",
