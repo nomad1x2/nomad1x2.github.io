@@ -12,7 +12,7 @@
 
     <script id="app-source" type="text/plain">
 
-#13
+#13.1
 
 import streamlit as st
 import json
@@ -36,6 +36,9 @@ except ImportError:
 # ── CONSTANTS ─────────────────────────────────────────────────────────────────
 
 UNIT_OPTIONS = ["All Question Sets",
+    "General",
+    "Key Terms",
+    "Registry",
     #"Jeopardy Questions",
     #"Slide Misc Questions",
     #"AFIN",
@@ -50,6 +53,9 @@ UNIT_OPTIONS = ["All Question Sets",
 
 UNIT_URLS = {
     "All Question Sets":    "https://nomad1x2.github.io/projects/quiz_sets/windows/encrypted_all_windows.json",
+    "General":    "https://nomad1x2.github.io/projects/quiz_sets/windows/encrypted_windows.json",
+    "Key Terms":    "https://nomad1x2.github.io/projects/quiz_sets/windows/encrypted_key_terms.json",
+    "Registry":    "https://nomad1x2.github.io/projects/quiz_sets/windows/encrypted_registry.json",
     #"Jeopardy Questions":  "https://nomad1x2.github.io/projects/quiz_sets/networking2/encrypted_jeopardy_networking2.json",
     #"Slide Misc Questions":  "https://nomad1x2.github.io/projects/quiz_sets/networking2/encrypted_misc_networking2.json",
     #"AFIN":  "https://nomad1x2.github.io/projects/quiz_sets/networking2/encrypted_afin.json",
@@ -61,7 +67,6 @@ UNIT_URLS = {
     #"VLANs / Trunking":  "https://nomad1x2.github.io/projects/quiz_sets/networking2/encrypted_vlans_trunking.json",
     #"Wireless":  "https://nomad1x2.github.io/projects/quiz_sets/networking2/encrypted_wireless.json",
 }
-
 
 # ── HELPERS ───────────────────────────────────────────────────────────────────
 
