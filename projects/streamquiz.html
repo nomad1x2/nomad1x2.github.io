@@ -12,7 +12,7 @@
 
     <script id="app-source" type="text/plain">
 
-#14
+#14.1
 
 import streamlit as st
 import json
@@ -36,18 +36,10 @@ except ImportError:
 # ── CONSTANTS ─────────────────────────────────────────────────────────────────
 
 UNIT_OPTIONS = ["All Question Sets",
-    "Android",
-    "Boot Process",
-    "Directories",
-    "Directory Paths",
-    "Drivers and Modules",
-    "Filenames and Priveleges",
-    "Important Files",
-    "NIX History and Basics",
-    "Permissions",
-    "Proc Directory",
-    "Shell and Kernel",
-    "System Directories",
+    "NIX*, Shell, and Kernel",
+    "Boot / Drivers",
+    "File System / Proc",
+    "Permissions / Files / Android",
     #"Jeopardy Questions",
     #"Slide Misc Questions",
     #"AFIN",
@@ -61,6 +53,11 @@ UNIT_OPTIONS = ["All Question Sets",
 ]
 
 UNIT_URLS = {
+    "All Question Sets":    "https://nomad1x2.github.io/projects/quiz_sets/linux/encrypted_all_linux.json",
+    "NIX*, Shell, and Kernel":    "https://nomad1x2.github.io/projects/quiz_sets/linux/encrypted_section1_nix_shell_kernel.json",
+    "Boot / Drivers":    "https://nomad1x2.github.io/projects/quiz_sets/linux/encrypted_section2_boot_drivers.json",
+    "File System / Proc":    "https://nomad1x2.github.io/projects/quiz_sets/linux/encrypted_section3_filesystem_proc.json",
+    "Permissions / Files / Android":    "https://nomad1x2.github.io/projects/quiz_sets/linux/encrypted_section4_permissions_files_android.json",
     "All Question Sets":    "https://nomad1x2.github.io/projects/quiz_sets/linux/encrypted_all_linux.json",
     "Android":    "https://nomad1x2.github.io/projects/quiz_sets/linux/encrypted_android.json",
     "Boot Process":    "https://nomad1x2.github.io/projects/quiz_sets/linux/encrypted_boot_process.json",
