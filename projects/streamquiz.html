@@ -12,7 +12,7 @@
 
     <script id="app-source" type="text/plain">
 
-#14.2
+#V2.0.1
 
 import streamlit as st
 import json
@@ -36,44 +36,24 @@ except ImportError:
 # ── CONSTANTS ─────────────────────────────────────────────────────────────────
 
 UNIT_OPTIONS = ["All Question Sets",
-    "NIX*, Shell, and Kernel",
-    "Boot / Drivers",
-    "File System / Proc",
-    "Permissions / Files / Android",
+    "Command and Control",
+    "Defense and Analysis",
+    "Information Networks",
+    "Law and Ethics",
+    "Training and Quals",
+    "Vulnerabilities and Threats",
     "Jeopardy Questions",
-    #"Slide Misc Questions",
-    #"AFIN",
-    #"Cisco Fundamentals",
-    #"Cisco Security",
-    #"Layer 2",
-    #"Layer 3 / Routing",
-    #"Defense / Analysis",
-    #"VLANs / Trunking",
-    #"Wireless"
 ]
 
 UNIT_URLS = {
-    "All Question Sets":    "https://nomad1x2.github.io/projects/quiz_sets/linux/encrypted_all_linux.json",
-    "NIX*, Shell, and Kernel":    "https://nomad1x2.github.io/projects/quiz_sets/linux/encrypted_section1_nix_shell_kernel.json",
-    "Boot / Drivers":    "https://nomad1x2.github.io/projects/quiz_sets/linux/encrypted_section2_boot_drivers.json",
-    "File System / Proc":    "https://nomad1x2.github.io/projects/quiz_sets/linux/encrypted_section3_filesystem_proc.json",
-    "Permissions / Files / Android":    "https://nomad1x2.github.io/projects/quiz_sets/linux/encrypted_section4_permissions_files_android.json",
-    "Jeopardy Questions":    "https://nomad1x2.github.io/projects/quiz_sets/linux/encrypted_section_jeopardy_only.json",
-
-    #"All Question Sets":    "https://nomad1x2.github.io/projects/quiz_sets/windows/encrypted_all_windows.json",
-    #"General":    "https://nomad1x2.github.io/projects/quiz_sets/windows/encrypted_windows.json",
-    #"Key Terms":    "https://nomad1x2.github.io/projects/quiz_sets/windows/encrypted_key_terms.json",
-    #"Registry":    "https://nomad1x2.github.io/projects/quiz_sets/windows/encrypted_registry.json",
-    #"Jeopardy Questions":  "https://nomad1x2.github.io/projects/quiz_sets/networking2/encrypted_jeopardy_networking2.json",
-    #"Slide Misc Questions":  "https://nomad1x2.github.io/projects/quiz_sets/networking2/encrypted_misc_networking2.json",
-    #"AFIN":  "https://nomad1x2.github.io/projects/quiz_sets/networking2/encrypted_afin.json",
-    #"Cisco Fundamentals":  "https://nomad1x2.github.io/projects/quiz_sets/networking2/encrypted_cisco_fundies.json",
-    #"Cisco Security":  "https://nomad1x2.github.io/projects/quiz_sets/networking2/encrypted_cisco_sec.json",
-    #"Layer 2":  "https://nomad1x2.github.io/projects/quiz_sets/networking2/encrypted_layer2.json",
-    #"Layer 3 / Routing":  "https://nomad1x2.github.io/projects/quiz_sets/networking2/encrypted_layer3_routing.json",
-    #"Defense / Analysis":  "https://nomad1x2.github.io/projects/quiz_sets/networking2/encrypted_network_defense.json",
-    #"VLANs / Trunking":  "https://nomad1x2.github.io/projects/quiz_sets/networking2/encrypted_vlans_trunking.json",
-    #"Wireless":  "https://nomad1x2.github.io/projects/quiz_sets/networking2/encrypted_wireless.json",
+    "All Question Sets":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_all.json",
+    "Command and Control":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_command_and_control.json",
+    "Defense and Analysis":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_defense_analysis.json",
+    "Information Networks":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_info_networks.json",
+    "Law and Ethics":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_law_and_ethics.json",
+    "Training and Quals":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_training.json",
+    "Vulnerabilities and Threats":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_vuln_and_threats.json",
+    "Jeopardy Questions":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_jeopardy_questions.json",
 }
 
 
