@@ -12,7 +12,7 @@
 
     <script id="app-source" type="text/plain">
 
-#V2.0.2
+#V7.01
 
 import streamlit as st
 import json
@@ -36,26 +36,20 @@ except ImportError:
 # ── CONSTANTS ─────────────────────────────────────────────────────────────────
 
 UNIT_OPTIONS = ["All Question Sets",
-    "Command and Control",
-    "Defense and Analysis",
-    "Information Networks",
-    "Law and Ethics",
-    "Training and Quals",
-    "Vulnerabilities and Threats",
-    "Jeopardy Questions",
-    "Things I keep getting wrong",
+    "Offensive Cyber Theory",
+    "Offensive Cyber Methodology",
+    "Tactics, Techniques and Procedures",
+    "OWASP Top 10",
+    "ICS/OT Systems",
 ]
 
 UNIT_URLS = {
     "All Question Sets":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_all.json",
-    "Command and Control":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_command_and_control.json",
-    "Defense and Analysis":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_defense_analysis.json",
-    "Information Networks":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_info_networks.json",
-    "Law and Ethics":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_law_and_ethics.json",
-    "Training and Quals":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_training.json",
-    "Vulnerabilities and Threats":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_vuln_and_threats.json",
-    "Jeopardy Questions":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_jeopardy_questions.json",
-    "Things I keep getting wrong":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_wrongo.json",
+    "Offensive Cyber Theory":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_theory.json",
+    "Offensive Cyber Methodology":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_methodology.json",
+    "Tactics, Techniques and Procedures":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_ttps.json",
+    "OWASP Top 10":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_owasp.json",
+    "ICS/OT Systems":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_icsot.json",
 }
 
 
