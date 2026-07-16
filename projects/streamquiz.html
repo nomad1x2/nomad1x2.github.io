@@ -12,7 +12,7 @@
 
     <script id="app-source" type="text/plain">
 
-#V7.2
+#V8
 
 import streamlit as st
 import json
@@ -36,22 +36,30 @@ except ImportError:
 # ── CONSTANTS ─────────────────────────────────────────────────────────────────
 
 UNIT_OPTIONS = ["All Question Sets",
-    "Offensive Cyber Theory",
-    "Offensive Cyber Methodology",
-    "Tactics, Techniques and Procedures",
-    "OWASP Top 10",
-    "Persistence",
-    "ICS/OT Systems",
+    "IEEE 802",
+    "IPv4 / IPv6",
+    "OSI Model",
+    "TCP/IP Model",
+    "Layer Specific",
+    "Network Topology",
+    "Footstomps",
+    "Jeopardy",
+    "Misc 1",
+    "Misc 2",
 ]
 
 UNIT_URLS = {
     "All Question Sets":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_all.json",
-    "Offensive Cyber Theory":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_cyber-foundations.json",
-    "Offensive Cyber Methodology":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_cyber-phases.json",
-    "Tactics, Techniques and Procedures":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_techniques-malware.json",
-    "OWASP Top 10":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_owasp-social.json",
-    "Persistence":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_persistence.json",
-    "ICS/OT Systems":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_ics-ot.json",
+    "IEEE 802":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_ieee_802.json",
+    "IPv4 / IPv6":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_ipv4_ipv6.json",
+    "OSI Model":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_osi_model.json",
+    "TCP/IP Model":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_tcpip_model.json",
+    "Layer Specific":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_layer_specific.json",
+    "Network Topology":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_network_topology.json",
+    "Footstomps":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_network_footstomps.json",
+    "Jeopardy":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_jeopardy_networking1.json",
+    "Misc 1":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_networking1.json",
+    "Misc 2":    "https://nomad1x2.github.io/projects/quiz_sets/encrypted_networking_studyguide_all.json",
 }
 
 
